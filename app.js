@@ -31,7 +31,7 @@ app.use("/api/v1/partner", routeAuthPartner);
 app.use("/api/v1/partner", routePartner);
 
 app.get('/test',(req,res)=>{
-  res.send("<h1>Hello World</h1>")
+  res.send("port: "+  process.env.PORT)
 })
 mongoose
   .connect(process.env.MONGODB_URI)
