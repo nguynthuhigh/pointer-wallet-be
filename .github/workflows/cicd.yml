@@ -17,9 +17,7 @@ jobs:
         with:
           node-version: '18.x'
       - name: npm install, build, and test
-        run: |
-          npm install
-          # Installs dependencies defined in package.json
+        run: npm install
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
