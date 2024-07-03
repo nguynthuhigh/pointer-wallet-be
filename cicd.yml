@@ -4,25 +4,28 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout source
-       uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
 
       - name: npm install, build, and test
-        run: npm install
-      - name: Deploy to Azure App Services
+        run: |
+          npm install
+          # Installs dependencies defined in package.json
+          
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'presspay-api'
-          publish-profile: ${{secrets.AZURE_WEBAPP_PUBLISH_PROFILE}}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
 
-
-          
