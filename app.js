@@ -36,7 +36,7 @@ app.get('/test',(req,res)=>{
 mongoose
   .connect(process.env.MONGODB_URI)
   .then((result) => {
-    return app.listen({ port: 8888 }, () => {
+    return app.listen({ port: process.env.PORT }, () => {
       console.log("Connected MongoDB");
       console.log("http://localhost:" + process.env.PORT);
     });
