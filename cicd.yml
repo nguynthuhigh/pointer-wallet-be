@@ -6,19 +6,18 @@ on:
       - main
 jobs:
   build-and-deploy:
-    runs-on: ubbutu-latest
-
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+       uses: actions/checkout@v4
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
 
       - name: npm install, build, and test
-        run: |
-          npm install
-      - name: Deploy to AAS
+        run: npm install
+      - name: Deploy to Azure App Services
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'presspay-api'
