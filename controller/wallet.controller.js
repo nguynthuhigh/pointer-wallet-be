@@ -47,6 +47,7 @@ module.exports  = {
                     type:'transfer',
                     amount:amount,
                     message:message,
+                    title:null,
                     currency:getCurrency._id,
                     sender:userID,
                     receiver:receiver
