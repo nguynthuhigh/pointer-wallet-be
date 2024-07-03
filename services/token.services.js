@@ -20,14 +20,18 @@ module.exports = {
         }
     },
     verifyToken:(token)=>{
-        return new Promise((resolve,reject)=>{
-            jwt.verify(token, process.env.SERECT_TOKEN, (err, decoded) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(decoded) 
-                }
-            });
-        })
+        try {
+            return new Promise((resolve,reject)=>{
+                jwt.verify(token, process.env.SERECT_TOKEN, (err, decoded) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve(decoded) 
+                    }
+                });
+            })
+         } catch (error) {
+            console.log(error)
+        }
     }
 }
