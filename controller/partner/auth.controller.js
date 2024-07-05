@@ -80,7 +80,7 @@ module.exports = {
                     Response(res,"Đăng nhập thành công",token,200)
                 }
                 else{
-                    Response(res,"Mật khẩu không đúng",null,200)
+                    Response(res,"Mật khẩu không đúng",null,400)
                 }
             }
             else{
