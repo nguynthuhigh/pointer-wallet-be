@@ -25,3 +25,13 @@ Content-Type: application/json
 GET http://localhost:8888/api/v1/partner/dashboard	
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODdkNWNlOWQzMmE3MzUyODUzMTdhMSIsImlhdCI6MTcyMDE3ODEyNn0.npUP4dLsYalexShoNenFsf4RB0IyzI8VRFdqDHzvD90
 Content-Type: application/json
+
+###
+GET http://localhost:8888/api/v1/partner/update-profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODdkNWNlOWQzMmE3MzUyODUzMTdhMSIsImlhdCI6MTcyMDE3ODEyNn0.npUP4dLsYalexShoNenFsf4RB0IyzI8VRFdqDHzvD90
+Content-Type: application/json
+
+{
+	"name": "Nobita",
+	"description":"hahaha"
+}

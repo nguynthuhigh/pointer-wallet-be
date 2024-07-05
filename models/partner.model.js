@@ -2,7 +2,7 @@ const {Schema, model} = require('mongoose')
 
 
 const partnerSchema = new Schema({
-    brandName:{
+    name:{
         type:String,
     },
     description:{
