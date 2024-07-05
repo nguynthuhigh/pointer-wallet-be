@@ -7,10 +7,8 @@ const ROLE = require('../utils/role')
 router.post('/signup',AuthController.signUp)
 router.post('/verify',AuthController.verifyAccount)
 
-router.post('/signin',roleMiddleware.Authenciation(ROLE.PARTNER),AuthController.verifyAccount)
+router.post('/signin',AuthController.signIn)
 
-//partner role
-router.put('accept-partner')
 
 
 module.exports = router;

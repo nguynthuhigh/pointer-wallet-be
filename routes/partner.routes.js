@@ -4,6 +4,6 @@ const roleAuth = require('../middlewares/role.middleware')
 const ROLE = require('../utils/role')
 const controller = require('../controller/partner/partner.controller')
 
-router.get('/get-info',roleAuth.Authenciation(ROLE.PARTNER),controller.getInfo)
+router.get('/dashboard',roleAuth.Authenciation(ROLE.PARTNER),controller.getDashboard)
 
 module.exports = router

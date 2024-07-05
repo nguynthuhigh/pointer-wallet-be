@@ -6,6 +6,7 @@ const bcrypt = require('../../utils/bcrypt')
 const nodemailer = require('../../utils/nodemailer');
 const {Response} = require('../../utils/response')
 const wallet = require('../../services/wallet.services')
+const crypto = require('../../utils/crypto-js')
 module.exports = {
     signUp:async(req,res)=>{
         const {email,password} = req.body
@@ -34,14 +35,15 @@ module.exports = {
             otpSchema=otpArray[otpArray.length-1]
             if(otpSchema){
                 if(OTPservices.verifyOTP(otp,otpSchema.otp)){
+                    const key = crypto.generateKeyPair()
                     //create new user
-                    const data = await Partner.create({email:email,password:otpSchema.password})
+                    const data = await Partner.create({email:email,password:otpSchema.password,publicKey:key.publicKey,privateKey:key.privateKey})
                     //delete all OTP
                     await OTP.deleteMany({email:email})
                     //authorization 
                     const token =await jwt.createToken(data._id)
                     //create wallet
-                    wallet.createWallet(null,data._id)
+                    await wallet.createWallet(null,data._id)
                     Response(res,"Xác thực OTP thành công",token,200)
                 }
                 else{
@@ -53,7 +55,7 @@ module.exports = {
             }
 
        } catch (error) {
-            return res.status(400).json({erorr:error,message:"Mã OTP đã hết hạn vui lòng thử lại"})
+            return res.status(400).json({erorr:error,message:"Không thể xác thực vui lòng thử lại"})
        }
     },
     updateProfile:(req,res)=>{
@@ -66,5 +68,26 @@ module.exports = {
         } catch (error) {
             
         }
-    }
+    },
+   signIn:async(req,res)=>{
+        try {
+            const {email,password} = req.body;
+            const partnerFind = await Partner.findOne({email:email})
+            if(partnerFind){
+                const passwordHash = partnerFind.password;
+                if(bcrypt.bcryptCompare(password,passwordHash)){
+                    const token =await jwt.createToken(partnerFind._id)
+                    Response(res,"Đăng nhập thành công",token,200)
+                }
+                else{
+                    Response(res,"Mật khẩu không đúng",null,200)
+                }
+            }
+            else{
+                res.status(400).json({message:"Tài khoản hoặc mật khẩu không đúng"})
+            }
+        } catch (error) {
+            res.status(400).json({error:error,message:"Tài khoản hoặc mật khẩu không đúng"})
+        }
+   }
 }

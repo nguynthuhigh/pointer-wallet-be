@@ -41,7 +41,7 @@ exports.Authenciation =(role)=>{
                     if(role == ROLE.PARTNER){
                         const partner = await Partner.findById(result.id);
                         if(partner){
-                            req.partner = result.id
+                            req.partner = partner
                             next()
                         }
                     }

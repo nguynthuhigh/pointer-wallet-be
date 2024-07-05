@@ -1,1 +1,27 @@
+POST http://localhost:8888/api/v1/partner/signup	
+Content-Type: application/json
 
+{
+	"email":"tzz98918@doolk.com",
+	"password":"123123123"
+}
+###
+POST http://localhost:8888/api/v1/partner/signin	
+Content-Type: application/json
+
+{
+	"email":"tzz98918@doolk.com",
+	"password":"123123123"
+}
+###
+POST http://localhost:8888/api/v1/partner/verify	
+Content-Type: application/json
+
+{
+	"email":"tzz98918@doolk.com",
+	"otp":"916224"
+}
+###
+GET http://localhost:8888/api/v1/partner/dashboard	
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODdkNWNlOWQzMmE3MzUyODUzMTdhMSIsImlhdCI6MTcyMDE3ODEyNn0.npUP4dLsYalexShoNenFsf4RB0IyzI8VRFdqDHzvD90
+Content-Type: application/json
