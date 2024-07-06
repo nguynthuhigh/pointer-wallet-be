@@ -16,7 +16,7 @@ module.exports = {
     updateInfo:async (req,res)=>{
         try {
             const partner = await Partner.findByIdAndUpdate(req.partner,req.body,{new:true})
-            return Response(res,"Cập nhật thành công",partner,400)
+            return Response(res,"Cập nhật thành công",partner,200)
         } catch (error) {
             return Response(res,error,null,400)
         }
