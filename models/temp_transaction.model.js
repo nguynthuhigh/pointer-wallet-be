@@ -18,42 +18,21 @@ const transactionSchema = new Schema({
         type:String,
         required:true,
     },
-    status:{
-        type:String,
-        required:true,
-        enum:['pending','completed','fail'],
-        default:"pending"
-    },
     currency:{
         type:Schema.Types.ObjectId,
         ref:'Currency',
         required:true, 
-    },
-    sender:{
-        type:Schema.Types.ObjectId,
-        ref:'User',
-        required:true, 
-    },
-    receiver:{
-        type:Schema.Types.ObjectId,
-        ref:'User',
-        required:false,
     },
     partnerID:{
         type:Schema.Types.ObjectId,
         ref:'Partner',
         required:false
     },
-    creditcard:{
-        type:Schema.Types.ObjectId,
-        ref:'CreditCard',
-        required:false
-    }
-   
+    createdAt: { type: Date,default: Date.now, index: {expires: 600 }}
 },{
     timestamps: true 
 })
 
 
-const Transaction= model('Transaction',transactionSchema)
-module.exports = {Transaction}
+const Transaction_Temp= model('Transaction_Temp',transactionSchema)
+module.exports = {Transaction_Temp}

@@ -35,3 +35,40 @@ Content-Type: application/json
 	"name": "Nobita",
 	"description":"hahaha"
 }
+
+###
+POST http://localhost:8888/v1/payment
+Content-Type: application/json
+
+{
+	"privateKey": "pk_presspay_b4f5644160eba6c9b5fe0376a8bcca07c9ca39070edeb6078e5d475bc295a8d3",
+	"currency":"VND",
+	"amount":"12000",
+	"message":"123"
+}
+
+###
+GET http://localhost:8888/api/v1/transaction/get/transactions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODVhNjcwZjY3ZmUyYTBiNzlmOTNlMSIsImlhdCI6MTcyMDIwNTY3OX0.w1M6cEe6BPQkCV-J7B2KFuIMxblDns9e0x1GOIPUdLk
+Content-Type: application/json
+
+###
+POST http://localhost:8888/api/v1/wallet/send-money
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODVhNjcwZjY3ZmUyYTBiNzlmOTNlMSIsImlhdCI6MTcyMDIwNTY3OX0.w1M6cEe6BPQkCV-J7B2KFuIMxblDns9e0x1GOIPUdLk
+Content-Type: application/json
+
+{
+"receiver":"667ec4cd43fb999edadf1691",
+"amount":"12.1",
+"currency":"VND",
+"message":"Em dep lam, lam ny a nha"
+}
+###
+POST http://localhost:8888/api/v1/wallet/send-money/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODVhNjcwZjY3ZmUyYTBiNzlmOTNlMSIsImlhdCI6MTcyMDIwNTY3OX0.w1M6cEe6BPQkCV-J7B2KFuIMxblDns9e0x1GOIPUdLk
+Content-Type: application/json
+
+{
+	"security_code":"123123",
+	"transactionID":"6689970c79322f98424b7646"
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('./partials/head'); %>
+</head>
+<body class="container">
+
+
+<main>
+  <div class="jumbotron">
+    <h1><%= transactionData.partnerID.name %></h1>
+  </div>
+  <h1>Payment Details</h1>
+    <p>Transaction ID: <%= transactionData._id %></p>
+    <p>Amount: <%= transactionData.amount %></p>
+    <p>Status: <%= transactionData.status %></p>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('transactionChange', (change) => {
+            console.log('Transaction change received:', change);
+            if (change.operationType === 'update') {
+                fetch(`/paymentGateway?token=${change.documentKey._id}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        document.body.innerHTML = data;
+                    });
+            }
+        });
+    </script>
+
+</body>
+</html>

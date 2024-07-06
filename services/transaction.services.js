@@ -1,17 +1,18 @@
 const {Transaction} = require('../models/transaction.model')
 module.exports ={
-    createTransaction:(type,amount,message,currency,sender,receiver)=>{
-        Transaction.create({
-            type:'transfer',
+    createTransaction:async(type,amount,message,currency,sender,receiver,partnerID)=>{
+        await Transaction.create({
+            type:type,
             amount:amount,
             message:message,
             currency:currency,
             sender:sender,
-            receiver:receiver
+            receiver:receiver,
+            partnerID: partnerID
         }).then(data=>{
             return data
         }).catch(error=>{
-            return error
+            console.log(error) 
         })
     },
     updateStatusTransaction:async(transactionID,status,session)=>{

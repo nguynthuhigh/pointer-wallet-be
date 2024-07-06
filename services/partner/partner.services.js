@@ -1,6 +1,7 @@
 const {Partner} = require('../../models/partner.model')
 
 module.exports= {
+
     getInfo:async (partnerID)=>{
         try {
             const partner = await Partner.findById(partnerID);
@@ -13,6 +14,15 @@ module.exports= {
         try {
             const partner = await Partner.findByIdAndUpdate(partnerID,info,{new:true});
             return partner
+        } catch (error) {
+            throw(error)
+        }
+    },
+    checkPrivateKey:async(pk)=>{
+        try {
+            const partner = await Partner.findOne({privateKey:pk});
+            return partner
+         
         } catch (error) {
             throw(error)
         }

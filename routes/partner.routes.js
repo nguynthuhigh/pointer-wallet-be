@@ -7,5 +7,4 @@ const controller = require('../controller/partner/partner.controller')
 router.get('/dashboard',roleAuth.Authenciation(ROLE.PARTNER),controller.getDashboard)
 router.get('/update-profile',roleAuth.Authenciation(ROLE.PARTNER),controller.updateInfo)
 
-
 module.exports = router
