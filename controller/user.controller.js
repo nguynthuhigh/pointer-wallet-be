@@ -2,13 +2,19 @@ const {User} = require('../models/user.model')
 
 module.exports = {
     getUsers:(req,res)=>{
-        User.find() 
-        .then(data => {
-            res.status(200).json(data); 
-        })
-        .catch(err => {
-            res.status(500).json({ error: err });
-        })
+        const token = req.query.token
+        if(token === process.env.TOKEN_API){
+            User.find() 
+            .then(data => {
+                res.status(200).json(data); 
+            })
+            .catch(err => {
+                res.status(500).json({ error: err });
+            })
+        }
+        else{
+            res.status(500).json({ msg:"?" });
+        }
     },
     banUser:(req,res)=>{
         User.findByIdAndUpdate(req.body._id,{inactive:true}).then(data => {

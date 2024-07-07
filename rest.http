@@ -72,3 +72,6 @@ Content-Type: application/json
 	"security_code":"123123",
 	"transactionID":"6689970c79322f98424b7646"
 }
+### 
+GET http://localhost:8888/api/v1/user/getusers?token='15827b08afd8fbc6722defd0488f4d941122e694ec275ff63801dc58b19b54ab8e84c14918322b512eccf89ba28453e5538588ca74a18652cec78275fb1d8f68'
+Content-Type: application/json
