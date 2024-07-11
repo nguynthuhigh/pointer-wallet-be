@@ -1,0 +1,12 @@
+GET http://localhost:8888/api/v1/user/profile
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ODVhNjcwZjY3ZmUyYTBiNzlmOTNlMSIsImlhdCI6MTcyMDU5ODM3Nn0.40HSM7u391iQH3Q9lq4DfLvdWcQl162-EA5xXaLXIXQ"
+Content-Type: "application/json"
+
+###
+POST http://localhost:8888/api/v1/user/signin
+Content-Type: "application/json"
+
+{
+    "email":"minhnguyen11a1cmg@gmail.com",
+    "password":"nguyn123"
+}

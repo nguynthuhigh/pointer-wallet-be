@@ -1,6 +1,6 @@
 const { Wallet,Currency } = require('../models/wallet.model');
 const { ethers } = require('ethers');
-
+const {User} = require('../models/user.model')
 module.exports = {
   createWallet: (userID,partnerID) => {
     return new Promise(async(resolve, reject) => {
@@ -10,7 +10,7 @@ module.exports = {
         getCurrency.forEach(getCurrency=>{
             currencies.push({currency:getCurrency._id,balance:0})
         })
-        Wallet.create({
+        const wallet = await Wallet.create({
             address: EVMwallet.address,
             mnemonic: EVMwallet.mnemonic.phrase,
             userID: userID,

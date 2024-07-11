@@ -1,5 +1,7 @@
 const {User} = require('../models/user.model')
-
+const {Wallet} = require('../models/wallet.model')
+const {Response} = require('../utils/response')
+const userServices = require('../services/user.services')
 module.exports = {
     getUsers:(req,res)=>{
         const token = req.query.token
@@ -44,8 +46,16 @@ module.exports = {
         }
     },
     Profile: async (req,res)=>{
-        const id = req.user
-        const userFind = await User.findById(id)
-        res.status(200).json(userFind)
+        try{
+            const id = req.user
+            const data = await userServices.getProfile(id);
+            
+            return Response(res,"Success",data,200)
+        }
+        catch (error){
+            console.log(error)
+            return Response(res,error,'',200)
+
+        }
     }
 }
