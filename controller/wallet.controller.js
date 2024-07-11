@@ -78,7 +78,7 @@ module.exports  = {
             await session.withTransaction(async () => {
                 if(bcrypt.bcryptCompare(security_code,req.security_code) && req.user === sender){
                     await session.abortTransaction();
-                    return Response(res,"Mã bảo mật không đúng vui lòng nhập lại",null,200)
+                    return Response(res,"Mã bảo mật không đúng vui lòng nhập lại",null,400)
                 }
                 await wallet.updateBalance(sender,currency,amount,session)
                 await wallet.updateBalance(receiver,currency,amount,session)
