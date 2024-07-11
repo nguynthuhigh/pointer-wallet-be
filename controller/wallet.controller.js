@@ -42,7 +42,7 @@ module.exports  = {
             if(!getCurrency){
                 Response(res,"currency is invalid",{recommend:"VND,USD,ETH"},400)
             }
-            if(wallet.checkBalance(userID,getCurrency._id,amount)){
+            if(await wallet.checkBalance(userID,getCurrency._id,amount)){
                 Transaction.create({
                     type:'transfer',
                     amount:amount,
@@ -69,18 +69,19 @@ module.exports  = {
         const session = await startSession();
         try {
             const {security_code,transactionID}= req.body;
-
+            console.log(bcrypt.bcryptCompare(security_code,req.security_code))
+            console.log(123)
             const getTransaction = await transaction.getTransaction(transactionID)
             const {sender,receiver,amount,currency,status} = getTransaction
             if(status !== 'pending'){
                 return Response(res,"Transaction is invalid",null,400)
             }
             await session.withTransaction(async () => {
-                if(bcrypt.bcryptCompare(security_code,req.security_code) && req.user === sender){
+                if(!bcrypt.bcryptCompare(security_code,req.security_code)){
                     await session.abortTransaction();
                     return Response(res,"Mã bảo mật không đúng vui lòng nhập lại",null,200)
                 }
-                await wallet.updateBalance(sender,currency,amount,session)
+                await wallet.updateBalance(sender,currency,-amount,session)
                 await wallet.updateBalance(receiver,currency,amount,session)
                 const dataTransaction = await transaction.updateStatusTransaction(getTransaction._id,"completed",session)
                 return Response(res,"Chuyển tiền thành công",dataTransaction,200)

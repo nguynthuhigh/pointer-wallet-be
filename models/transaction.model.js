@@ -4,7 +4,8 @@ const transactionSchema = new Schema({
     type:{
         type:String,
         required:true,
-        enum:['transfer','payment','deposit','withdrawl']
+        enum:['transfer','payment','deposit','withdrawl'],
+        index:true
     },
     amount:{
         type:Number,
@@ -33,11 +34,13 @@ const transactionSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'User',
         required:true, 
+        index:true
     },
     receiver:{
         type:Schema.Types.ObjectId,
         ref:'User',
         required:false,
+        index:true
     },
     partnerID:{
         type:Schema.Types.ObjectId,

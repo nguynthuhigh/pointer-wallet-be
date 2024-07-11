@@ -2,7 +2,7 @@ const { Wallet,Currency } = require('../models/wallet.model');
 const { ethers } = require('ethers');
 const {User} = require('../models/user.model')
 module.exports = {
-  createWallet: (userID,partnerID) => {
+  createWallet: (id,type) => {
     return new Promise(async(resolve, reject) => {
         const EVMwallet = ethers.Wallet.createRandom();
         const getCurrency = await Currency.find();
@@ -10,17 +10,33 @@ module.exports = {
         getCurrency.forEach(getCurrency=>{
             currencies.push({currency:getCurrency._id,balance:0})
         })
-        const wallet = await Wallet.create({
-            address: EVMwallet.address,
-            mnemonic: EVMwallet.mnemonic.phrase,
-            userID: userID,
-            partnerID:partnerID,
-            currencies: currencies
-        }).then(() => {
-            resolve(true);
-        }).catch((err) => {
-            reject(err);
-        });
+        if(type === 'user'){
+            await Wallet.create({
+                address: EVMwallet.address,
+                mnemonic: EVMwallet.mnemonic.phrase,
+                userID: id,
+                currencies: currencies
+            }).then(() => {
+                resolve(true);
+            }).catch((err) => {
+                reject(err);
+            });
+        }
+        else if(type === 'partner'){
+            await Wallet.create({
+                address: EVMwallet.address,
+                mnemonic: EVMwallet.mnemonic.phrase,
+                partnerID: id,
+                currencies: currencies
+            }).then(() => {
+                resolve(true);
+            }).catch((err) => {
+                reject(err);
+            });
+        }
+        else{
+            reject("Invalid")
+        }
     });
   },
   getCurrency:async(currency)=>{
@@ -54,7 +70,7 @@ module.exports = {
     try {
         await Wallet.findOneAndUpdate(
             {userID:userID,'currencies.currency':currencyID},
-            {$inc : {'currencies.$.balance':-amount}},
+            {$inc : {'currencies.$.balance':amount}},
             {session}).then(data=>{return data}).catch(error=>{
                 console.log(error);
                 throw error;

@@ -43,7 +43,7 @@ module.exports = {
                     //authorization 
                     const token =await jwt.createToken(data._id)
                     //create wallet
-                    await wallet.createWallet(null,data._id)
+                    await wallet.createWallet(data._id,"partner")
                     Response(res,"Xác thực OTP thành công",token,200)
                 }
                 else{

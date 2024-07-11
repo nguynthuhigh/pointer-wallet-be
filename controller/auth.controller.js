@@ -46,7 +46,7 @@ module.exports  = {
                     //authorization 
                     const token =await jwt.createToken(user._id)
                     //create wallet
-                    await wallet.createWallet(user._id,null)
+                    await wallet.createWallet(user._id,"user")
                     return res.status(200).json({token:token,message:"Xác thực OTP thành công"})
                 }
                 else{
