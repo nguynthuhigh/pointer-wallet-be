@@ -73,11 +73,9 @@ module.exports = {
             {$inc : {'currencies.$.balance':amount}},
             {session}).then(data=>{return data}).catch(error=>{
                 console.log(error);
-                throw error;
             })
     } catch (error) {
         console.log(error);
-        throw error; 
     }
   }
 };
