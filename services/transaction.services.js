@@ -29,7 +29,7 @@ module.exports ={
     },
     getTransaction:async(transactionID)=>{
         try {
-            const data = await Transaction.findById(transactionID).populate('currency').exec()
+            const data = await Transaction.findById(transactionID).populate('currency sender receiver').exec()
             return data
         } catch (error) {
             console.log(error)

@@ -43,7 +43,7 @@ module.exports  = {
                 Response(res,"currency is invalid",{recommend:"VND,USD,ETH"},400)
             }
             if(await wallet.checkBalance(userID,getCurrency._id,amount)){
-                Transaction.create({
+                const transactionResult = await Transaction.create({
                     type:'transfer',
                     amount:amount,
                     message:message,
@@ -51,11 +51,9 @@ module.exports  = {
                     currency:getCurrency._id,
                     sender:userID,
                     receiver:receiver
-                }).then(data=>{
-                    return Response(res,"Nhập mã bảo mật",data,200)
-                }).catch(error=>{
-                    return Response(res,error,null,400)
                 })
+                return Response(res,"Nhập mã bảo mật",transactionResult,400)
+
             }
             else{
                 return Response(res,"Số dư không đủ",null,400)

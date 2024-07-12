@@ -21,9 +21,8 @@ module.exports = {
             const id = req.user
             const idTransaction = req.params.id
             const transactions=await Transaction.findById(idTransaction)
-                .populate('creditcard sender receiver')
+                .populate('creditcard sender receiver currency')
                 .exec()
-            console.log(transactions.sender)
             Response(res,"Success",transactions,200)
         } catch (error) {
             Response(res,error,null,400)
