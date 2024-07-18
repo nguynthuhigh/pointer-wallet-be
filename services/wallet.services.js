@@ -70,7 +70,7 @@ module.exports = {
     try {
         await Wallet.findOneAndUpdate(
             {userID:userID,'currencies.currency':currencyID},
-            {$inc : {'currencies.$.balance':amount}},
+            {$inc : {'currencies.$.balance':parseInt(amount)}},
             {session}).then(data=>{return data}).catch(error=>{
                 console.log(error);
                 throw error;

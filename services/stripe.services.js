@@ -1,6 +1,4 @@
 const stripe = require('stripe')(process.env.STRIPE_SERECT_KEY)
-
-
 module.exports = {
     depositStripe:async(amount,currency)=>{
         try {
@@ -10,6 +8,7 @@ module.exports = {
                     token:'tok_visa'
                 },
             });
+            console.log(amount)
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount, 
                 currency: currency, 

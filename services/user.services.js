@@ -11,5 +11,13 @@ module.exports = {
             console.log(error)
             throw(error)
         }
+    },
+    getUserByEmail:async(email)=>{
+        try {
+            const userData = await User.findOne({email:email})
+            return userData
+        } catch (error) {
+            console.log(error)
+        }
     }
 }

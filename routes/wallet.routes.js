@@ -9,10 +9,8 @@ const controller = require('../controller/wallet.controller')
 
 //user
 router.post('/send-money',roleAuth.Authenciation(ROLE.USER),controller.sendMoney)
-router.post('/send-money/verify',roleAuth.Authenciation(ROLE.USER),controller.verifyTransaction)
 router.get('/get-wallet',roleAuth.Authenciation(ROLE.USER),controller.getWallet)
 router.post('/deposit-money',roleAuth.Authenciation(ROLE.USER),controller.depositMoney)
-router.post('/deposit-money/verify',roleAuth.Authenciation(ROLE.USER),controller.verifyDepositMoney)
 
 
 

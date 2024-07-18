@@ -57,5 +57,17 @@ module.exports = {
             return Response(res,error,'',200)
 
         }
+    },
+    getUser: async (req,res)=>{
+        try{
+            const email = req.query.email
+            const data = await userServices.getUserByEmail(email);
+            return Response(res,"Success",data,200)
+        }
+        catch (error){
+            console.log(error)
+            return Response(res,error,'',200)
+
+        }
     }
 }

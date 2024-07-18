@@ -11,6 +11,8 @@ router.put('/unban/user',roleAuth.verifyRole(ROLE.ADMIN),controller.unbanUser)
 //user
 router.put('/update-profile',roleAuth.Authenciation(ROLE.USER),controller.updateProfile)
 router.get('/profile',roleAuth.Authenciation(ROLE.USER),controller.Profile)
+router.get('/getuser',controller.getUser)
+
 
 
 module.exports = router

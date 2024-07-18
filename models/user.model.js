@@ -6,7 +6,6 @@ const userSchema = new Schema({
     },
     avatar:{
         type:String,
-        default:""
     },
     email:{
         type:String,
@@ -17,6 +16,7 @@ const userSchema = new Schema({
     },
     password:{
         type:String,
+        required:true,
     },
     security_code:{
         type:String,
