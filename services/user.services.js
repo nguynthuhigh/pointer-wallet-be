@@ -17,6 +17,7 @@ module.exports = {
             const userData = await User.findOne({email:email})
             return userData
         } catch (error) {
+            return null
             console.log(error)
         }
     }

@@ -77,5 +77,17 @@ module.exports = {
     } catch (error) {
         console.log(error);
     }
+  },
+  updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
+    try {
+        await Wallet.findOneAndUpdate(
+            {partnerID:partnerID,'currencies.currency':currencyID},
+            {$inc : {'currencies.$.balance':parseInt(amount)}},
+            {session}).then(data=>{return data}).catch(error=>{
+                console.log(error);
+            })
+    } catch (error) {
+        console.log(error);
+    }
   }
 };

@@ -62,6 +62,9 @@ module.exports = {
         try{
             const email = req.query.email
             const data = await userServices.getUserByEmail(email);
+            if (!data) {
+                return Response(res, "User not found", null, 404);
+            }
             return Response(res,"Success",data,200)
         }
         catch (error){

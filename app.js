@@ -36,7 +36,7 @@ app.use("/api/v1/wallet", routeWallet);
 app.use("/api/v1/transaction", routeTransaction);
 app.use("/api/v1/partner", routeAuthPartner);
 app.use("/api/v1/partner", routePartner);
-app.use("/v1",routePayment)
+app.use("",routePayment)
 
 app.get('/test',(req,res)=>{
   res.send("port: "+  process.env.PORT)

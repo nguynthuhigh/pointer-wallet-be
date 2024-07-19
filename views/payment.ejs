@@ -13,7 +13,7 @@
   <h1>Payment Details</h1>
     <p>Transaction ID: <%= transactionData._id %></p>
     <p>Amount: <%= transactionData.amount %></p>
-    <p>Status: <%= transactionData.status %></p>
+    <p>Status: <%= transactionData.partnerID.name %></p>
 </main>
 <script src="/socket.io/socket.io.js"></script>
     <script>

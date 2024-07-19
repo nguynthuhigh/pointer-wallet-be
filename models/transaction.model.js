@@ -51,7 +51,10 @@ const transactionSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'CreditCard',
         required:false
-    }
+    },
+    userID:{
+        type:String
+    },
    
 },{
     timestamps: true 

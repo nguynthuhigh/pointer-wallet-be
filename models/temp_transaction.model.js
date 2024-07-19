@@ -14,6 +14,10 @@ const transactionSchema = new Schema({
         type:String,
         required:false,
     },
+    sender:{
+        type:Schema.Types.ObjectId,
+        ref:'User',
+    },
     message:{
         type:String,
         required:true,
@@ -28,11 +32,13 @@ const transactionSchema = new Schema({
         ref:'Partner',
         required:false
     },
-    createdAt: { type: Date,default: Date.now, index: {expires: 600 }}
+    completedAt: { type: Date,default:new Date(),index: { expireAfterSeconds: 600 } },
+    userID:{
+        type:String
+    },
 },{
     timestamps: true 
 })
-
 
 const Transaction_Temp= model('Transaction_Temp',transactionSchema)
 module.exports = {Transaction_Temp}
