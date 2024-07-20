@@ -56,7 +56,7 @@ module.exports  = {
                 return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
             }
             
-            const transactionResult = await Transaction.create([{
+            const transactionResult = await Transaction.create({
                 type: 'transfer',
                 amount: amount,
                 message: message,
@@ -65,7 +65,7 @@ module.exports  = {
                 sender: sender,
                 receiver: receiver,
                 status: "completed"
-            }], { session });
+            }, { session });
             
             await wallet.updateBalance(sender, getCurrency._id, -amount, session);
             await wallet.updateBalance(receiver, getCurrency._id, amount, session);
