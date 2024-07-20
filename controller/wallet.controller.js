@@ -65,7 +65,7 @@ module.exports  = {
                 sender: sender,
                 receiver: receiver,
                 status: "completed"
-            }, { session });
+            });
             
             await wallet.updateBalance(sender, getCurrency._id, -amount, session);
             await wallet.updateBalance(receiver, getCurrency._id, amount, session);
