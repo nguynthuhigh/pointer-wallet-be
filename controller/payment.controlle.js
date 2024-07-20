@@ -75,7 +75,7 @@ module.exports ={
             await wallet.updateBalance(sender, getCurrency._id, -transactionDataTemp?.amount, session);
             await wallet.updateBalancePartner(transactionDataTemp?.partnerID, getCurrency._id, transactionDataTemp?.amount, session);
     
-            const transactionData = await Transaction.create([{
+            const transactionData = await Transaction.create({
                 type: transactionDataTemp?.type,
                 amount: transactionDataTemp?.amount,
                 title: "Thanh toán hóa đơn " + transactionDataTemp.partnerID.name,
@@ -85,7 +85,7 @@ module.exports ={
                 status: "completed",
                 partnerID: transactionDataTemp?.partnerID,
                 userID: transactionDataTemp?.userID
-            }], { session });
+            }, { session });
     
             await Transaction_Temp.findByIdAndDelete(transactionID, { session });
             await session.commitTransaction(); 
