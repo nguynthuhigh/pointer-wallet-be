@@ -4,10 +4,28 @@ module.exports = {
     addcard: async (req,res,next)=>{
        try {
         const userID = req.user
-        const {number} = req.body
+        console.log(userID)
+        const {number,name,cvv,expiryMonth,expiryYear} = req.body
+
+        const body = {
+            name:name,
+            number:number,
+            cvv:cvv,
+            expiryMonth:expiryMonth,
+            expiryYear:expiryYear,
+            userID:userID
+        }
+        console.log(body)
         const card = await CreditCard.find({userID:userID,number:number})
         if (card.length === 0){
-            CreditCard.create(req.body).then(data =>{
+            CreditCard.create({
+                name:name,
+                number:number,
+                cvv:cvv,
+                expiryMonth:expiryMonth,
+                expiryYear:expiryYear,
+                userID:userID
+            }).then(data =>{
                 res.json({message:"Success",data:data})
             }).catch(err=>{
                 res.status(400).json({error:err})
@@ -21,7 +39,7 @@ module.exports = {
        }
     },
     getCardS:async(req,res,next)=>{
-        const userID = req.params.id
+        const userID = req.user
        try {
             const card = await CreditCard.find({userID:userID})
             if(card.length != 0){

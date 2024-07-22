@@ -30,16 +30,10 @@ module.exports ={
         try {
             const token = req.query.token
             const transactionData = await Transaction_Temp.findById(token).populate('partnerID').exec()
-            if(!transactionData){
-                return res.render('../views/page-not-found')
-            }
-            else{
-
-            }
-            res.render('../views/payment',{
-                transactionData
-            })
+            return Response(res,"Success",transactionData,200)
         } catch (error) {
+            console.log(error)
+            return Response(res,"Giao dịch không tồn tại",null,400)
             
         }
     },
@@ -100,5 +94,48 @@ module.exports ={
     },    
     testRedirect:(req,res)=>{
         res.redirect("https://www.google.com/")
+    },
+    refundMoney:async(req,res)=>{
+        const session = await mongoose.startSession();
+        session.startTransaction(); 
+        try {
+            const { receiver, amount, message, currency, private_key } = req.body;
+            
+            const getCurrency = await wallet.getCurrency(currency);
+            if (!getCurrency) {
+                await session.abortTransaction(); 
+                return Response(res, "currency is invalid", { recommend: "VND, USD, ETH" }, 400);
+            }
+            const partner = await partnerServices.checkPrivateKey(private_key)
+            if(!partner){
+                return Response(res,"Private key is invalid",{message:"Private key không hợp lệ"},400)
+            }
+            if (!await wallet.checkBalancePartner(partner._id, getCurrency._id, amount)) {
+                await session.abortTransaction(); 
+                return Response(res, "Số dư không đủ", null, 400);
+            }
+            const transactionResult = await Transaction.create({
+                type: 'refund',
+                amount: amount,
+                message: message,
+                title: null,
+                currency: getCurrency._id,
+                partnerID: partner._id,
+                receiver: receiver,
+                status: "completed"
+            });
+  
+            await wallet.updateBalancePartner(partner._id, getCurrency._id, -amount, session);
+            await wallet.updateBalance(receiver, getCurrency._id, amount, session);
+            
+            await session.commitTransaction(); 
+            return Response(res, "Hoàn tiền thành công", transactionResult, 200);
+        } catch (error) {
+            console.log(error);
+            await session.abortTransaction(); 
+            return Response(res, error.message, null, 400);
+        } finally {
+            session.endSession();
+        }
     }
 }

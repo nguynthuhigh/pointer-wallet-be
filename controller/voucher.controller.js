@@ -1,4 +1,4 @@
-const {Promotion,PromotionType} = require('../models/promotion.model')
+const {Promotion,PromotionType} = require('../models/voucher.model')
 
 module.exports = {
     //promotion type

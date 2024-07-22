@@ -63,6 +63,19 @@ module.exports = {
         console.error(error)
     }
   },
+  checkBalancePartner:async(partnerID,currencyID,amount)=>{
+    try {
+        const user_wallet =await Wallet.findOne({partnerID:partnerID})
+        const currencyBalance = user_wallet.currencies.find(item => item.currency.equals(currencyID))
+        if(currencyBalance.balance >= amount){
+            return true
+        }else{
+            return false
+        }
+    } catch (error) {
+        console.error(error)
+    }
+  },
   getBalance:(userID,currency)=>{
 
   },
