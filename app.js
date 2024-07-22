@@ -5,9 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const socketHandle = require('./services/socket.io.services')
 
-app.use(cors({
-  origin: '*'
-}));
+app.use(cors());
 
 
 //ejs
