@@ -69,7 +69,7 @@ module.exports = {
                 cvv: cryptoJS.decrypt(card.cvv),
                 expiryMonth: cryptoJS.decrypt(card.expiryMonth),
                 expiryYear: cryptoJS.decrypt(card.expiryYear),
-                type:type
+                type:card.type
             }
             res.status(200).json({ message: "Success", data: cardDecypt });
         } catch (err) {
