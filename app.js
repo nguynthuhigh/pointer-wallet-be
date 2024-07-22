@@ -6,9 +6,7 @@ const cors = require("cors");
 const socketHandle = require('./services/socket.io.services')
 
 app.use(cors({
-  origin: process.env.PAYMENT_HOST, 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-  allowedHeaders: ['Content-Type', 'Authorization'], 
+  origin: '*'
 }));
 
 
