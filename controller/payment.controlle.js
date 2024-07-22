@@ -6,31 +6,44 @@ const wallet = require('../services/wallet.services')
 const {Transaction} = require('../models/transaction.model')
 const mongoose = require('mongoose')
 const bcrypt = require('../utils/bcrypt')
-
+const cloudinary  = require('../utils/cloudinary')
+const qrcode = require('../utils/qrcode')
+const path = require('path') 
 module.exports ={
-    payment:async(req,res)=>{
+    payment: async (req, res) => {
         try {
-            const {private_key,amount,currency,message,userID} = req.body
-            const partner = await partnerServices.checkPrivateKey(private_key)
-            if(!partner){
-                return Response(res,"Private key is invalid",{message:"Private key không hợp lệ"},400)
+            const { private_key, amount, currency, message, userID } = req.body;
+            const partner = await partnerServices.checkPrivateKey(private_key);
+            if (!partner) {
+                return Response(res, "Private key is invalid", { message: "Private key không hợp lệ" }, 400);
             }
-            console.log(partner)
-            const getCurrency = await wallet.getCurrency(currency)
-            await Transaction_Temp.create({type:"payment",amount:amount,partnerID:partner._id,currency:getCurrency._id,message:message}).then(data=>{
-                res.redirect(process.env.HOST+"/payment-gateway?token"+data._id)
-            })
+            const getCurrency = await wallet.getCurrency(currency);
+            const data = await Transaction_Temp.create({
+                type: "payment",
+                amount: amount,
+                partnerID: partner._id,
+                currency: getCurrency._id,
+                message: message
+            });
+            qrcode.generateQrCode(data._id);
+            cloudinary.uploader.upload('./utils/img/qr_code.png', async (result, err) => {
+                if (err) {
+                    console.log(err);
+                }
+                await Transaction_Temp.findByIdAndUpdate(data._id, { url: result.url }).then(result => {
+                    res.redirect(process.env.HOST + "/payment-gateway?token=" + data._id);
+                });
+            });
         } catch (error) {
-            console.log(error)
-            return Response(res,"Hệ thống đang lỗi, Vui lòng thử lại",error,400)
+            console.log(error);
+            return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 400);
         }
-
     },
     paymentGateway:async(req,res)=>{
         try {
             const token = req.query.token
             const transactionData = await Transaction_Temp.findById(token).populate('partnerID').exec()
-            return Response(res,"Success",transactionData,200)
+            return Response(res,"Successa",transactionData,200)
         } catch (error) {
             console.log(error)
             return Response(res,"Giao dịch không tồn tại",null,400)
@@ -137,5 +150,6 @@ module.exports ={
         } finally {
             session.endSession();
         }
-    }
+    },
+
 }

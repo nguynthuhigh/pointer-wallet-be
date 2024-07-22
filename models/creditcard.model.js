@@ -24,7 +24,11 @@ const creaditCardSchema = new Schema({
         set:cryptoJS.encrypt,
         required: true
     },
-    userID: {type:Schema.Types.ObjectId, ref:'User'}
+    userID: {type:Schema.Types.ObjectId, ref:'User'},
+    type:{
+        type:String,
+        
+    }
 },{
     timestamps: true 
 })

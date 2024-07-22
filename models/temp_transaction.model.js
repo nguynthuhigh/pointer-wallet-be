@@ -36,6 +36,9 @@ const transactionSchema = new Schema({
     userID:{
         type:String
     },
+    url:{
+        type:String
+    }
 },{
     timestamps: true 
 })

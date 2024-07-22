@@ -1,21 +1,14 @@
 const {CreditCard} = require('../models/creditcard.model')
 const cryptoJS = require('../utils/crypto-js')
+const ccType = require('../utils/cctype')
+const {Response} = require('../utils/response')
 module.exports = {
     addcard: async (req,res,next)=>{
        try {
         const userID = req.user
-        console.log(userID)
-        const {number,name,cvv,expiryMonth,expiryYear} = req.body
-
-        const body = {
-            name:name,
-            number:number,
-            cvv:cvv,
-            expiryMonth:expiryMonth,
-            expiryYear:expiryYear,
-            userID:userID
-        }
-        console.log(body)
+        const {number,name,cvv,expiryMonth,expiryYear,type} = req.body
+        const typeCard = ccType.getCardType(number.replace(/\s+/g, ''))
+        if(!typeCard){return Response(res,"Thẻ không hợp lệ",null,400)}
         const card = await CreditCard.find({userID:userID,number:number})
         if (card.length === 0){
             CreditCard.create({
@@ -24,7 +17,8 @@ module.exports = {
                 cvv:cvv,
                 expiryMonth:expiryMonth,
                 expiryYear:expiryYear,
-                userID:userID
+                userID:userID,
+                type:typeCard
             }).then(data =>{
                 res.json({message:"Success",data:data})
             }).catch(err=>{
@@ -81,8 +75,8 @@ module.exports = {
         }
     },
     editCard:async (req,res)=>{
-        const {cardID,name,number,cvv,expires} = req.body
-        await CreditCard.findOneAndUpdate({_id:cardID},{name:name,number:number,cvv:cvv,expires:expires})
+        const {cardID,name,number,cvv,expiryMonth,expiryYear} = req.body
+        await CreditCard.findOneAndUpdate({_id:cardID},{name:name,number:number,cvv:cvv,expiryYear:expiryYear,expiryMonth:expiryMonth})
         .then(data=>{
             res.status(200).json({message:"Success",data})
         }).catch(err=>{
