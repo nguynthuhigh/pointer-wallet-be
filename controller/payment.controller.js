@@ -7,6 +7,9 @@ const mongoose = require('mongoose')
 const bcrypt = require('../utils/bcrypt')
 module.exports ={
     payment: async (req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         try {
             const { private_key, amount, currency, message, userID } = req.body;
             const partner = await partnerServices.checkPrivateKey(private_key);
@@ -21,7 +24,7 @@ module.exports ={
                 currency: getCurrency._id,
                 message: message
             });
-            res.redirect(process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id);
+            Response(res,"Redirect to url",process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id,200);
         } catch (error) {
             console.log(error);
             return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 400);

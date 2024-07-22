@@ -10,6 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "proxy":"*",
   "dependencies": {
     "are-we-there-yet": "^4.0.2",
     "bcryptjs": "^2.4.3",
