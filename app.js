@@ -6,9 +6,7 @@ const cors = require("cors");
 const socketHandle = require('./services/socket.io.services')
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Specify your client origin
-  methods: 'GET, POST, OPTIONS',
-  allowedHeaders: 'Content-Type, Authorization'
+  origin: '*'
 }));
 
 
