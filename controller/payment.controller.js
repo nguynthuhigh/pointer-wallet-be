@@ -24,7 +24,7 @@ module.exports ={
                 currency: getCurrency._id,
                 message: message
             });
-            Response(res,"Redirect to url",process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id,200);
+            res.status(200).json({message:"Redirect to url",url:process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id})
         } catch (error) {
             console.log(error);
             return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 400);
