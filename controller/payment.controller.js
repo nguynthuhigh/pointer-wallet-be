@@ -1,13 +1,10 @@
 const {Response} = require('../utils/response')
 const partnerServices = require('../services/partner/partner.services')
-const transactionServices = require('../services/transaction.services')
 const {Transaction_Temp} = require('../models/temp_transaction.model')
 const wallet = require('../services/wallet.services')
 const {Transaction} = require('../models/transaction.model')
 const mongoose = require('mongoose')
 const bcrypt = require('../utils/bcrypt')
-const cloudinary  = require('../utils/cloudinary')
-const qrcode = require('../utils/qrcode')
 module.exports ={
     payment: async (req, res) => {
         try {
@@ -23,15 +20,6 @@ module.exports ={
                 partnerID: partner._id,
                 currency: getCurrency._id,
                 message: message
-            });
-            qrcode.generateQrCode(data._id);
-            cloudinary.uploader.upload('./utils/img/qr_code.png', async (result, err) => {
-                if (err) {
-                    console.log(err);
-                    return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", err, 400);
-
-                }
-                await Transaction_Temp.findByIdAndUpdate(data._id, { url: result.url })
             });
             res.redirect(process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id);
         } catch (error) {
