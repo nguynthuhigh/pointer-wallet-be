@@ -42,6 +42,7 @@ module.exports = {
                     const decrypt = {
                             _id: element._id,
                             number: element.number,
+                            type:element.type
                         }
                     list_card.push(decrypt)
                 }); 
@@ -67,7 +68,8 @@ module.exports = {
                 number: card.number,
                 cvv: cryptoJS.decrypt(card.cvv),
                 expiryMonth: cryptoJS.decrypt(card.expiryMonth),
-                expiryYear: cryptoJS.decrypt(card.expiryYear)
+                expiryYear: cryptoJS.decrypt(card.expiryYear),
+                type:type
             }
             res.status(200).json({ message: "Success", data: cardDecypt });
         } catch (err) {

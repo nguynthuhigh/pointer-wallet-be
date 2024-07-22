@@ -40,7 +40,8 @@ const transactionSchema = new Schema({
         type:String
     }
 },{
-    timestamps: true 
+    timestamps: true,
+    collection:'transaction_temps'
 })
 
 const Transaction_Temp= model('Transaction_Temp',transactionSchema)

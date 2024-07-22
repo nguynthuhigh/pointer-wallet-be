@@ -8,7 +8,6 @@ const mongoose = require('mongoose')
 const bcrypt = require('../utils/bcrypt')
 const cloudinary  = require('../utils/cloudinary')
 const qrcode = require('../utils/qrcode')
-const path = require('path') 
 module.exports ={
     payment: async (req, res) => {
         try {
@@ -29,11 +28,12 @@ module.exports ={
             cloudinary.uploader.upload('./utils/img/qr_code.png', async (result, err) => {
                 if (err) {
                     console.log(err);
+                    return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", err, 400);
+
                 }
-                await Transaction_Temp.findByIdAndUpdate(data._id, { url: result.url }).then(result => {
-                    res.redirect(process.env.HOST + "/payment-gateway?token=" + data._id);
-                });
+                await Transaction_Temp.findByIdAndUpdate(data._id, { url: result.url })
             });
+            res.redirect(process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id);
         } catch (error) {
             console.log(error);
             return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 400);
@@ -43,7 +43,7 @@ module.exports ={
         try {
             const token = req.query.token
             const transactionData = await Transaction_Temp.findById(token).populate('partnerID').exec()
-            return Response(res,"Successa",transactionData,200)
+            return Response(res,"Success",transactionData,200)
         } catch (error) {
             console.log(error)
             return Response(res,"Giao dịch không tồn tại",null,400)
