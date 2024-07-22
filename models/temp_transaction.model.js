@@ -32,7 +32,7 @@ const transactionSchema = new Schema({
         ref:'Partner',
         required:false
     },
-    completedAt: { type: Date,default:new Date(),index: { expireAfterSeconds: 600 } },
+    createdAt: { type: Date,default: Date.now, index: {expires: 600 }},
     userID:{
         type:String
     },
