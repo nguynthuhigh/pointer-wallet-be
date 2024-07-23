@@ -55,10 +55,7 @@ module.exports ={
                 return Response(res, "Giao dịch không tồn tại", null, 400);
             }
     
-            if (!getCurrency) {
-                await session.abortTransaction(); 
-                return Response(res, "currency is invalid", { recommend: "VND, USD, ETH" }, 400);
-            }
+
     
             if (!await wallet.checkBalance(sender, getCurrency._id, transactionDataTemp?.amount)) {
                 await session.abortTransaction(); 
