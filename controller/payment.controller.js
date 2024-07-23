@@ -33,7 +33,7 @@ module.exports ={
     paymentGateway:async(req,res)=>{
         try {
             const token = req.query.token
-            const transactionData = await Transaction_Temp.findById(token).populate('partnerID').exec()
+            const transactionData = await Transaction_Temp.findById(token).populate('partnerID currency').exec()
             return Response(res,"Success",transactionData,200)
         } catch (error) {
             console.log(error)
