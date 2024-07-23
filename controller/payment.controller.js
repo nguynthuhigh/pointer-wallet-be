@@ -83,7 +83,7 @@ module.exports ={
                 status: "completed",
                 partnerID: transactionDataTemp?.partnerID,
                 userID: transactionDataTemp?.userID
-            }, { session });
+            });
     
             await Transaction_Temp.findByIdAndDelete(transactionID, { session });
             await session.commitTransaction(); 
