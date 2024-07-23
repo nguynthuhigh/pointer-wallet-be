@@ -48,7 +48,7 @@ module.exports ={
             const sender = req.user;
             const { currency, security_code, transactionID } = req.body;
             const getCurrency = await wallet.getCurrency(currency);
-            const transactionDataTemp = await Transaction_Temp.findById(transactionID).populate('partnerID').exec();
+            const transactionDataTemp = await Transaction_Temp.findById(transactionID).populate('partnerID currency').exec();
             
             if (!transactionDataTemp) {
                 await session.abortTransaction(); 
