@@ -52,6 +52,12 @@ const transactionSchema = new Schema({
     userID:{
         type:String
     },
+    return_url:{
+        type:String
+    },
+    orderID:{
+        type:String
+    }
    
 },{
     timestamps: true 

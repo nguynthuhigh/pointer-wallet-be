@@ -3,11 +3,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-
 require('./cron')
-app.use(cors({
-  origin: '*'
-}));
+
+app.use(cors());
 
 
 //ejs

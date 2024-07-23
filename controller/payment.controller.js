@@ -5,24 +5,27 @@ const wallet = require('../services/wallet.services')
 const {Transaction} = require('../models/transaction.model')
 const mongoose = require('mongoose')
 const bcrypt = require('../utils/bcrypt')
+const moment = require('../utils/moment')
 module.exports ={
     payment: async (req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         try {
-            const { private_key, amount, currency, message, userID } = req.body;
+            const { private_key, amount, currency, userID,orderID,return_url } = req.body;
             const partner = await partnerServices.checkPrivateKey(private_key);
             if (!partner) {
                 return Response(res, "Private key is invalid", { message: "Private key không hợp lệ" }, 400);
             }
             const getCurrency = await wallet.getCurrency(currency);
-            const data = await Transaction_Temp.create({
+            if(!getCurrency){
+                return Response(res, "Accept currencies VND, USD, ETH", { message: "" }, 400);
+            }
+            const data = await Transaction.create({
                 type: "payment",
                 amount: amount,
                 partnerID: partner._id,
                 currency: getCurrency._id,
-                message: message
+                orderID: orderID,
+                userID:userID,
+                return_url:return_url
             });
             res.status(200).json({message:"Redirect to url",url:process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id})
         } catch (error) {
@@ -33,7 +36,11 @@ module.exports ={
     paymentGateway:async(req,res)=>{
         try {
             const token = req.query.token
-            const transactionData = await Transaction_Temp.findById(token).populate('partnerID').exec()
+            const transactionData = await Transaction.findById(token).populate('partnerID currency').exec()
+            if(!moment.limitTime(transactionData?.createdAt)){
+                return Response(res,"Giao dịch không tồn tại","",200)
+            }
+            
             return Response(res,"Success",transactionData,200)
         } catch (error) {
             console.log(error)
@@ -46,19 +53,16 @@ module.exports ={
         session.startTransaction(); 
         try {
             const sender = req.user;
-            const { currency, security_code, transactionID } = req.body;
-            const getCurrency = await wallet.getCurrency(currency);
-            const transactionDataTemp = await Transaction_Temp.findById(transactionID).populate('partnerID').exec();
+            const { security_code, transactionID } = req.body;
+            const transactionDataTemp = await Transaction.findById(transactionID).populate('partnerID currency').exec();
+            const getCurrency = transactionDataTemp.currency
             
             if (!transactionDataTemp) {
                 await session.abortTransaction(); 
                 return Response(res, "Giao dịch không tồn tại", null, 400);
             }
     
-            if (!getCurrency) {
-                await session.abortTransaction(); 
-                return Response(res, "currency is invalid", { recommend: "VND, USD, ETH" }, 400);
-            }
+
     
             if (!await wallet.checkBalance(sender, getCurrency._id, transactionDataTemp?.amount)) {
                 await session.abortTransaction(); 
@@ -73,21 +77,9 @@ module.exports ={
             await wallet.updateBalance(sender, getCurrency._id, -transactionDataTemp?.amount, session);
             await wallet.updateBalancePartner(transactionDataTemp?.partnerID, getCurrency._id, transactionDataTemp?.amount, session);
     
-            const transactionData = await Transaction.create({
-                type: transactionDataTemp?.type,
-                amount: transactionDataTemp?.amount,
-                title: "Thanh toán hóa đơn " + transactionDataTemp.partnerID.name,
-                message: "Thanh toán thành công",
-                currency: getCurrency._id,
-                sender: sender,
-                status: "completed",
-                partnerID: transactionDataTemp?.partnerID,
-                userID: transactionDataTemp?.userID
-            }, { session });
-    
-            await Transaction_Temp.findByIdAndDelete(transactionID, { session });
+            const transactionData = await Transaction.findByIdAndUpdate(transactionID,{status:'completed'},{new:true})
             await session.commitTransaction(); 
-            return Response(res, "Thanh toán thành công", transactionData, 200);
+            return Response(res, "Thanh toán thành công",transactionData, 200);
         } catch (error) {
             console.log(error);
             await session.abortTransaction(); 
