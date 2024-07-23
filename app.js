@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const socketHandle = require('./services/socket.io.services')
 
+require('./cron')
 app.use(cors({
   origin: '*'
 }));
