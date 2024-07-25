@@ -3,8 +3,9 @@ const router = express.Router()
 const roleAuth = require('../middlewares/role.middleware')
 const ROLE = require('../utils/role')
 const controller = require('../controller/payment.controller')
+const validate = require('../middlewares/validate.middleware')
 
-router.post('/api/v1/payment',controller.payment)
+router.post('/api/v1/payment',validate.validatePayment,controller.payment)
 router.post('/api/v1/refund',controller.refundMoney)
 
 router.get('/payment-gateway',controller.paymentGateway)
