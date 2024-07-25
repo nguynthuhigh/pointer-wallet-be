@@ -31,7 +31,7 @@ module.exports ={
     },
     getTransaction:async(transactionID)=>{
         try {
-            const data = await Transaction.findById(transactionID).populate('currency sender receiver').exec()
+            const data = await Transaction.findById(transactionID).populate('currency sender receiver partnerID').exec()
             return data
         } catch (error) {
             console.log(error)
@@ -52,6 +52,14 @@ module.exports ={
             return data
         } catch (error) {
             console.log(error)
+        }
+    },
+    getTransactionRefund:async(partnerID,orderID)=>{
+        try{
+            const data = await Transaction.findOne({partnerID:partnerID, orderID:orderID})
+        }
+        catch (error){
+            throw err
         }
     }
     

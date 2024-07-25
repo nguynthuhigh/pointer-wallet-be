@@ -4,7 +4,7 @@ const transactionSchema = new Schema({
     type:{
         type:String,
         required:true,
-        enum:['transfer','payment','deposit','withdrawl','refund'],
+        enum:['transfer','payment','deposit','withdrawl','refund','pay-with-card'],
         index:true
     },
     amount:{
@@ -49,6 +49,11 @@ const transactionSchema = new Schema({
         ref:'CreditCard',
         required:false
     },
+    voucherID:{
+        type:Schema.Types.ObjectId,
+        ref:'Voucher',
+        required:false
+    },
     userID:{
         type:String
     },
@@ -57,6 +62,9 @@ const transactionSchema = new Schema({
     },
     orderID:{
         type:String
+    },
+    card:{
+        
     }
    
 },{

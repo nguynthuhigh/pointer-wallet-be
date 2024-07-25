@@ -75,32 +75,35 @@ module.exports = {
     } catch (error) {
         console.error(error)
     }
-  },
-  getBalance:(userID,currency)=>{
+    },
+    getBalance:(userID,currency)=>{
 
-  },
-  updateBalance:async(userID,currencyID,amount,session)=>{
-    try {
-        await Wallet.findOneAndUpdate(
-            {userID:userID,'currencies.currency':currencyID},
-            {$inc : {'currencies.$.balance':parseInt(amount)}},
-            {session}).then(data=>{return data}).catch(error=>{
-                console.log(error);
-            })
-    } catch (error) {
-        console.log(error);
-    }
-  },
+    },
+    updateBalance: async (userID, currencyID, amount, session) => {
+        try {
+            const result = await Wallet.findOneAndUpdate(
+                { userID: userID, 'currencies.currency': currencyID },
+                { $inc: { 'currencies.$.balance': parseInt(amount) } },
+                { session, new: true } 
+            );
+            return result;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    },
+
   updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
     try {
-        await Wallet.findOneAndUpdate(
-            {partnerID:partnerID,'currencies.currency':currencyID},
-            {$inc : {'currencies.$.balance':parseInt(amount)}},
-            {session}).then(data=>{return data}).catch(error=>{
-                console.log(error);
-            })
+        const result = await Wallet.findOneAndUpdate(
+            { partnerID: partnerID, 'currencies.currency': currencyID },
+            { $inc: { 'currencies.$.balance': parseInt(amount) } },
+            { session, new: true } 
+        );
+        return result;
     } catch (error) {
         console.log(error);
+        throw error;
     }
   }
 };

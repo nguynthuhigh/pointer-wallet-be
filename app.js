@@ -20,6 +20,8 @@ const routeTransaction = require("./routes/transaction.routes");
 const routeAuthPartner = require("./routes/auth.partner.routes");
 const routePartner = require("./routes/partner.routes");
 const routePayment = require("./routes/payment.routes");
+const routeVoucher = require("./routes/voucher.routes");
+
 
 
 
@@ -36,6 +38,8 @@ app.use("/api/v1/wallet", routeWallet);
 app.use("/api/v1/transaction", routeTransaction);
 app.use("/api/v1/partner", routeAuthPartner);
 app.use("/api/v1/partner", routePartner);
+app.use("/api/v1/voucher", routeVoucher);
+
 app.use("",routePayment)
 
 app.get('/test',(req,res)=>{

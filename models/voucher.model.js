@@ -7,6 +7,9 @@ const voucherSchema = new Schema({
     content:{
         type:String,
     },
+    code:{
+        type:String,
+    },
     quantity:{
         type:Number,
     },
@@ -32,18 +35,20 @@ const voucherSchema = new Schema({
         enum:['discount_amount','discount_percent',],
         required:true,
     },
-    condition:{
-        min:{
-            type:Number,
-            required:true
-        },
-        max:{
-            type:Number,
-            required:true
-        },
+    min_condition:{
+        type:Number,
+        required:true
+    },
+    max_condition:{
+        type:Number,
+    },
+    partnerID:{
+        type:Schema.Types.ObjectId,
+        require:true
     }
+    
 },{
     timestamps:true
 })
-const Voucher= model('Promotion',voucherSchema)
+const Voucher= model('Voucher',voucherSchema)
 module.exports = {Voucher}
