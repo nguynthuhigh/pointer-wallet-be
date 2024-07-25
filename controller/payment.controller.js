@@ -42,8 +42,8 @@ module.exports ={
         try {
             const token = req.query.token
             const transactionData = await transactionServices.getTransaction(token)
-            if(!moment.limitTime(transactionData?.createdAt) || (transactionData.status != 'pending')){
-                return Response(res,"Giao dịch không tồn tại","",200)
+            if(!moment.limitTime(transactionData?.createdAt) || (transactionData?.status != 'pending') || !transactionData){
+                return Response(res,"Giao dịch không tồn tại","",400)
             }
             
             return Response(res,"Success",transactionData,200)
