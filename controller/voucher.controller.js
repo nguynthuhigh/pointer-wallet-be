@@ -22,8 +22,8 @@ module.exports = {
         try {
             const {partnerID} = req.query
             const partnerVoucher = await voucherServices.getVouchersOfPartner(partnerID)
-            if(!voucherServices){
-                Response(res,"Partner has no voucher",null,400)
+            if(!partnerVoucher){
+                Response(res,"Partner has no voucher",null,200)
             }
             Response(res,"Success",partnerVoucher,200)
         } catch (error) {
@@ -35,8 +35,8 @@ module.exports = {
         try {
             const {partnerID} = req.partner
             const partnerVoucher = await voucherServices.getVouchersOfPartner(partnerID)
-            if(!voucherServices){
-                Response(res,"Partner has no voucher",null,400)
+            if(!partnerVoucher){
+                Response(res,"Partner has no voucher",null,200)
             }
             Response(res,"Success",partnerVoucher,200)
         } catch (error) {
