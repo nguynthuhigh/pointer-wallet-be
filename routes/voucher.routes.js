@@ -6,9 +6,12 @@ const controller = require('../controller/voucher.controller')
 const validate = require('../middlewares/validate.middleware')
 
 router.post('/add-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.addVoucher)
-router.post('/delete-voucher',validate.validateAddVoucher,controller.addVoucher)
+router.delete('/delete-voucher',roleAuth.Authenciation(ROLE.PARTNER),controller.deleteVoucher)
+router.put('/edit-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.editVoucher)
+
 router.post('/get-vouchers',validate.validateAddVoucher,controller.addVoucher)
 router.get('/get-vouchers-partner',controller.getVouchersPartner)
+
 
 
 

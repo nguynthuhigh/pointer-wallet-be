@@ -12,7 +12,7 @@
   "license": "ISC",
   "proxy": "*",
   "dependencies": {
-    "are-we-there-yet": "^4.0.2",
+    "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cloudinary": "^2.3.0",
@@ -37,12 +37,9 @@
     "nodemon": "^3.1.0",
     "npmlog": "^7.0.1",
     "otp-generator": "^4.0.1",
-    "pino": "^9.3.1",
     "qrcode": "^1.5.3",
-    "rimraf": "^6.0.1",
     "socket.io": "^4.7.5",
     "stripe": "^16.1.0",
-    "winston": "^3.13.1",
     "yup": "^1.4.0"
   }
 }

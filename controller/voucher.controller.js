@@ -3,18 +3,20 @@ const {Response} = require('../utils/response')
 const voucherServices = require('../services/voucher.servcies')
 module.exports = {
     //voucher partner
-    addVoucher : (req,res) =>{
-        const partnerID = req.partner
-        const body = {
-            ...req.body,
-            partnerID: partnerID
+    addVoucher : async (req,res) =>{
+        try {
+            const partnerID = req.partner
+            const body = {
+                ...req.body,
+                partnerID: partnerID
+            }
+            const data = await voucherServices.addVoucher(body)
+            return Response(res,"Success",data,200)
+        } catch (error) {
+            console.log(error)
+            Response(res,"Fail",null,400)
         }
-        Voucher.create(body).then(result => {
-            Response(res,"Success",result,200)
-        })
-        .catch(error => {
-            Response(res,error,null,400)
-        })
+        
     },
     getVouchersPartner:async (req,res)=>{
         try {
@@ -29,5 +31,25 @@ module.exports = {
             Response(res,"Fetch voucher error",null,400)
         }
     },
- 
+    editVoucher:async(req,res)=>{
+        try {
+            const {voucherID} = req.body
+            const data = await voucherServices.editVoucher(voucherID,req.body);
+            return Response(res,"Success",data,200)
+        } catch (error) {
+            console.log(error)
+            Response(res,"Edit voucher error",null,400)
+        }
+
+    },
+    deleteVoucher:async(req,res)=>{
+        try {
+            const {voucherID} = req.body
+            const data = await voucherServices.deleteVoucher(voucherID);
+            return Response(res,"Success",data,200)
+        } catch (error) {
+            console.log(error)
+            Response(res,"Edit voucher error",null,400)
+        }
+    }
 };

@@ -37,6 +37,9 @@ const partnerSchema = new Schema({
     inactive:{
         type:Boolean,
         default:false
+    },
+    webhook:{
+        type:String
     }
 },{
     timestamps: true 

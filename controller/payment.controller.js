@@ -10,6 +10,7 @@ const voucherServices = require('../services/voucher.servcies')
 const transactionServices = require('../services/transaction.services')
 const nodemailer = require('../utils/nodemailer')
 const ccType = require('../utils/cctype')
+const webhookAPI = require('../utils/webhook.call.api')
 module.exports ={
     payment: async (req, res) => {
         try {
@@ -17,6 +18,9 @@ module.exports ={
             const partner = await partnerServices.checkPrivateKey(private_key);
             if (!partner) {
                 return Response(res, "Private key is invalid", { message: "Private key không hợp lệ" }, 401);
+            }
+            if (partner.webhook === undefined) {
+                return Response(res, "Webhooks must be configured before taking action", null, 401);
             }
             const getCurrency = await wallet.getCurrency(currency);
             if(!getCurrency){
@@ -99,8 +103,14 @@ module.exports ={
                 amount: amount,
                 voucherID: getVoucher?._id,
                 sender:req.user
-            }, { new: true });
-    
+            }, { new: true },{session});
+            const response = await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook)
+                                                        .replace('{orderID}',transactionDataTemp.orderID),
+                                                        {status:"completed"})
+            if(response.status !== 200 || response.status === undefined){
+                await session.abortTransaction();
+                return Response(res, "Không thể cập nhật đơn hàng giao dịch thất bại", null, 500);
+            }
             await session.commitTransaction();
             return Response(res, "Thanh toán thành công", transactionData, 200);
         } catch (error) {
@@ -248,8 +258,4 @@ module.exports ={
             session.endSession();
         }
     },
-    webHook:async()=>{
-        
-    }
-
 }

@@ -9,6 +9,7 @@ const voucherSchema = new Schema({
     },
     code:{
         type:String,
+        unique: true
     },
     quantity:{
         type:Number,
