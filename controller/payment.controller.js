@@ -143,10 +143,14 @@ module.exports ={
             if(!transactionData){
                 return Response(res, "Không tìm thấy giao dịch", null, 400);
             }
+            if(transactionData.status != 'completed'){
+                return Response(res, "Giao dịch chưa hoàn tất không thể hoàn tiền", null, 400);
+            }
             if (!await wallet.checkBalancePartner(partner._id, transactionData.currency, transactionData.amount)) {
                 await session.abortTransaction(); 
                 return Response(res, "Số dư không đủ", null, 400);
             }
+            await Transaction.findByIdAndDelete(transactionData._id)
             const transactionResult = await Transaction.create({
                 type: 'refund',
                 amount: transactionData.amount,
