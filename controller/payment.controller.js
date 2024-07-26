@@ -83,7 +83,7 @@ module.exports ={
                 return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
             }
             const getCurrency = transactionDataTemp.currency;
-            if (!wallet.checkBalance(sender, getCurrency._id, amount)) {
+            if (!await wallet.checkBalance(sender, getCurrency._id, amount)) {
                 await session.abortTransaction();
                 return Response(res, "Số dư không đủ", null, 400);
             }
