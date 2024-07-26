@@ -7,6 +7,7 @@ const nodemailer = require('../../utils/nodemailer');
 const {Response} = require('../../utils/response')
 const wallet = require('../../services/wallet.services')
 const crypto = require('../../utils/crypto-js')
+const {OTP_Limit} = require('../../models/otp_limit.model')
 module.exports = {
     signUp:async(req,res)=>{
         const {email,password} = req.body
@@ -90,4 +91,36 @@ module.exports = {
             res.status(400).json({error:error,message:"Tài khoản hoặc mật khẩu không đúng"})
         }
    }
+   ,ResendEmail:async(req,res)=>{
+    try {
+        const {email,password} = req.body
+        const user =await Partner.findOne({email:email})
+        if(!user){
+            try {
+              
+                const count = await OTPservices.countOTP(email)
+                if(count < 3){
+                    const passwordHash = bcrypt.bcryptHash(password)
+                    console.log(passwordHash)
+                    const OTP = await OTPservices.createOTP(email,passwordHash)
+                    console.log(OTP)
+                    await OTP_Limit.create({email:email})
+                    await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
+                    return Response(res,"Check your email","",200)
+                }else{
+                    return Response(res,"Please try again after 1 hour","",400)
+                }
+
+            } catch (error) {
+                res.status(400).json(error)
+            }
+        }
+        else{
+            return res.status(400).json({message:"Your account already exists"})
+        }
+    } catch (error) {
+        console.log(error)
+        Response(res,"Error, please try again","",400)
+    }
+}
 }

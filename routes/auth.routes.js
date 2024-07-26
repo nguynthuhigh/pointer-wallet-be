@@ -11,6 +11,8 @@ router.post('/signin/verify',AuthController.VerifyLogin)
 
 
 router.put('/update-security-code',roleMiddleware.Authenciation(ROLE.USER),AuthController.update_SecurityCode)
+router.post('/resend-email',AuthController.ResendEmail)
+
 
 //partner
 
