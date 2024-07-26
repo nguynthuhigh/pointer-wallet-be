@@ -44,6 +44,8 @@ exports.Authenciation =(role)=>{
                         if(partner){
                             req.partner = partner
                             next()
+                        }else{
+                            return res.status(400).json("fail")
                         }
                     }
                 }

@@ -103,10 +103,9 @@ module.exports ={
                 amount: amount,
                 voucherID: getVoucher?._id,
                 sender:req.user
-            }, { new: true },{session});
-            const response = await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook)
-                                                        .replace('{orderID}',transactionDataTemp.orderID),
-                                                        {status:"completed"})
+            }, { new: true, session});
+            const response = await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook),
+                                                        ({status:"completed",orderID:transactionDataTemp.orderID}))
             if(response.status !== 200 || response.status === undefined){
                 await session.abortTransaction();
                 return Response(res, "Không thể cập nhật đơn hàng giao dịch thất bại", null, 500);
