@@ -2,6 +2,7 @@ const {Response} = require("../utils/response");
 const {User} = require('../models/user.model'); 
 const OTPservices = require('../services/OTP.services')
 const {OTP} = require('../models/otp.model')
+const {OTP_Limit} = require('../models/otp_limit.model')
 const bcrypt = require('../utils/bcrypt');
 const nodemailer = require('../utils/nodemailer')
 const jwt = require('../services/token.services')
@@ -18,7 +19,7 @@ module.exports  = {
                     //create OTP
                     const OTP = await OTPservices.createOTP(email,passwordHash)
                     //send nodemailer
-                    await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Nhập mã pay acc!","Chúng tôi đến từ pressPay!")
+                    await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
                     res.status(200).json({message:"Vui lòng kiểm tra email của bạn",email:email})
     
                 } catch (error) {
@@ -116,5 +117,35 @@ module.exports  = {
             return res.status(400).json({message:"Mã OTP đã hết hạn vui lòng thử lại"})
         }
     },
+    ResendEmail:async(req,res)=>{
+        try {
+            const {email,password} = req.body
+            const user =await User.findOne({email:email})
+            if(!user){
+                try {
+                  
+                    const count = await OTPservices.countOTP(email)
+                    if(count < 3){
+                        const passwordHash = bcrypt.bcryptHash(password)
+                        const OTP = await OTPservices.createOTP(email,passwordHash)
+                        await OTP_Limit.create({email:email})
+                        await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
+                        return Response(res,"Check your email","",200)
+                    }else{
+                        return Response(res,"Please try again after 1 hour","",400)
+                    }
+    
+                } catch (error) {
+                    res.status(400).json(error)
+                }
+            }
+            else{
+                return res.status(400).json({message:"Tài khoản đã tồn tại"})
+            }
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error, please try again","",400)
+        }
+    }
 
 }
