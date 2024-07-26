@@ -31,7 +31,7 @@ module.exports = {
             const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
             const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
             const data= {
-                ...transactionData,
+                transaction:transactionData,
                 page_count:page_count
             }
             return Response(res,"Success",data,200)
