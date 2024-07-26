@@ -3,6 +3,7 @@ const partner = require('../../services/partner/partner.services')
 const {Partner} = require('../../models/partner.model')
 const {Wallet} = require('../../models/wallet.model')
 const transactionServices = require('../../services/transaction.services')
+const { options } = require('../../routes/payment.routes')
 
 module.exports = {
     getDashboard:async(req,res)=>{
@@ -27,8 +28,12 @@ module.exports = {
         try {
             const partnerID = req.partner
             const {page,pagesize} = req.query
-            console.log(page , pagesize)
-            const data = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
+            const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
+            const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
+            const data= {
+                ...transactionData,
+                page_count:page_count
+            }
             return Response(res,"Success",data,200)
         } catch (error) {
             console.log(error)

@@ -46,12 +46,23 @@ module.exports ={
             console.log(error)
         }
     },
-    getTransactionsPartner:async(partnerID,page,pagesize)=>{
+    getTransactionsPartner: async (partnerID, page, pagesize) => {
         try {
-            const data = await Transaction.find({partnerID:partnerID}).skip((page-1)*pagesize).limit(pagesize);
-            return data
+            const data = await Transaction.find({ partnerID: partnerID })
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * pagesize)
+                .limit(pagesize);
+            return data;
         } catch (error) {
-            console.log(error)
+            console.log(error);
+        }
+    },
+    countTransactionsPartner:async(partnerID)=>{
+        try {
+            const data = await Transaction.countDocuments({ partnerID: partnerID })
+            return data;
+        } catch (error) {
+            console.log(error);
         }
     },
     getTransactionRefund:async(partnerID,orderID)=>{

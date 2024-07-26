@@ -44,5 +44,32 @@ module.exports ={
             console.log(error)
             throw error
         }
+    },
+    addVoucher:async(body)=>{
+        try {
+            const data = await Voucher.create(body)
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    },
+    editVoucher: async(voucherID,body)=>{
+        try {
+            const data = await Voucher.findByIdAndUpdate(voucherID,body)
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    },
+    deleteVoucher: async(voucherID)=>{
+        try {
+            const data = await Voucher.findByIdAndDelete(voucherID)
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
     }
 }
