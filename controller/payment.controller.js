@@ -83,7 +83,7 @@ module.exports ={
                 return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
             }
             const getCurrency = transactionDataTemp.currency;
-            if (!wallet.checkBalance(sender, getCurrency._id, amount)) {
+            if (!await wallet.checkBalance(sender, getCurrency._id, amount)) {
                 await session.abortTransaction();
                 return Response(res, "Số dư không đủ", null, 400);
             }
@@ -139,17 +139,18 @@ module.exports ={
                 return Response(res,"Private key is invalid",{message:"Private key không hợp lệ"},400)
             }
             const transactionData = await transactionServices.getTransactionRefund(partner._id,orderID)
-            if(!transactionData){
+            if(!transactionData || transactionData.status != 'completed'){
                 return Response(res, "Không tìm thấy giao dịch", null, 400);
-            }
-            if(transactionData.status != 'completed'){
-                return Response(res, "Giao dịch chưa hoàn tất không thể hoàn tiền", null, 400);
             }
             if (!await wallet.checkBalancePartner(partner._id, transactionData.currency, transactionData.amount)) {
                 await session.abortTransaction(); 
                 return Response(res, "Số dư không đủ", null, 400);
             }
-            await Transaction.findByIdAndDelete(transactionData._id)
+            const updateTransactionResult = await Transaction.findByIdAndUpdate(transactionData._id,{status:"refunded"})
+            if(!updateTransactionResult){
+                await session.abortTransaction();
+                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
+            }
             const transactionResult = await Transaction.create({
                 type: 'refund',
                 amount: transactionData.amount,
@@ -158,12 +159,20 @@ module.exports ={
                 currency: transactionData._id,
                 partnerID: partner._id,
                 receiver: transactionData.sender,
-                status: "completed"
+                status: "refunded",
+                orderID:transactionData.orderID
             });
   
-            await wallet.updateBalancePartner(partner._id, transactionData.currency, -transactionData.amount, session);
-            await wallet.updateBalance(transactionData.sender, transactionData.currency, transactionData.amount, session);
-            
+            const updateBalancePartnerResult = await wallet.updateBalancePartner(partner._id, transactionData.currency, -transactionData.amount, session);
+            if (!updateBalancePartnerResult) {
+                await session.abortTransaction();
+                return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
+            }
+            const updateBalanceResult = await wallet.updateBalance(transactionData.sender, transactionData.currency, transactionData.amount, session);
+            if (!updateBalanceResult) {
+                await session.abortTransaction();
+                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
+            }
             await session.commitTransaction(); 
             return Response(res, "Hoàn tiền thành công", transactionResult, 200);
         } catch (error) {

@@ -67,9 +67,11 @@ module.exports ={
     },
     getTransactionRefund:async(partnerID,orderID)=>{
         try{
-            const data = await Transaction.findOne({partnerID:partnerID, orderID:orderID})
+            const data = await Transaction.findOne({partnerID:partnerID, orderID:orderID}).sort({ createdAt: -1 })
+            return data
         }
         catch (error){
+            console.log(data)
             throw err
         }
     }
