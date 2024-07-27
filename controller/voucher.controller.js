@@ -33,7 +33,7 @@ module.exports = {
     },
     getVouchers:async (req,res)=>{
         try {
-            const {partnerID} = req.partner
+            const partnerID = req.partner
             const partnerVoucher = await voucherServices.getVouchersOfPartner(partnerID)
             if(!partnerVoucher){
                 Response(res,"Partner has no voucher",null,200)
