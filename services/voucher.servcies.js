@@ -71,5 +71,14 @@ module.exports ={
             console.log(error)
             throw error
         }
+    },
+    getDetailsVoucher:async(voucherID)=>{
+        try {
+            const data = await Voucher.findById(voucherID)
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }   
     }
 }

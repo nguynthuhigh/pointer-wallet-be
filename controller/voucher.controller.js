@@ -64,5 +64,15 @@ module.exports = {
             console.log(error)
             Response(res,"Edit voucher error",null,400)
         }
+    },
+    getVoucher:async(req,res)=>{
+        try {
+            const {voucherID} = req.query
+            const data = await voucherServices.getDetailsVoucher(voucherID);
+            return Response(res,"Success",data,200)
+        } catch (error) {
+             console.log(error)
+            Response(res,"Get voucher error",null,400)
+        }
     }
 };
