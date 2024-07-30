@@ -30,7 +30,7 @@ module.exports ={
         if (type === "discount_amount") {
             result = amount - discountValue;
             if(result < 0){
-                result = 0
+                return result = 0
             }
         } else if (type === "discount_percent") {
             result = amount - (amount * (discountValue / 100));
