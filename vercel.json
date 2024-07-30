@@ -17,7 +17,6 @@
       }
     ],
     "env": {
-      "URI": "mongodb+srv://thanhlong:TTTravelDB@atlascluster.ra3ur9s.mongodb.net/dbTravel",
       "MONGODB_URI": "mongodb+srv://minhnguyen11a1cmg:PCEIvzbN1LIvTJbO@cluster0.bt643dm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
         "PORT": "8888",
         "SERECT_TOKEN": "15827b08afd8fbc6722defd0488f4d941122e694ec275ff63801dc58b19b54ab8e84c14918322b512eccf89ba28453e5538588ca74a18652cec78275fb1d8f68",

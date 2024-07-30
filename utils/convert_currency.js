@@ -1,4 +1,4 @@
-export const convertCurrency = (amount, currency) => {
+const convertCurrency = (amount, currency) => {
     if (currency === "VND") return amount;
     if (currency === "USD") return (amount * 25200);
     if (currency === "ETH") return (amount * 25000 * 3500);
@@ -6,4 +6,4 @@ export const convertCurrency = (amount, currency) => {
   const convert = {
     convertCurrency,
   };
-  export default convert;
+module.exports =  convert;
