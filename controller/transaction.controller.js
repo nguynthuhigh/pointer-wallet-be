@@ -10,8 +10,12 @@ module.exports = {
     getTransactions:async(req,res)=>{
         try {
             const id = req.user
-            const transactions=await Transaction.find({$or:[{receiver:id},{sender:id}]})
-            return Response(res,"Success",transactions,200)
+            const transactions=await Transaction.find({$or:[{receiver:id},{sender:id}]}).populate('sender receiver currency')
+            const data ={
+                id:id,
+                transactions
+            }
+            return Response(res,"Success",data,200)
         } catch (error) {
             return Response(res,error,null,400)
         }

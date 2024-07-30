@@ -31,6 +31,7 @@ module.exports ={
                 amount: amount,
                 partnerID: partner._id,
                 currency: getCurrency._id,
+                title:"Thanh toán hóa đơn " + partner.name, 
                 orderID: orderID,
                 userID:userID,
                 return_url:return_url,
