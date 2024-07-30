@@ -1,0 +1,34 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "server.js",
+        "use": "@vercel/node",
+        "config": {
+          "maxDuration": 30,
+          "memory": 1024
+        }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/server.js"
+      }
+    ],
+    "env": {
+      "URI": "mongodb+srv://thanhlong:TTTravelDB@atlascluster.ra3ur9s.mongodb.net/dbTravel",
+      "MONGODB_URI": "mongodb+srv://minhnguyen11a1cmg:PCEIvzbN1LIvTJbO@cluster0.bt643dm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+        "PORT": "8888",
+        "SERECT_TOKEN": "15827b08afd8fbc6722defd0488f4d941122e694ec275ff63801dc58b19b54ab8e84c14918322b512eccf89ba28453e5538588ca74a18652cec78275fb1d8f68",
+        "CRYPTO_SERECT_KEY": "tdjMrAwtJA62krBOWzgZRj/lxXkYXkHkwww94RtnUSaUddBeqxEBJNf05Z5LNdHBK3J3l6IxHcZq5gIZJXh579ZzY1g7xtGrPridx9y01xUxBzwI+GRnFxfn4RT/Qb+g9HSM8yLBmsGDBnxd8qyXM9uvIo5inNJOTSc90hBVH8x05U9KM+d09UCKZkASlVr4mFzajd4XS53NsBKIV1YHxF0eNRFSYDGxLBcJhrTlNDNNK6kGqh1yYNoR5Y18Do8AUugWoCZQJ/taZjH6LFKGYCN4doJM0d/8ke3bF18AuqgjexZLuRtIKtNeUynz0FV9Hx32DjqwYiJfLjTc1HC9wA==",
+        "MAIL_USERNAME" : "presspay.mail@gmail.com",
+        "MAIL_PASSWORD" : "utoi pyzp lcip mslm",
+        "STRIPE_SERECT_KEY": "sk_test_51PSZ03LKR5ThcvnY7HtQTVUXqQPHfwPGX5IWfxV36NkLd0pCyDKRyfCGRz1M5PZp3OoFWeLK3rVRSG0V6f5wbWpU00NW7Bc3hr",
+        "PAYMENT_HOST" : "http://localhost:3000",
+        "TOKEN_API" : "15827b08afd8fbc6722defd0488f4d941122e694ec275ff63801dc58b19b54ab8e84c14918322b512eccf89ba28453e5538588ca74a18652cec78275fb1d8f68",
+        "CLOUD_NAME" : "ds0cz9t6b",
+        "CLOUD_API_KEY" : "343174643682814",
+        "CLOUD_API_SECRET": "6xz9zzEA1JPavk-fsZhgrrNvMaU"
+    }
+  }
