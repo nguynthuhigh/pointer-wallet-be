@@ -46,6 +46,9 @@ module.exports ={
         try {
             const token = req.query.token
             const transactionData = await transactionServices.getTransaction(token)
+            if(transactionData.status === 'completed'){
+                return Response(res,"Redirect to url",(transactionData.return_url).replace('{orderID}',transactionData.orderID),201)
+            }
             if(!moment.limitTime(transactionData?.createdAt) || (transactionData?.status != 'pending') || !transactionData){
                 return Response(res,"Giao dịch không tồn tại","",400)
             }
