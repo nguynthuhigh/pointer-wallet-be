@@ -7,7 +7,7 @@ const {Response} = require('../utils/response')
 const bcrypt = require('../utils/bcrypt')
 const stripe = require('../services/stripe.services')
 const {CreditCard} = require('../models/creditcard.model')
-const { get } = require('../routes/wallet.routes')
+const convert = require('../utils/convert_currency')
 module.exports  = {
     //admin
     getCurrency:async(req,res)=>{
@@ -86,6 +86,9 @@ module.exports  = {
             const sender = req.user
             const {currency,amount,cardID,security_code} = req.body
             const card = await CreditCard.findById(cardID)
+            if( convert(amount,currency)> 20000000 || convert(amount,currency) < 10000){
+                return Response(res,{message:"Số tiền nạp tối đa là 20.000.000 và tối thiều là 10000",card:"null"},null,400)
+            }
             if(!card){
                 await session.abortTransaction()
                 return Response(res,{message:"Vui lòng thêm thẻ",card:"null"},null,400)
