@@ -206,7 +206,7 @@ module.exports ={
                 return Response(res, `Không thể áp dụng voucher. Đơn hàng tối thiểu ${voucher.min_condition} và tối đa ${voucher.max_condition}`, null, 400);
             }
             const resultApply = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity);
-            if(!resultApply){
+            if(resultApply === false){
                 return Response(res, "Không thể áp dụng voucher do số lượng đã hết", null, 400);
             }
             return Response(res, "Áp dụng voucher thành công", resultApply, 200);
