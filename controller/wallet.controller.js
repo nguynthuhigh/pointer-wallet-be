@@ -97,10 +97,10 @@ module.exports  = {
                 await session.abortTransaction(); 
                 return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
             }
-            const paymentIntent =await stripe.depositStripe(amount*100,currency)
-            if(paymentIntent.status !== 'succeeded'){
-                return Response(res,"Nạp tiền thất bại",null,400)
-            }
+            // const paymentIntent =await stripe.depositStripe(amount*100,currency)
+            // if(paymentIntent.status !== 'succeeded'){
+            //     return Response(res,"Nạp tiền thất bại",null,400)
+            // }
             const getCurrency = await wallet.getCurrency(currency)
             await wallet.updateBalance(sender,getCurrency._id,amount,session)
             const number = card.number.substring(card.number.length-4,card.number.length-1)
