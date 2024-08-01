@@ -1,8 +1,9 @@
-
-POST http://localhost:8888/api/v1/user/signup
+POST http://localhost:8888/api/v1/confirm-payment
 Content-Type: "application/json"
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OWU2NTdkZjkxOTMyNjJmYjcxMGI2MSIsImlhdCI6MTcyMTY1NjcwMX0.pyb1IAcAAMFHgCZPwOAFv6SKHgyP19rNhVWV-wspWrA
 
 {
-    "email":"minhnguyen11a2cmg@gmail.com",
-    "password":"nguyn123"
+    "transactionID": "66ab7c4ca9c0293a08b089f4",
+    "security_code": "111111",
+    "voucher_code": "VOUCHER"
 }

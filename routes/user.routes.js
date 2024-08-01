@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const roleAuth = require('../middlewares/role.middleware')
 const ROLE = require('../utils/role')
-const controller = require('../controller/user.controller')
+const controller = require('../controllers/user.controller')
 
 
 router.get('/getusers',controller.getUsers)

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const creditcard = require('../controller/creditcard.controller')
+const creditcard = require('../controllers/creditcard.controller')
 const authUser = require('../middlewares/role.middleware')
 const ROLE = require('../utils/role')
 router.post('/addcard',authUser.Authenciation(ROLE.USER),creditcard.addcard)

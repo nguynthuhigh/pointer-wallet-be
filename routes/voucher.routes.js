@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const roleAuth = require('../middlewares/role.middleware')
 const ROLE = require('../utils/role')
-const controller = require('../controller/voucher.controller')
+const controller = require('../controllers/voucher.controller')
 const validate = require('../middlewares/validate.middleware')
 
 router.post('/add-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.addVoucher)

@@ -13,6 +13,7 @@ const voucherSchema = new Schema({
     },
     quantity:{
         type:Number,
+        min:0
     },
     usedCount:{
         type:Number,

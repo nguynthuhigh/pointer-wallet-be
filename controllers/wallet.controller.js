@@ -47,7 +47,7 @@ module.exports  = {
                 return Response(res, "currency is invalid", { recommend: "VND, USD, ETH" }, 400);
             }
             
-            if (!await wallet.checkBalance(sender, getCurrency._id, amount)) {
+            if (!await wallet.hasSufficientBalance(sender, getCurrency._id, amount)) {
                 await session.abortTransaction(); 
                 return Response(res, "Số dư không đủ", null, 400);
             }
@@ -66,9 +66,16 @@ module.exports  = {
                 receiver: receiver,
                 status: "completed"
             });
-            await wallet.updateBalance(sender, getCurrency._id, -amount, session);
-            await wallet.updateBalance(receiver, getCurrency._id, amount, session);
-            
+            const resultUpdatedSender = await wallet.updateBalance(sender, getCurrency._id, -amount, session);
+            if(resultUpdatedSender.modifiedCount === 0){
+                await session.abortTransaction(); 
+                return Response(res, "Chuyển tiền thất bại vui lòng thử lại", null, 400);
+            } 
+            const resultUpdatedReceiver = await wallet.updateBalance(receiver, getCurrency._id, amount, session);
+            if(resultUpdatedReceiver.modifiedCount === 0){
+                await session.abortTransaction(); 
+                return Response(res, "Chuyển tiền thất bại vui lòng thử lại", null, 400);
+            } 
             await session.commitTransaction(); 
             return Response(res, "Chuyển tiền thành công", transactionResult, 200);
         } catch (error) {

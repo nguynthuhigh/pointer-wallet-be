@@ -1,4 +1,4 @@
-const controller = require('../controller/role.controller')
+const controller = require('../controllers/role.controller')
 const express = require('express')
 const router = express.Router()
 const roleAuth = require('../middlewares/role.middleware')

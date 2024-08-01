@@ -1,4 +1,4 @@
-const controller = require('../controller/transaction.controller')
+const controller = require('../controllers/transaction.controller')
 const express = require('express')
 const router = express.Router()
 const roleAuth = require('../middlewares/role.middleware')

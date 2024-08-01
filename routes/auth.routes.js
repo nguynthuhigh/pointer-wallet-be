@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const AuthController = require('../controller/auth.controller')
+const AuthController = require('../controllers/auth.controller')
 const roleMiddleware = require("../middlewares/role.middleware")
 const validateMiddleware = require('../middlewares/validate.middleware')
 const ROLE = require('../utils/role')

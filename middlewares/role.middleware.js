@@ -36,8 +36,9 @@ exports.Authenciation =(role)=>{
                             req.user = result.id
                             req.security_code = user.security_code
                             next()
+                        }else{
+                            return res.status(401).json({ message: 'Unauthorized' })
                         }
-                       
                     }
                     if(role == ROLE.PARTNER){
                         const partner = await Partner.findById(result.id);
@@ -45,15 +46,15 @@ exports.Authenciation =(role)=>{
                             req.partner = partner
                             next()
                         }else{
-                            return res.status(400).json("fail")
+                            return res.status(401).json({ message: 'Unauthorized' })
                         }
                     }
                 }
                 else{
-                    return res.status(404).json({message:"Page not found"})
+                    return res.status(401).json({ message: 'Unauthorized' })
                 }
         }catch(error){
-            return res.status(404).json({message:"Page not found"})
+            return res.status(401).json({ message: 'Unauthorized' })
         }
       
     }

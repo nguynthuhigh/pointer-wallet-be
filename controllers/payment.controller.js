@@ -61,51 +61,53 @@ module.exports ={
             
         }
     },
+    //[POST] /api/v1/wallet/send-money
     confirmPayment: async (req, res) => {
         const session = await mongoose.startSession();
         session.startTransaction();
         try {
             const sender = req.user;
             const { security_code, transactionID, voucher_code } = req.body;
-            const transactionDataTemp = await Transaction.findById(transactionID).populate('partnerID currency').exec();
+            const transactionDataTemp = await transactionServices.getTransaction(transactionID)
             if (!transactionDataTemp || (transactionDataTemp.status !== 'pending')) {
                 await session.abortTransaction();
                 return Response(res, "Giao dịch không tồn tại", null, 400);
-            }
-            let amount = transactionDataTemp.amount;
-            const getVoucher = await voucherServices.getVoucherByCode(voucher_code);
-            if(getVoucher !== false){
-                const result_apply = voucherServices.applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
-                if (result_apply === false) {
-                    await session.abortTransaction();
-                    return Response(res, "Số lượng voucher đã hết vui lòng thử lại!", null, 400);
-                }
-                amount = result_apply
             }
             if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
                 await session.abortTransaction();
                 return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
             }
+            let amount = transactionDataTemp.amount;
             const getCurrency = transactionDataTemp.currency;
-            if (!await wallet.checkBalance(sender, getCurrency._id, amount)) {
+            if (!await wallet.hasSufficientBalance(sender, getCurrency._id, amount)) {
                 await session.abortTransaction();
                 return Response(res, "Số dư không đủ", null, 400);
             }
+            let voucherID = null
+            if(voucher_code !== undefined){
+                const resultApply = await voucherServices.applyVoucherPayment(transactionDataTemp,session,voucher_code)
+                if(resultApply.status === false){
+                    return Response(res,resultApply.message, null, 500);
+                }
+                else{
+                    amount = resultApply.amount
+                    voucherID = resultApply.voucherID
+                }
+            }
             const updateBalanceResult = await wallet.updateBalance(sender, getCurrency._id, -amount, session);
-            if (!updateBalanceResult) {
+            if (updateBalanceResult.modifiedCount === 0) {
                 await session.abortTransaction();
                 return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
             }
             const updateBalancePartnerResult = await wallet.updateBalancePartner(transactionDataTemp.partnerID, getCurrency._id, amount, session);
-            if (!updateBalancePartnerResult) {
+            if (updateBalancePartnerResult.modifiedCount === 0) {
                 await session.abortTransaction();
                 return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
             }
-            await voucherServices.updateQuantityVoucher(getVoucher._id,session)
             const transactionData = await Transaction.findByIdAndUpdate(transactionID, {
                 status: 'completed',
                 amount: amount,
-                voucherID: getVoucher?._id,
+                voucherID: voucherID,
                 sender:req.user
             }, { new: true, session});
             const response = await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook),
@@ -124,7 +126,6 @@ module.exports ={
             session.endSession();
         }
     },
-    
     testRedirect:async(req,res)=>{
         await Transaction_Temp.create({
             type: "payment",
@@ -150,8 +151,8 @@ module.exports ={
                 await session.abortTransaction(); 
                 return Response(res, "Số dư không đủ", null, 400);
             }
-            const updateTransactionResult = await Transaction.findByIdAndUpdate(transactionData._id,{status:"refunded"})
-            if(!updateTransactionResult){
+            const updateTransactionResult = await Transaction.updateOne(transactionData._id,{status:"refunded"},{session})
+            if(updateTransactionResult.modifiedCount === 0){
                 await session.abortTransaction();
                 return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
             }
@@ -165,15 +166,15 @@ module.exports ={
                 receiver: transactionData.sender,
                 status: "refunded",
                 orderID:transactionData.orderID
-            });
+            },{session});
   
             const updateBalancePartnerResult = await wallet.updateBalancePartner(partner._id, transactionData.currency, -transactionData.amount, session);
-            if (!updateBalancePartnerResult) {
+            if (updateBalancePartnerResult.modifiedCount === 0) {
                 await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
+                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
             }
             const updateBalanceResult = await wallet.updateBalance(transactionData.sender, transactionData.currency, transactionData.amount, session);
-            if (!updateBalanceResult) {
+            if (!updateBalanceResult.modifiedCount === 0) {
                 await session.abortTransaction();
                 return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
             }

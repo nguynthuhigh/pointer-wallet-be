@@ -50,7 +50,8 @@ const walletSchema = new Schema({
         balance:{
             type:Number,
             default:0,
-            required:true
+            required:true,
+            min: [0,"Invalid"]
         },
         currency:{
             type:Schema.Types.ObjectId,
