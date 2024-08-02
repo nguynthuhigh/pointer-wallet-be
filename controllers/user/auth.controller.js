@@ -1,13 +1,13 @@
-const {Response} = require("../utils/response");    
-const {User} = require('../models/user.model'); 
-const OTPservices = require('../services/OTP.services')
-const {OTP} = require('../models/otp.model')
-const {OTP_Limit} = require('../models/otp_limit.model')
-const bcrypt = require('../utils/bcrypt');
-const nodemailer = require('../utils/nodemailer')
-const jwt = require('../services/token.services')
-const generateWallet = require('../services/wallet.services')
-const wallet = require('../services/wallet.services')
+const {Response} = require("../../utils/response");    
+const {User} = require('../../models/user.model'); 
+const OTPservices = require('../../services/OTP.services')
+const {OTP} = require('../../models/otp.model')
+const {OTP_Limit} = require('../../models/otp_limit.model')
+const bcrypt = require('../../utils/bcrypt');
+const nodemailer = require('../../utils/nodemailer')
+const jwt = require('../../services/token.services')
+const generateWallet = require('../../services/wallet.services')
+const wallet = require('../../services/wallet.services')
 module.exports  = {
     Register:async (req,res)=>{
         try {

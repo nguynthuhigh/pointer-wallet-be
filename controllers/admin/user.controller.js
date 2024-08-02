@@ -1,7 +1,7 @@
-const {User} = require('../models/user.model')
-const {Wallet} = require('../models/wallet.model')
-const {Response} = require('../utils/response')
-const userServices = require('../services/user.services')
+const {User} = require('../../models/user.model')
+const {Wallet} = require('../../models/wallet.model')
+const {Response} = require('../../utils/response')
+const userServices = require('../../services/user.services')
 module.exports = {
     getUsers:(req,res)=>{
         const token = req.query.token

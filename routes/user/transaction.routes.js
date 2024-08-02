@@ -1,8 +1,8 @@
-const controller = require('../controllers/transaction.controller')
+const controller = require('../../controllers/user/transaction.controller')
 const express = require('express')
 const router = express.Router()
-const roleAuth = require('../middlewares/role.middleware')
-const ROLE = require('../utils/role')
+const roleAuth = require('../../middlewares/role.middleware')
+const ROLE = require('../../utils/role')
 
 router.post('/post/transaction-type',roleAuth.verifyRole(ROLE.ADMIN),controller.createTransactionType)
 router.get('/get/transactions',roleAuth.Authenciation(ROLE.USER),controller.getTransactions)

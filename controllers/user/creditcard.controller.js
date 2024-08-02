@@ -1,7 +1,7 @@
-const {CreditCard} = require('../models/creditcard.model')
-const cryptoJS = require('../utils/crypto-js')
-const ccType = require('../utils/cctype')
-const {Response} = require('../utils/response')
+const {CreditCard} = require('../../models/creditcard.model')
+const cryptoJS = require('../../utils/crypto-js')
+const ccType = require('../../utils/cctype')
+const {Response} = require('../../utils/response')
 module.exports = {
     addcard: async (req,res,next)=>{
        try {

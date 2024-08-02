@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const roleAuth = require('../middlewares/role.middleware')
-const ROLE = require('../utils/role')
-const controller = require('../controllers/user.controller')
+const roleAuth = require('../../middlewares/role.middleware')
+const ROLE = require('../../utils/role')
+const controller = require('../../controllers/admin/user.controller')
 
 
 router.get('/getusers',controller.getUsers)

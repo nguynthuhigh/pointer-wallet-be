@@ -1,7 +1,7 @@
 const {startSession} = require('mongoose')
-const {TransactionType,Transaction} = require('../models/transaction.model')
-const {Wallet,WalletType} = require('../models/wallet.model')
-const {Response}=require('../utils/response')
+const {TransactionType,Transaction} = require('../../models/transaction.model')
+const {Wallet,WalletType} = require('../../models/wallet.model')
+const {Response}=require('../../utils/response')
 module.exports = {
     createTransactionType:async(req,res)=>{
 

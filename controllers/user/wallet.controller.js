@@ -1,13 +1,13 @@
-const {Transaction} = require('../models/transaction.model')
-const {Currency} = require('../models/wallet.model')
+const {Transaction} = require('../../models/transaction.model')
+const {Currency} = require('../../models/wallet.model')
 const mongoose = require('mongoose')
-const wallet = require('../services/wallet.services')
-const transaction = require('../services/transaction.services')
-const {Response} = require('../utils/response')
-const bcrypt = require('../utils/bcrypt')
-const stripe = require('../services/stripe.services')
-const {CreditCard} = require('../models/creditcard.model')
-const convert = require('../utils/convert_currency')
+const wallet = require('../../services/wallet.services')
+const transaction = require('../../services/transaction.services')
+const {Response} = require('../../utils/response')
+const bcrypt = require('../../utils/bcrypt')
+const stripe = require('../../services/stripe.services')
+const {CreditCard} = require('../../models/creditcard.model')
+const convert = require('../../utils/convert_currency')
 module.exports  = {
     //admin
     getCurrency:async(req,res)=>{

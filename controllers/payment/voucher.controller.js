@@ -1,6 +1,6 @@
-const {Voucher} = require('../models/voucher.model')
-const {Response} = require('../utils/response')
-const voucherServices = require('../services/voucher.servcies')
+const {Voucher} = require('../../models/voucher.model')
+const {Response} = require('../../utils/response')
+const voucherServices = require('../../services/voucher.servcies')
 module.exports = {
     //voucher partner
     addVoucher : async (req,res) =>{

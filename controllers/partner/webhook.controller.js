@@ -1,5 +1,5 @@
-const webhookServices = require('../services/webhook.services')
-const {Response} = require('../utils/response')
+const webhookServices = require('../../services/webhook.services')
+const {Response} = require('../../utils/response')
 module.exports = {
     addWebhookEndpoint:async(req,res)=>{
         try {

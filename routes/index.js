@@ -1,19 +1,17 @@
-const routerAuth = require("./auth.routes");
-const routeRole = require("./role.routes");
-const routeCredit = require("./creditcard.routes");
-const routeUser = require("./user.routes");
-const routeWallet = require("./wallet.routes");
-const routeTransaction = require("./transaction.routes");
-const routeAuthPartner = require("./auth.partner.routes");
-const routePartner = require("./partner.routes");
-const routePayment = require("./payment.routes");
-const routeVoucher = require("./voucher.routes");
-const routeWebhook = require("./webhook.routes")
+const routerAuth = require("./user/auth.routes");
+const routeCredit = require("./user/creditcard.routes");
+const routeUser = require("./admin/user.routes");
+const routeWallet = require("./user/wallet.routes");
+const routeTransaction = require("./user/transaction.routes");
+const routeAuthPartner = require("./partner/auth.partner.routes");
+const routePartner = require("./partner/partner.routes");
+const routePayment = require("./payment/payment.routes");
+const routeVoucher = require("./payment/voucher.routes");
+const routeWebhook = require("./partner/webhook.routes")
 
 
 module.exports = (app)=>{
     app.use("/api/v1/user", routerAuth);
-    app.use("/api/v1/role", routeRole);
     app.use("/api/v1/card", routeCredit);
     app.use("/api/v1/user", routeUser);
     app.use("/api/v1/wallet", routeWallet);

@@ -3,7 +3,6 @@ const partner = require('../../services/partner/partner.services')
 const {Partner} = require('../../models/partner.model')
 const {Wallet} = require('../../models/wallet.model')
 const transactionServices = require('../../services/transaction.services')
-const { options } = require('../../routes/payment.routes')
 
 module.exports = {
     getDashboard:async(req,res)=>{
