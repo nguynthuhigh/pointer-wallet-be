@@ -1,7 +1,8 @@
 const {User} = require('../../models/user.model')
-const {Wallet} = require('../../models/wallet.model')
 const {Response} = require('../../utils/response')
 const userServices = require('../../services/user.services')
+const {getRedisClient} = require('../../configs/redis/redis')
+
 module.exports = {
     getUsers:(req,res)=>{
         const token = req.query.token
@@ -46,11 +47,32 @@ module.exports = {
         }
     },
     Profile: async (req,res)=>{
+        const redis = getRedisClient();
         try{
             const id = req.user
-            const data = await userServices.getProfile(id);
-            
-            return Response(res,"Success",data,200)
+            const user = req.user_info
+            const userKey = `user:${id}`
+            const userData = await redis.hgetall(userKey)
+            if (Object.keys(userData).length === 0) {
+                const wallet = await userServices.getProfile(id)
+                const data = {
+                    userData: user,
+                    walletData:wallet
+                }
+                await redis.hset(userKey, {
+                    userData: JSON.stringify(user),
+                    walletData: JSON.stringify(wallet),
+                });
+                await redis.expire(userKey, 600);
+                return Response(res,"Success",data,200)
+            } 
+            if (userData) {
+                const userInfo = JSON.parse(userData.userData)
+                const walletInfo = JSON.parse(userData.walletData)
+                const data = { userData: userInfo, walletData: walletInfo }
+                return Response(res, 'Success', data, 200)
+              }
+            return Response(res,"Success",userData,200)
         }
         catch (error){
             console.log(error)
@@ -58,6 +80,23 @@ module.exports = {
 
         }
     },
+    // Profile: async (req,res)=>{
+    //     try{
+    //         const id = req.user
+    //         const user = req.user_info
+    //         const wallet = await userServices.getProfile(id);
+    //         const data = {
+    //             userData: user,
+    //             walletData:wallet
+    //         }
+    //         return Response(res,"Success",data,200)
+    //     }
+    //     catch (error){
+    //         console.log(error)
+    //         return Response(res,error,'',200)
+
+    //     }
+    // },
     getUser: async (req,res)=>{
         try{
             const email = req.query.email

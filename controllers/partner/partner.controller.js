@@ -1,19 +1,35 @@
 const {Response} = require('../../utils/response')
 const partner = require('../../services/partner/partner.services')
 const {Partner} = require('../../models/partner.model')
-const {Wallet} = require('../../models/wallet.model')
 const transactionServices = require('../../services/transaction.services')
-
+const {getRedisClient} = require('../../configs/redis/redis')
+const walletServices = require('../../services/wallet.services')
 module.exports = {
-    getDashboard:async(req,res)=>{
-        try {
-            const wallet =await Wallet.findOne({partnerID:req.partner._id}).populate('currencies.currency').exec()
-            const data = {partner:req.partner,wallet}
-            return Response(res,"Success",data,200)   
-
-        } catch (error) {
-           console.log(error) 
+   getDashboard: async (req, res) => {
+      const redis = getRedisClient();
+      try {
+        const partnerKey = `partner:${req.partner._id}`
+        const partnerData = await redis.hgetall(partnerKey)
+        if (Object.keys(partnerData).length === 0) {
+          const wallet = await walletServices.getPartnerWallet(req.partner._id)
+          const data = { partner: req.partner, wallet }
+          await redis.hset(partnerKey, {
+            partnerInfo: JSON.stringify(req.partner),
+            walletInfo: JSON.stringify(wallet),
+          });
+          await redis.expire(partnerKey, 600);
+          return Response(res, 'Success', data, 200)
+        } 
+        if (partnerData) {
+          const partnerInfo = JSON.parse(partnerData.partnerInfo)
+          const walletInfo = JSON.parse(partnerData.walletInfo)
+          const data = { partner: partnerInfo, wallet: walletInfo }
+          return Response(res, 'Success', data, 200)
         }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
     },
     updateInfo:async (req,res)=>{
         try {

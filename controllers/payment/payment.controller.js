@@ -47,13 +47,14 @@ module.exports ={
         try {
             const token = req.query.token
             const transactionData = await transactionServices.getTransaction(token)
+            const timeLimit = moment.limitTime(transactionData.createdAt)
+            if(timeLimit < 0 || (transactionData?.status != 'pending') || !transactionData){
+                await Transaction.deleteOne({_id:transactionData._id})
+                return Response(res,"Giao dịch không tồn tại","",400)
+            }
             if(transactionData.status === 'completed'){
                 return Response(res,"Redirect to url",(transactionData.return_url).replace('{orderID}',transactionData.orderID),201)
             }
-            if(!moment.limitTime(transactionData?.createdAt) || (transactionData?.status != 'pending') || !transactionData){
-                return Response(res,"Giao dịch không tồn tại","",400)
-            }
-            
             return Response(res,"Success",transactionData,200)
         } catch (error) {
             console.log(error)
@@ -61,7 +62,7 @@ module.exports ={
             
         }
     },
-    //[POST] /api/v1/wallet/send-money
+    //[POST] /api/v1/confirm-payment
     confirmPayment: async (req, res) => {
         const session = await mongoose.startSession();
         session.startTransaction();

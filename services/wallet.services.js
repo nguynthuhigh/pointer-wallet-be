@@ -1,6 +1,7 @@
 const { Wallet,Currency } = require('../models/wallet.model');
 const { ethers } = require('ethers');
 const {User} = require('../models/user.model')
+const {getRedisClient} = require('../configs/redis/redis')
 module.exports = {
     createWallet: (id,type) => {
         return new Promise(async(resolve, reject) => {
@@ -80,6 +81,8 @@ module.exports = {
 
     },
     updateBalance: async (userID, currencyID, amount, session) => {
+        const redis = getRedisClient()
+        await redis.del(`user:${userID}`)
         try {
             const result = await Wallet.updateOne(
                 { userID: userID, 'currencies.currency': currencyID },
@@ -93,17 +96,27 @@ module.exports = {
         }
     },
 
-  updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
-    try {
-        const result = await Wallet.updateOne(
-            { partnerID: partnerID, 'currencies.currency': currencyID },
-            { $inc: { 'currencies.$.balance': parseInt(amount) } },
-            { session, new: true } 
-        );
-        return result;
-    } catch (error) {
-        console.log(error);
-        throw error;
+    updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
+        try {
+            const redis = getRedisClient()
+            await redis.del(`partner:${partnerID._id}`)
+            const result = await Wallet.updateOne(
+                { partnerID: partnerID._id, 'currencies.currency': currencyID },
+                { $inc: { 'currencies.$.balance': parseInt(amount) } },
+                { session, new: true } 
+            );
+            return result;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    },
+    getPartnerWallet: async(partnerID)=>{
+        try {
+            return await Wallet.findOne({ partnerID:partnerID },'currencies')
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
-  }
 };

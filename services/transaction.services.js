@@ -1,6 +1,7 @@
 const {Transaction} = require('../models/transaction.model')
 const {Transaction_Temp} = require('../models/temp_transaction.model')
-
+const {getRedisClient} = require('../configs/redis/redis')
+const moment = require('../utils/moment')
 module.exports ={
     createTransaction:async(type,amount,message,currency,sender,receiver,partnerID)=>{
         await Transaction.create({
@@ -30,9 +31,20 @@ module.exports ={
 
     },
     getTransaction:async(transactionID)=>{
+        const redis = getRedisClient()
         try {
-            const data = await Transaction.findById(transactionID).populate('currency sender receiver partnerID').exec()
-            return data
+            const transactionData = await redis.hgetall(`transaction:${transactionID}`)
+            if (Object.keys(transactionData).length === 0) {
+                const data = await Transaction.findById(transactionID).populate('currency sender receiver partnerID').exec()
+                const timeLimit = moment.limitTime(data.createdAt)
+                await redis.hset(`transaction:${transactionID}`,{data:JSON.stringify(data)});
+                await redis.expire(`transaction:${transactionID}`, timeLimit);
+                return data
+            }
+            if (transactionData) {
+                const data = JSON.parse(transactionData.data)
+                return data
+              }
         } catch (error) {
             console.log(error)
         }

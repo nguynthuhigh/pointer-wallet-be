@@ -31,17 +31,18 @@ exports.Authenciation =(role)=>{
                 if(token){
                     const result = await tokenAuth.verifyToken(token);
                     if(role == ROLE.USER){
-                        const user = await User.findById(result.id);
+                        const user = await User.findById(result.id,'email inactive security_code full_name');
                         if(user){
                             req.user = result.id
                             req.security_code = user.security_code
+                            req.user_info = user
                             next()
                         }else{
                             return res.status(401).json({ message: 'Unauthorized' })
                         }
                     }
                     if(role == ROLE.PARTNER){
-                        const partner = await Partner.findById(result.id);
+                        const partner = await Partner.findById(result.id,'image email privateKey description name webhook');
                         if(partner){
                             req.partner = partner
                             next()

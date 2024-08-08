@@ -1,6 +1,6 @@
-const {Voucher} = require('../../models/voucher.model')
 const {Response} = require('../../utils/response')
 const voucherServices = require('../../services/voucher.servcies')
+const redisClient = require('../../configs/redis/redis');
 module.exports = {
     //voucher partner
     addVoucher : async (req,res) =>{
@@ -38,7 +38,7 @@ module.exports = {
             if(!partnerVoucher){
                 Response(res,"Partner has no voucher",null,200)
             }
-            Response(res,"Success",partnerVoucher,200)
+            return Response(res,"Success",partnerVoucher,200)
         } catch (error) {
             console.log(error)
             Response(res,"Fetch voucher error",null,400)

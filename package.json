@@ -8,7 +8,7 @@
     "start": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "nguynthuhigh",
   "license": "ISC",
   "proxy": "*",
   "dependencies": {
@@ -27,6 +27,7 @@
     "gauge": "^5.0.2",
     "glob": "^11.0.0",
     "inflight": "^1.0.6",
+    "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.5.45",
     "mongodb": "^6.6.1",
@@ -38,6 +39,7 @@
     "npmlog": "^7.0.1",
     "otp-generator": "^4.0.1",
     "qrcode": "^1.5.3",
+    "redis": "^4.7.0",
     "socket.io": "^4.7.5",
     "stripe": "^16.1.0",
     "yup": "^1.4.0"
