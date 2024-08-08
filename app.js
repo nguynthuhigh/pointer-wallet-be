@@ -1,6 +1,5 @@
 require("dotenv").config();
 require('./cron')
-
 const express = require("express");
 const app = express();
 const {connectMongoDB} = require('./configs/mongodb/mongodb')
@@ -18,6 +17,7 @@ require('./routes/index')(app)
 connectMongoDB()
 //Connect to Redis
 connectRedis()
+
 app.listen({ port: process.env.PORT }, () => {
   console.log("http://localhost:" + process.env.PORT);
 });

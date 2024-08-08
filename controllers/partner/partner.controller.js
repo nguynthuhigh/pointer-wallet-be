@@ -4,6 +4,7 @@ const {Partner} = require('../../models/partner.model')
 const transactionServices = require('../../services/transaction.services')
 const {getRedisClient} = require('../../configs/redis/redis')
 const walletServices = require('../../services/wallet.services')
+const cloudinary = require('../../configs/cloudinary/cloudinary')
 module.exports = {
    getDashboard: async (req, res) => {
       const redis = getRedisClient();
@@ -32,9 +33,22 @@ module.exports = {
       }
     },
     updateInfo:async (req,res)=>{
+        const redis = getRedisClient()
         try {
-            const partner = await Partner.findByIdAndUpdate(req.partner,req.body,{new:true})
-            return Response(res,"Cập nhật thành công",partner,200)
+            cloudinary.uploader.upload(req.file.path,async(result,err)=>{
+                if(err){
+                  console.log(err)
+                  return Response(res,"Cập nhật ảnh thất bại",null,200)
+                }
+                const data = {
+                  name:req.name,
+                  description: req.description,
+                  image:result.url
+                }
+                const partner = await Partner.findByIdAndUpdate(req.partner,data,{new:true})
+                redis.del(`partner:${req.partner._id}`)
+                return Response(res,"Cập nhật thành công",partner,200)
+            })
         } catch (error) {
             return Response(res,error,null,400)
         }
