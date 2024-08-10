@@ -1,39 +1,47 @@
 const {User} = require('../../models/user.model')
 const {Response} = require('../../utils/response')
 const userServices = require('../../services/user.services')
+const userManagementServices = require('../../services/admin/user_management.services')
 const {getRedisClient} = require('../../configs/redis/redis')
 const cloudinary = require('../../configs/cloudinary/cloudinary')
 module.exports = {
-    getUsers:(req,res)=>{
-        const token = req.query.token
-        if(token === process.env.TOKEN_API){
-            User.find() 
-            .then(data => {
-                res.status(200).json(data); 
-            })
-            .catch(err => {
-                res.status(500).json({ error: err });
-            })
-        }
-        else{
-            res.status(500).json({ msg:"?" });
+    //admin
+    getUsers:async(req,res)=>{
+        try {
+            const {page,page_limit}= req.query
+            const data = await userManagementServices.getUsers(page,page_limit)
+            Response(res,"Success",data,200)
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error System",null,500)
         }
     },
-    banUser:(req,res)=>{
-        User.findByIdAndUpdate(req.body._id,{inactive:true}).then(data => {
-            res.status(200).json({message:"Success",data}); 
-        })
-        .catch(err => {
-            res.status(500).json({ error: err });
-        })
+    banUser:async(req,res)=>{
+        try {
+            const {id} = req.body
+            const data = await userManagementServices.banUser(id)
+            if(data.modifiedCount === 0){
+                return Response(res,"Fail, try again",null,400)
+            }
+            if(data.active === true){
+                return Response(res,"User successfully unbanned",null,200)
+            }else{
+                return Response(res,"User successfully banned",null,200)
+            }
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error System",null,500)
+        }
     },
-    unbanUser:(req,res)=>{
-        User.findByIdAndUpdate(req.body._id,{inactive:false}).then(data => {
-            res.status(200).json({message:"Success",data}); 
-        })
-        .catch(err => {
-            res.status(500).json({ error: err });
-        })
+    getTransactionsUser :async(req,res)=>{
+        try {
+            const {id,page,page_limit} = req.query
+            const data = await userManagementServices.getTransactionsUser(id,page,page_limit)
+            return Response(res,"Success",data,200)
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error System",null,500)
+        }
     },
     //user
     updateProfile: async(req,res)=>{

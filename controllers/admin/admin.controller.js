@@ -3,6 +3,7 @@ const bcrypt = require('../../utils/bcrypt')
 const {Response} = require('../../utils/response')
 const tokenServices = require('../../services/token.services')
 module.exports = {
+    //[POST] /api/v1/admin/add-admin
     createAccount:async(req,res)=>{
         try {
             const {email,password,role} = req.body
@@ -21,6 +22,7 @@ module.exports = {
             return Response(res,"System error",null,500)
         }
     },
+    //[POST] /api/v1/admin/sign-in
     signIn:async(req,res)=>{
         try {
             const {email,password} = req.body
@@ -38,6 +40,7 @@ module.exports = {
             return Response(res,"System error",null,500)
         }
     },
+    //[GET] /api/v1/admin/get-all-admins
     getAllAdmins:async(req,res)=>{
         try {
             const data = await adminServices.getAllAdmins()
@@ -46,8 +49,8 @@ module.exports = {
             console.log(error)
             return Response(res,"System error",null,500)
         }
-    }
-    ,
+    },
+    //[PATCH] /api/v1/admin/ban-admin
     banAdmin:async(req,res)=>{
         try {
             const {id} = req.body
@@ -58,7 +61,9 @@ module.exports = {
             if(data.active === true){
                 return Response(res,"Member successfully unbanned",null,200)
             }
-            return Response(res,"Member successfully banned",null,200)
+            else{
+                return Response(res,"Member successfully banned",null,200)
+            }
         } catch (error) {
             console.log(error)
             return Response(res,"System error",null,500)
