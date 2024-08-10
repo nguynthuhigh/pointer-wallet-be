@@ -14,6 +14,7 @@ module.exports ={
             return bcrypt.compareSync(key, hash);
         } catch (error) {
             console.log(error)
+            throw(error)
         }
         
     }

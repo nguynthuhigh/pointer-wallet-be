@@ -1,26 +1,32 @@
 const tokenAuth = require('../services/token.services')
 const { User } = require('../models/user.model');
 const {Partner} = require('../models/partner.model')
+const {Admin} = require('../models/admin.model')
 const ROLE = require('../utils/role')
-exports.verifyRole = (role)=>{
+const {Response} = require('../utils/response')
+exports.Authentication_Admin = (role)=>{
     return async  (req, res, next) => {
         const token = req.headers.authorization?.slice(7);
         if(token){
             try {
                 const result = await tokenAuth.verifyToken(token);
-                const user = await User.findById(result.id);
-                if (user && user.role === role) {
-                    req.user = result.id;
+                const admin = await Admin.findById(result.id);
+                if(admin.active === false){
+                    return Response(res,"Mày bị ban!",null,401)
+                }
+                if(admin && (role.includes(admin.role) || ROLE.ADMIN.includes(admin.role))){
+                    req.admin = admin
                     return next();
                 } else {
-                    return res.status(400).json({ message: "Không đủ quyền truy cập" });
+                    return Response(res,"Unauthorized",null,401)
                 }
             } catch (err) {
-                return res.status(400).json({ error: err.message });
+               return Response(res,"Error System",null,500)
+
             }
         }
         else{
-            return res.status(404).json({message:"Page not found"})
+            return Response(res,"Unauthorized",null,401)
         }
     };
 }
@@ -31,14 +37,14 @@ exports.Authenciation =(role)=>{
                 if(token){
                     const result = await tokenAuth.verifyToken(token);
                     if(role == ROLE.USER){
-                        const user = await User.findById(result.id,'email inactive security_code full_name');
+                        const user = await User.findById(result.id,'email inactive security_code full_name avatar');
                         if(user){
                             req.user = result.id
                             req.security_code = user.security_code
                             req.user_info = user
                             next()
                         }else{
-                            return res.status(401).json({ message: 'Unauthorized' })
+                            return Response(res,"Unauthorized",null,401)
                         }
                     }
                     if(role == ROLE.PARTNER){
@@ -47,15 +53,15 @@ exports.Authenciation =(role)=>{
                             req.partner = partner
                             next()
                         }else{
-                            return res.status(401).json({ message: 'Unauthorized' })
+                            return Response(res,"Unauthorized",null,401)
                         }
                     }
                 }
                 else{
-                    return res.status(401).json({ message: 'Unauthorized' })
+                    return Response(res,"Unauthorized",null,401)
                 }
         }catch(error){
-            return res.status(401).json({ message: 'Unauthorized' })
+            return Response(res,"Unauthorized",null,401)
         }
       
     }

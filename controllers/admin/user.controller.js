@@ -2,7 +2,7 @@ const {User} = require('../../models/user.model')
 const {Response} = require('../../utils/response')
 const userServices = require('../../services/user.services')
 const {getRedisClient} = require('../../configs/redis/redis')
-
+const cloudinary = require('../../configs/cloudinary/cloudinary')
 module.exports = {
     getUsers:(req,res)=>{
         const token = req.query.token
@@ -39,11 +39,22 @@ module.exports = {
     updateProfile: async(req,res)=>{
         try {
             const id = req.user
-            await User.findByIdAndUpdate(id,req.body,{new:true}).then(result =>{
-                res.status(200).json({message:"Cập nhật thông tin thành công",data:result})
+            cloudinary.uploader.upload(req.file.path,async(result,err)=>{
+                if(err){
+                  console.log(err)
+                  return Response(res,"Cập nhật ảnh thất bại",null,200)
+                }
+                const data={
+                    full_name:req.full_name,
+                    avatar:result.url
+                }
+                console.log(data)
+                await User.updateOne({_id:id},data,{new:true})
+                Response(res,"Cập nhật thông tin thành công",null,400)
             })
         } catch (error) {
-            res.status(400).json({error:error,message:"Cập nhật thông tin thất bại"})
+            console.log(error)
+            Response(res,"Cập nhật thông tin thất bại vui lòng thử lại",null,500) 
         }
     },
     Profile: async (req,res)=>{

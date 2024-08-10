@@ -82,7 +82,7 @@ module.exports = {
     },
     updateBalance: async (userID, currencyID, amount, session) => {
         const redis = getRedisClient()
-        await redis.del(`user:${userID}`)
+        const rs = await redis.del(`user:${userID}`)
         try {
             const result = await Wallet.updateOne(
                 { userID: userID, 'currencies.currency': currencyID },
@@ -95,7 +95,6 @@ module.exports = {
             throw error;
         }
     },
-
     updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
         try {
             const redis = getRedisClient()
