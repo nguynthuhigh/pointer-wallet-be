@@ -9,7 +9,7 @@ const routePayment = require("./payment/payment.routes");
 const routeVoucher = require("./payment/voucher.routes");
 const routeWebhook = require("./partner/webhook.routes")
 const routeAdmin = require("./admin/admin.routes")
-
+const routePartnerManagement = require('./admin/partner_management.routes')
 module.exports = (app)=>{
     app.use("/api/v1/user", routerAuth);
     app.use("/api/v1/card", routeCredit);
@@ -21,6 +21,7 @@ module.exports = (app)=>{
     app.use("/api/v1/voucher", routeVoucher);
     app.use("/api/v1/webhook",routeWebhook)
     app.use("/api/v1/admin",routeAdmin)
+    app.use("/api/v1/partner-management",routePartnerManagement)
     app.use("",routePayment)
     app.get('/test',(req,res)=>{
         res.status(200).json({message:"Hello-world"})
