@@ -2,6 +2,7 @@ const adminServices = require('../../services/admin/admin.services')
 const bcrypt = require('../../utils/bcrypt')
 const {Response} = require('../../utils/response')
 const tokenServices = require('../../services/token.services')
+const {LoginHistory} = require('../../models/admin/login_history.model')
 module.exports = {
     //[POST] /api/v1/admin/add-admin
     createAccount:async(req,res)=>{
@@ -25,6 +26,7 @@ module.exports = {
     //[POST] /api/v1/admin/sign-in
     signIn:async(req,res)=>{
         try {
+            const userIP = req.ip || req.connection.remoteAddress
             const {email,password} = req.body
             const admin = await adminServices.findAdmin(email)
             if(!admin){
@@ -34,6 +36,7 @@ module.exports = {
                 Response(res,"Invalid email or password",null,400)
             }
             const token = await tokenServices.createToken(admin._id)
+            await LoginHistory.create({adminID:admin._id,ipAddress:userIP})
             Response(res,"Sign in successfully",token,200)
         } catch (error) {
             console.log(error)
