@@ -6,7 +6,7 @@ const controller = require('../../controllers/partner/partner.controller')
 const upload = require('../../middlewares/multer.middleware')
 
 router.get('/dashboard',roleAuth.Authenciation(ROLE.PARTNER),controller.getDashboard)
-router.put('/update-profile',roleAuth.Authenciation(ROLE.PARTNER),upload.single('image'),controller.updateInfo)
+router.put('/update-profile',upload.single('image'),roleAuth.Authenciation(ROLE.PARTNER),controller.updateInfo)
 router.get('/get-transactions',roleAuth.Authenciation(ROLE.PARTNER),controller.getTransactions)
 module.exports = router
 

@@ -4,7 +4,7 @@ const {Partner} = require('../../models/partner.model')
 const transactionServices = require('../../services/transaction.services')
 const {getRedisClient} = require('../../configs/redis/redis')
 const walletServices = require('../../services/wallet.services')
-const cloudinary = require('../../configs/cloudinary/cloudinary')
+const upload = require('../../helpers/upload_cloudinary')
 module.exports = {
    getDashboard: async (req, res) => {
       const redis = getRedisClient();
@@ -35,21 +35,20 @@ module.exports = {
     updateInfo:async (req,res)=>{
         const redis = getRedisClient()
         try {
-            cloudinary.uploader.upload(req.file.path,async(result,err)=>{
-                if(err){
-                  console.log(err)
-                  return Response(res,"Cập nhật ảnh thất bại",null,200)
-                }
-                const data = {
-                  name:req.name,
-                  description: req.description,
-                  image:result.url
-                }
-                const partner = await Partner.findByIdAndUpdate(req.partner,data,{new:true})
-                redis.del(`partner:${req.partner._id}`)
-                return Response(res,"Cập nhật thành công",partner,200)
-            })
+          let url = null
+          if (req.file && req.file.path) {
+            url = await upload.upload(req.file.path);
+          } 
+          const data = {
+            name:req.body.name,
+            description: req.body.description,
+            image:url
+          }
+          const partner = await Partner.updateOne({_id:req.partner},data,{new:true})
+          redis.del(`partner:${req.partner._id}`)
+          return Response(res,"Success",partner,200)
         } catch (error) {
+            console.log(error)
             return Response(res,error,null,400)
         }
     },

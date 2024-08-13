@@ -3,7 +3,7 @@ const {Response} = require('../../utils/response')
 const userServices = require('../../services/user.services')
 const userManagementServices = require('../../services/admin/user_management.services')
 const {getRedisClient} = require('../../configs/redis/redis')
-const cloudinary = require('../../configs/cloudinary/cloudinary')
+const uploadImage = require('../../helpers/upload_cloudinary')
 module.exports = {
     //admin
     getUsers:async(req,res)=>{
@@ -47,19 +47,16 @@ module.exports = {
     updateProfile: async(req,res)=>{
         try {
             const id = req.user
-            cloudinary.uploader.upload(req.file.path,async(result,err)=>{
-                if(err){
-                  console.log(err)
-                  return Response(res,"Cập nhật ảnh thất bại",null,200)
-                }
-                const data={
-                    full_name:req.full_name,
-                    avatar:result.url
-                }
-                console.log(data)
-                await User.updateOne({_id:id},data,{new:true})
-                Response(res,"Cập nhật thông tin thành công",null,400)
-            })
+            const url = null
+            if(req.file && req.file.path){
+                url = await uploadImage.upload(req.file.path)
+            }
+            const data={
+                full_name:req.body.full_name,
+                avatar:url
+            }
+            await User.updateOne({_id:id},data,{new:true})
+            Response(res,"Cập nhật thông tin thành công",null,400)
         } catch (error) {
             console.log(error)
             Response(res,"Cập nhật thông tin thất bại vui lòng thử lại",null,500) 
