@@ -30,9 +30,6 @@ module.exports ={
         startOfYesterday.setHours(0,0,0,0)
         const endOfYesterday = new Date(startOfYesterday);
         endOfYesterday.setHours(23,59,59,59)
-
-
-
         console.log(startOfYesterday)
         console.log(endOfYesterday)
         const total_user_yesterday = await User.countDocuments({

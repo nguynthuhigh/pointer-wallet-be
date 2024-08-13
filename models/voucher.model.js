@@ -4,6 +4,9 @@ const voucherSchema = new Schema({
     title:{
         type:String,
     },
+    image:{
+        type:String
+    },
     content:{
         type:String,
     },
@@ -20,7 +23,7 @@ const voucherSchema = new Schema({
         required:true,
         default:0
     },
-    exprirationDate:{
+    expiredDate:{
         type:Date,
     },
     statusPublic:{

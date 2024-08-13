@@ -1,14 +1,21 @@
 const {Response} = require('../../utils/response')
-const voucherServices = require('../../services/voucher.servcies')
-const redisClient = require('../../configs/redis/redis');
+const voucherServices = require('../../services/voucher.services')
+const uploadImage = require('../../helpers/upload_cloudinary')
 module.exports = {
     //voucher partner
     addVoucher : async (req,res) =>{
         try {
+            const voucher = await voucherServices.getVoucherByCode(req.body.code)
+            if(voucher){
+                return Response(res,"CODE Voucher already exists",null,400)
+            }
+            console.log(req.file.path)
+            const url =  await uploadImage.upload(req.file.path)
             const partnerID = req.partner
             const body = {
                 ...req.body,
-                partnerID: partnerID
+                partnerID: partnerID,
+                image:url
             }
             const data = await voucherServices.addVoucher(body)
             return Response(res,"Success",data,200)

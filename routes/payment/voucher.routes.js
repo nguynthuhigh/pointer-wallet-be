@@ -4,8 +4,8 @@ const roleAuth = require('../../middlewares/role.middleware')
 const ROLE = require('../../utils/role')
 const controller = require('../../controllers/payment/voucher.controller')
 const validate = require('../../middlewares/validate.middleware')
-
-router.post('/add-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.addVoucher)
+const upload = require('../../middlewares/multer.middleware')
+router.post('/add-voucher',upload.single('image'),validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.addVoucher)
 router.delete('/delete-voucher',roleAuth.Authenciation(ROLE.PARTNER),controller.deleteVoucher)
 router.put('/edit-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.editVoucher)
 
