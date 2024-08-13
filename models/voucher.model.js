@@ -50,6 +50,10 @@ const voucherSchema = new Schema({
     partnerID:{
         type:Schema.Types.ObjectId,
         require:true
+    },
+    currency:{
+        type:String,
+        require:true
     }
     
 },{

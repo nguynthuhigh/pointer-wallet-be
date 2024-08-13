@@ -15,7 +15,7 @@ module.exports = {
             const body = {
                 ...req.body,
                 partnerID: partnerID,
-                image:url
+                image:url,
             }
             const data = await voucherServices.addVoucher(body)
             return Response(res,"Success",data,200)

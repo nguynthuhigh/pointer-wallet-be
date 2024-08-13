@@ -1,5 +1,6 @@
 const webhookServices = require('../../services/webhook.services')
 const {Response} = require('../../utils/response')
+const webhook = require('../../utils/webhook.call.api')
 module.exports = {
     addWebhookEndpoint:async(req,res)=>{
         try {
@@ -26,4 +27,18 @@ module.exports = {
             Response(res,"Error, Please try again",null,400)
         }
     },
+    testEndpoint:async(req,res)=>{
+        try{
+            const endpoint = req.partner.webhook
+            const {orderID,status} = req.body
+            const response = await webhook.postWebhook(endpoint,{orderID,status})
+            if(response.status === 200){
+                return Response(res,"It's working",response.data,200)
+            }
+            return Response(res,"It's not working",null,400)
+        }catch(error){
+            console.log(error)
+            Response(res,"Error system",error,500)
+        }
+    }
 }

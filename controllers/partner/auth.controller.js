@@ -56,7 +56,7 @@ module.exports = {
             }
 
        } catch (error) {
-            return res.status(400).json({erorr:error,message:"Không thể xác thực vui lòng thử lại"})
+            return res.status(400).json({error:error,message:"Không thể xác thực vui lòng thử lại"})
        }
     },
     updateProfile:(req,res)=>{
@@ -64,7 +64,7 @@ module.exports = {
             Partner.findByIdAndUpdate({id},req.body).then(data=>{
                 return res.status(200).json({message:"Success",data:data})
             }).catch(err=>{
-                return res.status(400).json({erorr:err})
+                return res.status(400).json({error:err})
             })
         } catch (error) {
             
