@@ -2,6 +2,7 @@ const { Wallet,Currency } = require('../models/wallet.model');
 const { ethers } = require('ethers');
 const {User} = require('../models/user.model')
 const {getRedisClient} = require('../configs/redis/redis')
+const redis = require('../helpers/redis.helpers')
 module.exports = {
     createWallet: (id,type) => {
         return new Promise(async(resolve, reject) => {
