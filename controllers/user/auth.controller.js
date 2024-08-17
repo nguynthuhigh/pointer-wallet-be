@@ -101,15 +101,15 @@ module.exports  = {
             return Response(res,"Error system try again",null,500)
         }
     },
-    ResendEmail:async(req,res)=>{
+    resendEmail:async(req,res)=>{
         try {
             const {email,password} = req.body
-            const user =await User.findOne({email:email})
+            const user =await userServices.getUserByEmail(email)
             if(user){
                 return Response(res,"Tài khoản đã tồn tại",null,400)
             }
             const count = await OTPservices.countOTP(email)
-            if(count < 3){
+            if(count > 2){
                 return Response(res,"Please try again after 1 hour","",400)
             }
             const passwordHash = bcrypt.bcryptHash(password)

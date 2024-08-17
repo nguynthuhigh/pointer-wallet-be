@@ -14,7 +14,7 @@ router.post('/reset-password',AuthController.resetPassword)
 
 
 router.put('/update-security-code',roleMiddleware.Authenciation(ROLE.USER),AuthController.update_SecurityCode)
-router.post('/resend-email',AuthController.ResendEmail)
+router.post('/resend-email',AuthController.resendEmail)
 
 
 //partner
