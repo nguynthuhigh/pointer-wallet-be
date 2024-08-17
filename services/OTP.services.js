@@ -45,5 +45,13 @@ module.exports = {
             console.log(error)
             throw error 
         }
+    },
+    deleteManyOTP:async(email)=>{
+        try {
+            return await OTP.deleteMany({email:email})
+        } catch (error) {
+            console.log(error)
+            throw error 
+        }
     }
 }

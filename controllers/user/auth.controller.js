@@ -13,25 +13,18 @@ module.exports  = {
     Register:async (req,res)=>{
         try {
             const {email,password} = req.body
-            const user =await User.findOne({email:email})
-            if(!user){
-                try {
-                    const passwordHash = bcrypt.bcryptHash(password)
-                    //create OTP
-                    const OTP = await OTPservices.createOTP(email,passwordHash)
-                    //send nodemailer
-                    await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
-                    res.status(200).json({message:"Vui lòng kiểm tra email của bạn",email:email})
-    
-                } catch (error) {
-                    res.status(400).json(error)
-                }
+            const user =await userServices.getUserByEmail(email)
+            if(user){
+                return Response(res,"Tài khoản đã tồn tại",null,400)
             }
-            else{
-                return res.status(400).json({message:"Tài khoản đã tồn tại"})
-            }
+            const passwordHash = bcrypt.bcryptHash(password)
+            const OTP = await OTPservices.createOTP(email,passwordHash)
+            await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
+            return Response(res,"Vui lòng kiểm tra email của bạn",email,200)
+
         } catch (error) {
-            return Response(res,error,null,400)
+            console.log(error)
+            return Response(res,"Error system try again",null,500)
         }
     },
     VerifyAccount:async(req,res)=>{
@@ -39,32 +32,22 @@ module.exports  = {
             const {email,otp} = req.body;
             const otpArray = await OTP.find({email:email})
             otpSchema=otpArray[otpArray.length-1]
-            if(otpSchema){
-                if(OTPservices.verifyOTP(otp,otpSchema.otp)){
-                    //create new user
-                    const user = await User.create({email:email,password:otpSchema.password})
-                    //delete all OTP
-                    await OTP.deleteMany({email:email})
-                    //authorization 
-                    const token =await jwt.createToken(user._id)
-                    //create wallet
-                    await wallet.createWallet(user._id,"user")
-                    return res.status(200).json({token:token,message:"Xác thực OTP thành công"})
-                }
-                else{
-                    return res.status(400).json({message:"Không thể xác thực OTP vui lòng thử lại"})
-                }
+            if(!otpSchema){
+                return Response(res,"Mã OTP đã hết hạn vui lòng thử lại",null,200)
             }
-            else{
-                return res.status(400).json({message:"Mã OTP đã hết hạn vui lòng thử lại"})
+            if(!OTPservices.verifyOTP(otp,otpSchema.otp)){
+                return Response(res,"Mã OTP không hợp lệ",null,200)
             }
-
+            const user = await User.create({email:email,password:otpSchema.password})
+            await OTPservices.deleteManyOTP(email)
+            const token = await jwt.createToken(user._id)
+            await wallet.createWallet(user._id,"user")
+            return res.status(200).json({token:token,message:"Xác thực OTP thành công"})
        } catch (error) {
             console.log(error)
-            return res.status(400).json({erorr:error,message:"Mã OTP đã hết hạn vui lòng thử lại"})
+            return Response(res,"Error system try again",null,500)
        }
     },
-
     update_SecurityCode:async(req,res)=>{
         try {
             const code = bcrypt.bcryptHash(req.body.security_code)
@@ -74,48 +57,48 @@ module.exports  = {
                 Response(res,error,null,400)
             })
         } catch (error) {
-            Response(res,error,null,400)
+            console.log(error)
+            return Response(res,"Error system try again",null,500)
         }
     },
     Login: async(req,res)=>{
         try {
             const {email,password} = req.body;
             const userFind = await User.findOne({email:email})
-            if(userFind){
-                const passwordHash = userFind.password;
-                if(bcrypt.bcryptCompare(password,passwordHash)){
-                    const OTP = await OTPservices.createOTP(email,passwordHash)
-                    nodemailer.sendMail(email,"Mã OTP đăng nhập của bạn là "+OTP +"\n Vui lòng không gửi cho bất kỳ ai.","Chúng tôi đến từ pressPay!")
-                    res.status(200).json({message:"Kiểm tra email để xác nhận"})
-                }
-                else{
-                    res.status(400).json({err, message:"Mật khẩu không đúng"})
-                }
+            if(!userFind){
+                return Response(res,"Tài khoản hoặc mật khẩu không đúng",null,400)
             }
-            else{
-                res.status(400).json({message:"Tài khoản hoặc mật khẩu không đúng"})
+            const passwordHash = userFind.password;
+            if(!bcrypt.bcryptCompare(password,passwordHash)){
+                return Response(res,"Mật khẩu không đúng",null,200)
             }
+            const OTP = await OTPservices.createOTP(email,passwordHash)
+            nodemailer.sendMail(email,"Mã OTP đăng nhập của bạn là "+OTP +"\n Vui lòng không gửi cho bất kỳ ai.","Chúng tôi đến từ pressPay!")
+            return Response(res,"Kiểm tra email để xác nhận",null,200)
+
         } catch (error) {
-            res.status(400).json({error:error,message:"Tài khoản hoặc mật khẩu không đúng"})
+            console.log(error)
+            return Response(res,"Error system try again",null,500)
         }
     },
     VerifyLogin:async(req,res)=>{
-        const {email,otp} = req.body
-        const otpArray = await OTP.find({email:email})
-        otpSchema=otpArray[otpArray.length-1]
-        if(otpSchema){
-            if(OTPservices.verifyOTP(otp,otpSchema.otp)){
-                await OTP.deleteMany({email:email})
-                const dataUser = await User.findOne({email:email})
-                const token =await jwt.createToken(dataUser._id)
-                return res.status(200).json({token:token,message:"Xác thực OTP thành công"})
+        try {
+            const {email,otp} = req.body
+            const otpArray = await OTP.find({email:email})
+            otpSchema=otpArray[otpArray.length-1]
+            if(!otpSchema){
+                return Response(res,"Mã OTP đã hết hạn vui lòng thử lại",null,400)
             }
-            else{
-                return res.status(400).json({message:"Không thể xác thực OTP vui lòng thử lại"})
+            if(!OTPservices.verifyOTP(otp,otpSchema.otp)){
+                return Response(res,"Mã OTP không hợp lệ",null,400)
             }
-        }
-        else{
-            return res.status(400).json({message:"Mã OTP đã hết hạn vui lòng thử lại"})
+            await OTP.deleteMany({email:email})
+            const dataUser = await User.findOne({email:email})
+            const token =await jwt.createToken(dataUser._id)
+            return res.status(200).json({token:token,message:"Xác thực OTP thành công"})
+        } catch (error) {
+            console.log(error)
+            return Response(res,"Error system try again",null,500)
         }
     },
     ResendEmail:async(req,res)=>{
