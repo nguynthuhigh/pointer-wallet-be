@@ -6,8 +6,9 @@ const {OTP_Limit} = require('../../models/otp_limit.model')
 const bcrypt = require('../../utils/bcrypt');
 const nodemailer = require('../../utils/nodemailer')
 const jwt = require('../../services/token.services')
-const generateWallet = require('../../services/wallet.services')
-const wallet = require('../../services/wallet.services')
+const wallet = require('../../services/wallet.services');
+const userServices = require("../../services/user.services");
+const crypto = require('../../utils/crypto-js')
 module.exports  = {
     Register:async (req,res)=>{
         try {
@@ -121,32 +122,57 @@ module.exports  = {
         try {
             const {email,password} = req.body
             const user =await User.findOne({email:email})
-            if(!user){
-                try {
-                  
-                    const count = await OTPservices.countOTP(email)
-                    if(count < 3){
-                        const passwordHash = bcrypt.bcryptHash(password)
-                        const OTP = await OTPservices.createOTP(email,passwordHash)
-                        await OTP_Limit.create({email:email})
-                        await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
-                        return Response(res,"Check your email","",200)
-                    }else{
-                        return Response(res,"Please try again after 1 hour","",400)
-                    }
-    
-                } catch (error) {
-                    res.status(400).json(error)
-                }
+            if(user){
+                return Response(res,"Tài khoản đã tồn tại",null,400)
             }
-            else{
-                return res.status(400).json({message:"Tài khoản đã tồn tại"})
+            const count = await OTPservices.countOTP(email)
+            if(count < 3){
+                return Response(res,"Please try again after 1 hour","",400)
             }
+            const passwordHash = bcrypt.bcryptHash(password)
+            const OTP = await OTPservices.createOTP(email,passwordHash)
+            await OTP_Limit.create({email:email})
+            await nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP +" Vui lòng không gửi cho bất kì ai","Chúng tôi đến từ pressPay!")
+            return Response(res,"Check your email","",200)
         } catch (error) {
             console.log(error)
-            Response(res,"Error, please try again","",400)
+            Response(res,"Error, please try again","",500)
         }
     },
-   
+    requestResetPassword:async(req,res)=>{
+        try {
+            const {email} = req.body
+            const user = await userServices.getUserByEmail(email) 
+            if(!user){
+                return Response(res,"Không tìm thấy người dùng",null,400)
+            }
+            const token = crypto.encrypt(email)
+            await OTPservices.addToken({email:email,otp:token})
+            nodemailer.sendMail(email,`${process.env.WALLET_HOST}/forgot-password?token=${token}`,`[pressPay] Đặt lại mật khẩu`)
+            return Response(res,"Vui lòng kiểm tra email để xác nhận",null,200)
+            
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error, please try again","",500)
+        }
+    },
+    resetPassword:async(req,res)=>{
+        try {
+            const {password,token} = req.body
+            const data = await OTPservices.findOTP({otp:token})
+            if(!data){
+                return Response(res,"Không thể reset password",null,400)
+            }
+            const user = await userServices.resetPasswordUser(data.email,password)
+            if(user.modifiedCount = 0){
+                return Response(res,"Khôi phục mật khẩu thất bại, vui lòng thử lại",null,200)
+            }
+            return Response(res,"Khôi phục mật khẩu thành công!",null,200)
+
+        } catch (error) {
+            console.log(error)
+            Response(res,"Error, please try again","",500)
+        }
+    }
 
 }

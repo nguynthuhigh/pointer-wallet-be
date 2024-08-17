@@ -8,6 +8,10 @@ router.post('/signup',validateMiddleware.validateRegister,AuthController.Registe
 router.post('/signup/verify',AuthController.VerifyAccount)
 router.post('/signin',AuthController.Login)
 router.post('/signin/verify',AuthController.VerifyLogin)
+router.post('/request-reset-password',AuthController.requestResetPassword)
+router.post('/reset-password',AuthController.resetPassword)
+
+
 
 router.put('/update-security-code',roleMiddleware.Authenciation(ROLE.USER),AuthController.update_SecurityCode)
 router.post('/resend-email',AuthController.ResendEmail)

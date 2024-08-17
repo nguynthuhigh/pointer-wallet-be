@@ -29,5 +29,21 @@ module.exports = {
        } catch (error) {
             return 3
        }
+    },
+    addToken:async (body)=>{
+        try {
+            return await OTP.create(body)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    },
+    findOTP:async(body)=>{
+        try {
+            return await OTP.find(body)
+        } catch (error) {
+            console.log(error)
+            throw error 
+        }
     }
 }

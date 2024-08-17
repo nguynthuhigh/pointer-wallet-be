@@ -1,12 +1,13 @@
 const {User} = require('../models/user.model')
 const {Wallet} = require('../models/wallet.model')
+const bcrypt = require('../utils/bcrypt')
 module.exports = {
     getProfile:async(userID)=>{
         try {
             return await Wallet.findOne({userID:userID})
         } catch (error) {
             console.log(error)
-            throw(error)
+            throw error
         }
     },
     getUserById:async(id)=>{
@@ -15,7 +16,7 @@ module.exports = {
             return userData
         } catch (error) {
             console.log(error)
-            return null
+            throw error
         }
     },
     getUserByEmail:async(email)=>{
@@ -24,7 +25,16 @@ module.exports = {
             return userData
         } catch (error) {
             console.log(error)
-            return null
+            throw error
+        }
+    },
+    resetPasswordUser: async(email,password)=>{
+        const hashPassword = bcrypt.bcryptHash(password)
+        try {
+            return await User.updateOne({email:email},{password:hashPassword})
+        } catch (error) {
+            console.log(error)
+            throw error
         }
     }
 }
