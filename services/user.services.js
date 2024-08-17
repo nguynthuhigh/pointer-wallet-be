@@ -9,13 +9,22 @@ module.exports = {
             throw(error)
         }
     },
+    getUserById:async(id)=>{
+        try {
+            const userData = await User.findById(id)
+            return userData
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    },
     getUserByEmail:async(email)=>{
         try {
             const userData = await User.findOne({email:email})
             return userData
         } catch (error) {
-            return null
             console.log(error)
+            return null
         }
     }
 }

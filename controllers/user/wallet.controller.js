@@ -7,7 +7,8 @@ const {Response} = require('../../utils/response')
 const bcrypt = require('../../utils/bcrypt')
 const stripe = require('../../services/stripe.services')
 const {CreditCard} = require('../../models/creditcard.model')
-const convert = require('../../utils/convert_currency')
+const nodemailer = require('../../utils/nodemailer')
+const userServices = require('../../services/user.services')
 module.exports  = {
     //admin
     getCurrency:async(req,res)=>{
@@ -39,6 +40,7 @@ module.exports  = {
         session.startTransaction(); 
         try {
             const sender = req.user;
+            const user_info = req.user_info
             const { receiver, amount, message, currency, security_code } = req.body;
             
             const getCurrency = await wallet.getCurrency(currency);
@@ -46,7 +48,11 @@ module.exports  = {
                 await session.abortTransaction(); 
                 return Response(res, "currency is invalid", { recommend: "VND, USD, ETH" }, 400);
             }
-            
+            const getReceiver = await userServices.getUserById(receiver)
+            if (!getReceiver) {
+                await session.abortTransaction(); 
+                return Response(res, "Người dùng không tồn tại",null, 400);
+            }
             if (!await wallet.hasSufficientBalance(sender, getCurrency._id, amount)) {
                 await session.abortTransaction(); 
                 return Response(res, "Số dư không đủ", null, 400);
@@ -77,7 +83,8 @@ module.exports  = {
                 return Response(res, "Chuyển tiền thất bại vui lòng thử lại", null, 400);
             } 
             await session.commitTransaction(); 
-            return Response(res, "Chuyển tiền thành công", transactionResult, 200);
+            Response(res, "Chuyển tiền thành công", transactionResult, 200);
+            await nodemailer.sendMail(getReceiver.email,`Nhận ${amount + ' ' + currency} từ ${user_info.full_name}`,`[pressPay] - ${user_info.full_name} đã chuyển tiền đến bạn `)
         } catch (error) {
             console.log(error);
             await session.abortTransaction(); 
@@ -95,7 +102,7 @@ module.exports  = {
             const card = await CreditCard.findById(cardID)
             // if( convert(amount,currency)> 20000000 || convert(amount,currency) < 10000){
             //     return Response(res,{message:"Số tiền nạp tối đa là 20.000.000 và tối thiều là 10000",card:"null"},null,400)
-            // }
+            // }sss
             if(!card){
                 await session.abortTransaction()
                 return Response(res,{message:"Vui lòng thêm thẻ",card:"null"},null,400)
