@@ -12,8 +12,6 @@ router.get('/payment-gateway',controller.paymentGateway)
 router.post('/payment/test',controller.testRedirect)
 router.post('/api/v1/confirm-payment',roleAuth.Authenciation(ROLE.USER),controller.confirmPayment)
 router.post('/api/v1/apply-voucher',controller.applyVoucher)
-router.get('/api/v1/get-session',controller.getSession)
-router.post('/api/v1/payment-with-card',controller.payWithCard)
 
 
 

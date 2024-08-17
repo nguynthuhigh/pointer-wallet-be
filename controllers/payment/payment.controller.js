@@ -40,7 +40,7 @@ module.exports ={
             res.status(200).json({message:"Redirect to url",url:process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id})
         } catch (error) {
             console.log(error);
-            return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 400);
+            return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 500);
         }
     },
     paymentGateway:async(req,res)=>{
@@ -59,7 +59,6 @@ module.exports ={
         } catch (error) {
             console.log(error)
             return Response(res,"Giao dịch không tồn tại",null,400)
-            
         }
     },
     //[POST] /api/v1/confirm-payment
@@ -191,7 +190,6 @@ module.exports ={
     },
     applyVoucher: async (req, res) => {
         const { code, transactionID } = req.body;
-    
         try {
             const voucher = await voucherServices.getVoucherByCode(code);
             if (!voucher) {
@@ -217,63 +215,53 @@ module.exports ={
             return Response(res, "Áp dụng voucher thất bại vui lòng thử lại", null, 500);
         }
     },
-    getSession:async(req,res)=>{
-        try {
-            const {session_id} = req.query
-            const data = await Transaction.findById(session_id)
-            Response(res,"Session infomation",data,200)
-        } catch (error) {
-            console.log(error)
-            return Response(res,"Error",null,500)
-        }
-    },
-    payWithCard: async (req, res) => {
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        try {
-            const {transactionID, voucher_code,email,card} = req.body;
-            const type =ccType.getCardType(card) 
-            if(type=== false || card.length < 14 || type === undefined){
-                return Response(res, "Thẻ không hợp lệ vui lòng thử lại", null, 400);
-            }
-            const transactionDataTemp = await Transaction.findById(transactionID).populate('partnerID currency').exec();
-            if (!transactionDataTemp || (transactionDataTemp.status !== 'pending')) {
-                await session.abortTransaction();
-                return Response(res, "Giao dịch không tồn tại", null, 400);
-            }
-            let amount = transactionDataTemp.amount;
-            const getVoucher = await voucherServices.getVoucherByCode(voucher_code);
-            if(getVoucher !== false){
-                const result_apply = voucherServices.applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
-                if (result_apply === false) {
-                    await session.abortTransaction();
-                    return Response(res, "Số lượng voucher đã hết vui lòng thử lại!", null, 400);
-                }
-                amount = result_apply
-            }
-            const getCurrency = transactionDataTemp.currency;
-            const updateBalancePartnerResult = await wallet.updateBalancePartner(transactionDataTemp.partnerID, getCurrency._id, amount, session);
-            if (!updateBalancePartnerResult) {
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
-            }
-            await voucherServices.updateQuantityVoucher(getVoucher._id,session)
-            const transactionData = await Transaction.findByIdAndUpdate(transactionID, {
-                type:'pay-with-card',
-                status: 'completed',
-                amount: amount,
-                voucherID: getVoucher?._id,
-                sender:req.user
-            }, { new: true });
-            nodemailer.sendMail(email,`Bạn đã thanh toán thành công hóa đơn ${transactionData?.orderID} \n Sản phẩm: ${transactionData?.message} \n Phương thức: ${type}`,`[${new Date(Date.now())}] pressPay - Thanh toán hóa đơn thành công`)
-            await session.commitTransaction();
-            return Response(res, "Thanh toán thành công", transactionData, 200);
-        } catch (error) {
-            console.log(error);
-            await session.abortTransaction();
-            return Response(res, error.message, null, 400);
-        } finally {
-            session.endSession();
-        }
-    },
+    // payWithCard: async (req, res) => {
+    //     const session = await mongoose.startSession();
+    //     session.startTransaction();
+    //     try {
+    //         const {transactionID, voucher_code,email,card} = req.body;
+    //         const type =ccType.getCardType(card) 
+    //         if(type=== false || card.length < 14 || type === undefined){
+    //             return Response(res, "Thẻ không hợp lệ vui lòng thử lại", null, 400);
+    //         }
+    //         const transactionDataTemp = await Transaction.findById(transactionID).populate('partnerID currency').exec();
+    //         if (!transactionDataTemp || (transactionDataTemp.status !== 'pending')) {
+    //             await session.abortTransaction();
+    //             return Response(res, "Giao dịch không tồn tại", null, 400);
+    //         }
+    //         let amount = transactionDataTemp.amount;
+    //         const getVoucher = await voucherServices.getVoucherByCode(voucher_code);
+    //         if(getVoucher !== false){
+    //             const result_apply = voucherServices.applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
+    //             if (result_apply === false) {
+    //                 await session.abortTransaction();
+    //                 return Response(res, "Số lượng voucher đã hết vui lòng thử lại!", null, 400);
+    //             }
+    //             amount = result_apply
+    //         }
+    //         const getCurrency = transactionDataTemp.currency;
+    //         const updateBalancePartnerResult = await wallet.updateBalancePartner(transactionDataTemp.partnerID, getCurrency._id, amount, session);
+    //         if (!updateBalancePartnerResult) {
+    //             await session.abortTransaction();
+    //             return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
+    //         }
+    //         await voucherServices.updateQuantityVoucher(getVoucher._id,session)
+    //         const transactionData = await Transaction.findByIdAndUpdate(transactionID, {
+    //             type:'pay-with-card',
+    //             status: 'completed',
+    //             amount: amount,
+    //             voucherID: getVoucher?._id,
+    //             sender:req.user
+    //         }, { new: true });
+    //         nodemailer.sendMail(email,`Bạn đã thanh toán thành công hóa đơn ${transactionData?.orderID} \n Sản phẩm: ${transactionData?.message} \n Phương thức: ${type}`,`[${new Date(Date.now())}] pressPay - Thanh toán hóa đơn thành công`)
+    //         await session.commitTransaction();
+    //         return Response(res, "Thanh toán thành công", transactionData, 200);
+    //     } catch (error) {
+    //         console.log(error);
+    //         await session.abortTransaction();
+    //         return Response(res, error.message, null, 400);
+    //     } finally {
+    //         session.endSession();
+    //     }
+    // },
 }
