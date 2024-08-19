@@ -33,10 +33,10 @@ module.exports  = {
             const otpArray = await OTP.find({email:email})
             otpSchema=otpArray[otpArray.length-1]
             if(!otpSchema){
-                return Response(res,"Mã OTP đã hết hạn vui lòng thử lại",null,200)
+                return Response(res,"Mã OTP đã hết hạn vui lòng thử lại",null,400)
             }
             if(!OTPservices.verifyOTP(otp,otpSchema.otp)){
-                return Response(res,"Mã OTP không hợp lệ",null,200)
+                return Response(res,"Mã OTP không hợp lệ",null,400)
             }
             const user = await User.create({email:email,password:otpSchema.password})
             await OTPservices.deleteManyOTP(email)
@@ -70,7 +70,7 @@ module.exports  = {
             }
             const passwordHash = userFind.password;
             if(!bcrypt.bcryptCompare(password,passwordHash)){
-                return Response(res,"Mật khẩu không đúng",null,200)
+                return Response(res,"Mật khẩu không đúng",null,400)
             }
             const OTP = await OTPservices.createOTP(email,passwordHash)
             nodemailer.sendMail(email,"Mã OTP đăng nhập của bạn là "+OTP +"\n Vui lòng không gửi cho bất kỳ ai.","Chúng tôi đến từ pressPay!")
@@ -148,7 +148,7 @@ module.exports  = {
             }
             const user = await userServices.resetPasswordUser(data.email,password)
             if(user.modifiedCount = 0){
-                return Response(res,"Khôi phục mật khẩu thất bại, vui lòng thử lại",null,200)
+                return Response(res,"Khôi phục mật khẩu thất bại, vui lòng thử lại",null,400)
             }
             return Response(res,"Khôi phục mật khẩu thành công!",null,200)
 
