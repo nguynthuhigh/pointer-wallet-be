@@ -57,17 +57,12 @@ module.exports = {
         }
     },
     checkBalancePartner:async(partnerID,currencyID,amount)=>{
-    try {
         const user_wallet =await Wallet.findOne({partnerID:partnerID})
         const currencyBalance = user_wallet.currencies.find(item => item.currency.equals(currencyID))
-        if(currencyBalance.balance >= amount){
-            return true
-        }else{
-            return false
+        if(!currencyBalance.balance >= amount){
+            throw new AppError("Số dư không đủ",402)
         }
-    } catch (error) {
-        console.error(error)
-    }
+
     },
         getBalance:(userID,currency)=>{
 
@@ -80,8 +75,6 @@ module.exports = {
             { $inc: { 'currencies.$.balance': parseInt(amount) } },
             { session} 
         )
-        console.log(userID)
-        console.log(result)
         if(result.modifiedCount === 0){
             session.abortTransaction()
             throw new AppError("Error system try again",500)
@@ -89,7 +82,6 @@ module.exports = {
     
     },
     updateBalancePartner:async(partnerID,currencyID,amount,session)=>{
-        try {
             const redis = getRedisClient()
             await redis.del(`partner:${partnerID._id}`)
             const result = await Wallet.updateOne(
@@ -97,11 +89,11 @@ module.exports = {
                 { $inc: { 'currencies.$.balance': parseInt(amount) } },
                 { session, new: true } 
             );
-            return result;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
+            if(result.modifiedCount === 0){
+                session.abortTransaction()
+                throw new AppError("Error system try again",500)
+            }
+ 
     },
     getPartnerWallet: async(partnerID)=>{
         try {

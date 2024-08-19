@@ -39,17 +39,9 @@ module.exports = {
         }
     },
     getVouchers:async (req,res)=>{
-        try {
-            const partnerID = req.partner
-            const partnerVoucher = await voucherServices.getVouchersOfPartner(partnerID)
-            if(!partnerVoucher){
-                Response(res,"Partner has no voucher",null,200)
-            }
-            return Response(res,"Success",partnerVoucher,200)
-        } catch (error) {
-            console.log(error)
-            Response(res,"Fetch voucher error",null,400)
-        }
+        const partnerID = req.partner
+        const partnerVoucher = await voucherServices.getVouchersOfPartner(partnerID)
+        return Response(res,"Success",partnerVoucher,200)
     },
     editVoucher:async(req,res)=>{
         try {

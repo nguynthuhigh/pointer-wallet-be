@@ -1,3 +1,4 @@
+const AppError = require('../helpers/handleError');
 const {Voucher} = require('../models/voucher.model')
 const applyVoucher= (type, amount, discountValue, quantity) => {
     let result;
@@ -9,13 +10,12 @@ const applyVoucher= (type, amount, discountValue, quantity) => {
         console.log(result)
         if(result < 0){
             result = 0
-    
             return result;
         }
     } else if (type === "discount_percent") {
         result = amount - (amount * (discountValue / 100));
     } else {
-        return false;
+        throw new AppError("Không thể áp dụng voucher vui lòng thử lại",500)
     }
     return isNaN(result) ? false : result;
 }
@@ -28,72 +28,53 @@ const updateQuantityVoucher = async(id,session)=>{
         throw error
     }
 }
+const applyVoucherPayment=async(transactionDataTemp,session,voucher_code)=>{
+    console.log(voucher_code)
+    if(!voucher_code){
+        return
+    }
+    const getVoucher = await Voucher.findOne({code:voucher_code})
+    if(!getVoucher && getVoucher.quantity <= 0){
+        throw new AppError("Voucher đã hết",400)
+    }
+    const result_apply = applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
+    console.log(result_apply)
+    if (result_apply === false) {
+        throw new AppError("Không thể áp dụng voucher",400)
+    }
+    const resultUpdateVoucher = await updateQuantityVoucher(getVoucher._id,session)
+    if(resultUpdateVoucher.modifiedCount === 0){
+        throw new AppError("Voucher đã hết vui lòng thử lại",400)
+    }
+    const data ={
+        voucherID:getVoucher._id,
+        amount:result_apply
+    }
+    return data
+}
 module.exports ={
     getVoucherByCode:async(code)=>{
-        try {
-            if(code){
-                return await Voucher.findOne({code:code})
-            }
-            else{
-                return false
-            }
-        } catch (error) {
-            console.log(error)
-            throw error
+        const data = await Voucher.findOne({code:code})
+        if(!data){
+            throw new AppError("Voucher không tồn tại",404)
+        }
+        return data
+    },
+    checkOwnVoucher:async(partnerID,voucher_PartnerID)=>{
+        if(partnerID.toString() !== voucher_PartnerID.toString()){
+            throw new AppError("Voucher không hợp lệ với giao dịch này",400)
         }
     },
     getVouchersOfPartner:async(partnerID)=>{
-        try {
-            const data = await Voucher.find({partnerID:partnerID})
-            return data
-        } catch (error) {
-            throw error
+        const data = await Voucher.find({partnerID:partnerID})
+        if(!data){
+            throw new AppError("Partner has no voucher",400);
         }
+        return data
     },
     applyVoucher,
     updateQuantityVoucher,
-    applyVoucherPayment:async(transactionDataTemp,session,voucher_code)=>{
-        try {
-            const getVoucher = await Voucher.findOne({code:voucher_code})
-            if(getVoucher !== false || getVoucher.quantity > 0){
-                const result_apply = applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
-                console.log(result_apply)
-                if (result_apply === false) {
-                    await session.abortTransaction();
-                    const data = {
-                        message:"Số lượng voucher đã hết vui lòng thử lại!",
-                        status:false
-                    }
-                    return data
-                }
-                const resultUpdateVoucher = await updateQuantityVoucher(getVoucher._id,session)
-                if(resultUpdateVoucher.modifiedCount === 0){
-                    await session.abortTransaction();
-                    return Response(res, "Voucher đã hết vui lòng thử lại", null, 500);
-                }
-                const data ={
-                    status: true,
-                    voucherID:getVoucher._id,
-                    amount:result_apply
-                }
-                return data
-            }else{
-                const data = {
-                    message:"Voucher không tồn tại",
-                    status:false
-                }
-                return data
-            }
-        } catch (error) {
-            console.log(error)
-            const data = {
-                message:"Số lượng voucher đã hết vui lòng thử lại!",
-                status:false
-            }
-            return data
-        }
-    },
-    
+    applyVoucherPayment,
     addVoucher:async(body)=>{
         try {
             const data = await Voucher.create(body)

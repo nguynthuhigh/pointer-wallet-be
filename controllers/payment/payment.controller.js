@@ -11,215 +11,104 @@ const transactionServices = require('../../services/transaction.services')
 const nodemailer = require('../../utils/nodemailer')
 const ccType = require('../../utils/cctype')
 const webhookAPI = require('../../utils/webhook.call.api')
+const catchError = require('../../middlewares/catchError.middleware')
+const AppError = require('../../helpers/handleError')
 module.exports ={
-    payment: async (req, res) => {
-        try {
-            const { private_key, amount, currency, userID,orderID,return_url,message } = req.body;
-            const partner = await partnerServices.checkPrivateKey(private_key);
-            if (!partner) {
-                return Response(res, "Private key is invalid", { message: "Private key không hợp lệ" }, 401);
-            }
-            if (partner.webhook === undefined) {
-                return Response(res, "Webhooks must be configured before taking action", null, 401);
-            }
-            const getCurrency = await wallet.getCurrency(currency);
-            if(!getCurrency){
-                return Response(res, "Accept currencies VND, USD, ETH", { message: "" }, 400);
-            }
-            const data = await Transaction.create({
-                type: "payment",
-                amount: amount,
-                partnerID: partner._id,
-                currency: getCurrency._id,
-                title:"Thanh toán hóa đơn " + partner.name, 
-                orderID: orderID,
-                userID:userID,
-                return_url:return_url,
-                message:message
-            });
-            res.status(200).json({message:"Redirect to url",url:process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id})
-        } catch (error) {
-            console.log(error);
-            return Response(res, "Hệ thống đang lỗi, Vui lòng thử lại", error, 500);
+    payment: catchError(async (req, res) => {
+        const {amount, currency, userID,orderID,return_url,message } = req.body;
+        const partner = req.partner
+        const getCurrency = await wallet.getCurrency(currency);
+        const data = await Transaction.create({
+            type: "payment",
+            amount: amount,
+            partnerID: partner._id,
+            currency: getCurrency._id,
+            title:"Thanh toán hóa đơn " + partner.name, 
+            orderID: orderID,
+            userID:userID,
+            return_url:return_url,
+            message:message
+        });
+        res.status(200).json({message:"Redirect to url",url:process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id})
+    }),
+    //[GET] /payment-gateway?token=id
+    getTransaction:catchError(async(req,res)=>{
+        const token = req.query.token
+        const transactionData = await transactionServices.getTransactionForPayment(token)
+        const timeLimit = moment.limitTime(transactionData.createdAt)
+        if(timeLimit < 0 || (transactionData?.status != 'pending') || !transactionData){
+            throw new AppError('Không tìm thấy giao dịch',402)
         }
-    },
-    paymentGateway:async(req,res)=>{
-        try {
-            const token = req.query.token
-            const transactionData = await transactionServices.getTransaction(token)
-            const timeLimit = moment.limitTime(transactionData.createdAt)
-            if(timeLimit < 0 || (transactionData?.status != 'pending') || !transactionData){
-                await Transaction.deleteOne({_id:transactionData._id})
-                return Response(res,"Giao dịch không tồn tại","",400)
-            }
-            if(transactionData.status === 'completed'){
-                return Response(res,"Redirect to url",(transactionData.return_url).replace('{orderID}',transactionData.orderID),201)
-            }
-            return Response(res,"Success",transactionData,200)
-        } catch (error) {
-            console.log(error)
-            return Response(res,"Giao dịch không tồn tại",null,400)
+        if(transactionData.status === 'completed'){
+            return Response(res,"Redirect to url",(transactionData.return_url).replace('{orderID}',transactionData.orderID),201)
         }
-    },
+        return Response(res,"Success",transactionData,200)
+    
+    }),
     //[POST] /api/v1/confirm-payment
-    confirmPayment: async (req, res) => {
+    confirmPayment:catchError(async (req, res) => {
         const session = await mongoose.startSession();
         session.startTransaction();
-        try {
-            const sender = req.user;
-            const { security_code, transactionID, voucher_code } = req.body;
-            const transactionDataTemp = await transactionServices.getTransaction(transactionID)
-            if (!transactionDataTemp || (transactionDataTemp.status !== 'pending')) {
-                await session.abortTransaction();
-                return Response(res, "Giao dịch không tồn tại", null, 400);
-            }
-            if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
-                await session.abortTransaction();
-                return Response(res, "Mã bảo mật không đúng vui lòng nhập lại", null, 400);
-            }
-            let amount = transactionDataTemp.amount;
-            const getCurrency = transactionDataTemp.currency;
-            if (!await wallet.hasSufficientBalance(sender, getCurrency._id, amount)) {
-                await session.abortTransaction();
-                return Response(res, "Số dư không đủ", null, 400);
-            }
-            let voucherID = null
-            if(voucher_code !== undefined){
-                const resultApply = await voucherServices.applyVoucherPayment(transactionDataTemp,session,voucher_code)
-                if(resultApply.status === false){
-                    return Response(res,resultApply.message, null, 500);
-                }
-                else{
-                    amount = resultApply.amount
-                    voucherID = resultApply.voucherID
-                }
-            }
-            const updateBalanceResult = await wallet.updateBalance(sender, getCurrency._id, -amount, session);
-            if (updateBalanceResult.modifiedCount === 0) {
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
-            }
-            const updateBalancePartnerResult = await wallet.updateBalancePartner(transactionDataTemp.partnerID, getCurrency._id, amount, session);
-            if (updateBalancePartnerResult.modifiedCount === 0) {
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại (partner)", null, 500);
-            }
-            const transactionData = await Transaction.findByIdAndUpdate(transactionID, {
-                status: 'completed',
-                amount: amount,
-                voucherID: voucherID,
-                sender:req.user
-            }, { new: true, session});
-            const response = await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook),
-                                                        ({status:"completed",orderID:transactionDataTemp.orderID}))
-            if(response.status !== 200 || response.status === undefined){
-                await session.abortTransaction();
-                return Response(res, "Không thể cập nhật đơn hàng giao dịch thất bại", null, 500);
-            }
-            await session.commitTransaction();
-            return Response(res, "Thanh toán thành công", transactionData, 200);
-        } catch (error) {
-            console.log(error);
-            await session.abortTransaction();
-            return Response(res, error.message, null, 400);
-        } finally {
-            session.endSession();
+        const sender = req.user;
+        const { security_code, transactionID, voucher_code } = req.body;
+        const transactionDataTemp = await transactionServices.getTransactionForPayment(transactionID)
+        if (!transactionDataTemp || transactionDataTemp.status === 'completed') {
+            throw new AppError('Không tìm thấy giao dịch',402)
         }
-    },
-    testRedirect:async(req,res)=>{
-        await Transaction_Temp.create({
-            type: "payment",
-            amount: "123",
-        });
-        Response(res, "", "null", 200);
-    },
-    refundMoney:async(req,res)=>{
+        if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
+            throw new AppError('Mã bảo mật không đúng',400)
+        }
+        let amount = transactionDataTemp.amount;
+        const getCurrency = transactionDataTemp.currency;
+        const resultApply = await voucherServices.applyVoucherPayment(transactionDataTemp,session,voucher_code)
+        amount = resultApply?.amount ? resultApply.amount : amount
+        const voucherID = resultApply?.voucherID
+        await wallet.hasSufficientBalance(sender, getCurrency._id, amount)
+        await wallet.updateBalance(sender, getCurrency._id, -amount, session);
+        await wallet.updateBalancePartner(transactionDataTemp.partnerID, getCurrency._id, amount, session);
+        const transactionData = await transactionServices.updateCompletedPayment(amount,voucherID,req.user,transactionID,session)
+        await webhookAPI.postWebhook((transactionDataTemp?.partnerID?.webhook),
+                                    ({status:"completed",orderID:transactionDataTemp.orderID}))
+        await session.commitTransaction();
+        session.endSession();
+        return Response(res, "Thanh toán thành công", transactionData, 200);
+    }),
+    refundMoney:catchError(async(req,res)=>{
         const session = await mongoose.startSession();
         session.startTransaction(); 
-        try {
-            const {private_key,orderID} = req.body;
-            
-            const partner = await partnerServices.checkPrivateKey(private_key)
-            if(!partner){
-                return Response(res,"Private key is invalid",{message:"Private key không hợp lệ"},400)
-            }
-            const transactionData = await transactionServices.getTransactionRefund(partner._id,orderID)
-            if(!transactionData || transactionData.status != 'completed'){
-                return Response(res, "Không tìm thấy giao dịch", null, 400);
-            }
-            if (!await wallet.checkBalancePartner(partner._id, transactionData.currency, transactionData.amount)) {
-                await session.abortTransaction(); 
-                return Response(res, "Số dư không đủ", null, 400);
-            }
-            const updateTransactionResult = await Transaction.updateOne(transactionData._id,{status:"refunded"},{session})
-            if(updateTransactionResult.modifiedCount === 0){
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
-            }
-            const transactionResult = await Transaction.create({
-                type: 'refund',
-                amount: transactionData.amount,
-                message: "Hoàn tiền",
-                title: "Hoàn tiền từ " + partner.name,
-                currency: transactionData._id,
-                partnerID: partner._id,
-                receiver: transactionData.sender,
-                status: "refunded",
-                orderID:transactionData.orderID
-            },{session});
-  
-            const updateBalancePartnerResult = await wallet.updateBalancePartner(partner._id, transactionData.currency, -transactionData.amount, session);
-            if (updateBalancePartnerResult.modifiedCount === 0) {
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
-            }
-            const updateBalanceResult = await wallet.updateBalance(transactionData.sender, transactionData.currency, transactionData.amount, session);
-            if (!updateBalanceResult.modifiedCount === 0) {
-                await session.abortTransaction();
-                return Response(res, "Lỗi giao dịch vui lòng thử lại", null, 500);
-            }
-            await session.commitTransaction(); 
-            return Response(res, "Hoàn tiền thành công", transactionResult, 200);
-        } catch (error) {
-            console.log(error);
-            await session.abortTransaction(); 
-            return Response(res, error.message, null, 400);
-        } finally {
-            session.endSession();
+        const {orderID} = req.body;
+        const transactionData = await transactionServices.getTransactionRefund(partner._id,orderID)
+        if(!transactionData || transactionData.status != 'completed'){
+            return Response(res, "", null, 400);
         }
-    },
-    applyVoucher: async (req, res) => {
+        await wallet.checkBalancePartner(partner._id, transactionData.currency, transactionData.amount)
+        await transactionServices.updateTransactionRefund(transactionData,session)
+        const transactionResult = await Transaction.create({
+            type: 'refund',
+            amount: transactionData.amount,
+            message: "Hoàn tiền",
+            title: "Hoàn tiền từ " + partner.name,
+            currency: transactionData._id,
+            partnerID: partner._id,
+            receiver: transactionData.sender,
+            status: "refunded",
+            orderID:transactionData.orderID
+        },{session});
+        await wallet.updateBalancePartner(partner._id, transactionData.currency, -transactionData.amount, session);
+        await wallet.updateBalance(transactionData.sender, transactionData.currency, transactionData.amount, session);
+        await session.commitTransaction(); 
+        session.endSession();
+        return Response(res, "Hoàn tiền thành công", transactionResult, 200);
+    }),
+    applyVoucher: catchError(async (req, res) => {
         const { code, transactionID } = req.body;
-        try {
-            const voucher = await voucherServices.getVoucherByCode(code);
-            if (!voucher) {
-                return Response(res, "Voucher không tồn tại", null, 404);
-            }
-            const transactionData = await transactionServices.getTransaction(transactionID);
-            if (!transactionData) {
-                return Response(res, "Transaction không tồn tại", null, 404);
-            }
-            if (transactionData.partnerID._id.toString() !== voucher.partnerID.toString()) {
-                return Response(res, "Voucher không hợp lệ với giao dịch này", null, 400);
-            }
-            if (voucher.min_condition > transactionData.amount || voucher.max_condition < transactionData.amount) {
-                return Response(res, `Không thể áp dụng voucher. Đơn hàng tối thiểu ${voucher.min_condition} và tối đa ${voucher.max_condition}`, null, 400);
-            }
-            const resultApply = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity);
-            if(resultApply === false){
-                return Response(res, "Không thể áp dụng voucher do số lượng đã hết", null, 400);
-            }
-            return Response(res, "Áp dụng voucher thành công", resultApply, 200);
-        } catch (error) {
-            console.error(error);
-            return Response(res, "Áp dụng voucher thất bại vui lòng thử lại", null, 500);
-        }
-    },
-    testHandlerError:async(req,res)=>{
-        const {id} = req.body
-        const data = await transactionServices.getTransactionById(id)
-        Response(res,"123",data,200)
-    },
+        const voucher = await voucherServices.getVoucherByCode(code);
+        const transactionData = await transactionServices.getTransactionForPayment(transactionID);
+        await voucherServices.checkOwnVoucher(transactionData.partnerID._id,voucher.partnerID)
+        const amount = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity,voucher);
+        return Response(res, "Áp dụng voucher thành công", amount, 200);
+    }),
+
     // payWithCard: async (req, res) => {
     //     const session = await mongoose.startSession();
     //     session.startTransaction();

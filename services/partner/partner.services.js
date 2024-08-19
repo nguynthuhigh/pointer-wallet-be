@@ -43,13 +43,4 @@ module.exports= {
             throw(error)
         }
     },
-    checkPrivateKey:async(pk)=>{
-        try {
-            const partner = await Partner.findOne({privateKey:pk});
-            return partner
-         
-        } catch (error) {
-            throw(error)
-        }
-    }
 }

@@ -1,7 +1,6 @@
 const yup = require('yup')
 
 exports.paymentSchema = yup.object({
-    private_key: yup.string().required("Please provide the private key"),
     amount: yup.string().required("Please provide the amount"),
     currency: yup.string().required("Please provide the private amount"),
     userID: yup.string().required("Please provide the userID"),

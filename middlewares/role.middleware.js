@@ -3,7 +3,9 @@ const { User } = require('../models/user.model');
 const {Partner} = require('../models/partner.model')
 const {Admin} = require('../models/admin.model')
 const ROLE = require('../utils/role')
-const {Response} = require('../utils/response')
+const {Response} = require('../utils/response');
+const AppError = require('../helpers/handleError');
+const catchError = require('../middlewares/catchError.middleware')
 exports.Authentication_Admin = (role)=>{
     return async  (req, res, next) => {
         const token = req.headers.authorization?.slice(7);
@@ -65,4 +67,18 @@ exports.Authenciation =(role)=>{
         }
       
     }
-}
+},
+exports.AuthPartner = catchError(async(req,res,next)=>{
+    const token = req.headers.authorization?.split(' ')[1]
+    if(!token){
+        throw new AppError("Unauthorized",401)
+    }
+    const data = await Partner.findOne({privateKey:token})
+    if(!data?.webhook){
+        throw new AppError("Webhooks must be configured before taking action",402)
+    }
+    if(data){
+        req.partner = data
+        next()
+    }
+})

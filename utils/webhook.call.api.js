@@ -1,11 +1,13 @@
-const axios = require('axios')
+const axios = require('axios');
+const AppError = require('../helpers/handleError');
+
 module.exports = {
     postWebhook:async(endpoint,body)=>{
-        try {
-            const res = await axios.post(endpoint,body)
-            return res 
-        } catch (error) {
-            return error
+        const response = await axios.post(endpoint,body)
+        if(response.status !== 200 || response.status === undefined){
+            await session.abortTransaction();
+            return AppError("Không thể cập nhật đơn hàng giao dịch thất bại",400);
         }
+   
     }
 }
