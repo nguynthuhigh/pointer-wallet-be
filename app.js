@@ -9,6 +9,7 @@ const cors = require("cors");
 app.use(cors());
 //bodyParser
 const bodyParser = require("body-parser");
+const handleErrorMiddleware = require("./middlewares/handleError.middleware");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //Routes
@@ -17,7 +18,7 @@ require('./routes/index')(app)
 connectMongoDB()
 //Connect to Redis
 connectRedis()
-
+app.use(handleErrorMiddleware)
 app.listen({ port: process.env.PORT }, () => {
   console.log("http://localhost:" + process.env.PORT);
 });

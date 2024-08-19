@@ -4,7 +4,7 @@ const roleAuth = require('../../middlewares/role.middleware')
 const ROLE = require('../../utils/role')
 const controller = require('../../controllers/payment/payment.controller')
 const validate = require('../../middlewares/validate.middleware')
-
+const catchError = require('../../middlewares/catchError.middleware')
 router.post('/api/v1/payment',validate.validatePayment,controller.payment)
 router.post('/api/v1/refund',controller.refundMoney)
 
@@ -12,6 +12,7 @@ router.get('/payment-gateway',controller.paymentGateway)
 router.post('/payment/test',controller.testRedirect)
 router.post('/api/v1/confirm-payment',roleAuth.Authenciation(ROLE.USER),controller.confirmPayment)
 router.post('/api/v1/apply-voucher',controller.applyVoucher)
+router.post('/api/v1/test',catchError(controller.testHandlerError))
 
 
 

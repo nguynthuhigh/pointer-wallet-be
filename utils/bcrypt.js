@@ -1,13 +1,9 @@
 const bcrypt = require('bcryptjs');
 module.exports ={
     bcryptHash:(key)=>{
-        try {
-            const salt = bcrypt.genSaltSync(10);
-            const hash = bcrypt.hashSync(key,salt);
-            return hash;
-        } catch (error) {
-            console.log(error)
-        }
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(key,salt);
+        return hash;
     },
     bcryptCompare:(key,hash)=>{
         try {

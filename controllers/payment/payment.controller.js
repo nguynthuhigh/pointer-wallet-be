@@ -215,6 +215,11 @@ module.exports ={
             return Response(res, "Áp dụng voucher thất bại vui lòng thử lại", null, 500);
         }
     },
+    testHandlerError:async(req,res)=>{
+        const {id} = req.body
+        const data = await transactionServices.getTransactionById(id)
+        Response(res,"123",data,200)
+    },
     // payWithCard: async (req, res) => {
     //     const session = await mongoose.startSession();
     //     session.startTransaction();

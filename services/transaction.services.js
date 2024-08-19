@@ -2,6 +2,7 @@ const {Transaction} = require('../models/transaction.model')
 const {Transaction_Temp} = require('../models/temp_transaction.model')
 const {getRedisClient} = require('../configs/redis/redis')
 const moment = require('../utils/moment')
+const AppError = require('../helpers/handleError')
 module.exports ={
     createTransaction:async(type,amount,message,currency,sender,receiver,partnerID)=>{
         await Transaction.create({
@@ -48,6 +49,13 @@ module.exports ={
         } catch (error) {
             console.log(error)
         }
+    },
+    getTransactionById:async(transactionID)=>{
+        const data = await Transaction.findById(transactionID).populate('currency sender receiver partnerID').exec() 
+        if(data.status === 'completed'){
+            throw new AppError("Giao dịch abc",400) 
+        }
+        return data
     },
     findTransactionAndUpadte:async(transactionID,sender,session)=>{
         try {
