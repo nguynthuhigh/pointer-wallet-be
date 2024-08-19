@@ -2,24 +2,19 @@ const {startSession} = require('mongoose')
 const {TransactionType,Transaction} = require('../../models/transaction.model')
 const {Wallet,WalletType} = require('../../models/wallet.model')
 const {Response}=require('../../utils/response')
+const catchError = require('../../middlewares/catchError.middleware')
+const transactionServices = require('../../services/admin/user_management.services')
 module.exports = {
-    createTransactionType:async(req,res)=>{
-
-    },
-    //user
-    getTransactions:async(req,res)=>{
-        try {
-            const id = req.user
-            const transactions=await Transaction.find({$or:[{receiver:id},{sender:id}]}).populate('sender receiver currency')
-            const data ={
-                id:id,
-                transactions
-            }
-            return Response(res,"Success",data,200)
-        } catch (error) {
-            return Response(res,error,null,400)
+    getTransactionPaginate:catchError(async(req,res)=>{
+        const {page,limit} = req.query
+        const id = req.user
+        const transactions=await transactionServices.getTransactionsUser(id,page,limit)
+        const data ={
+            id:id,
+            transactions
         }
-    },
+        return Response(res,"Success",data,200)
+    }),
     getTransactionDetails:async(req,res)=>{
         try {
             const id = req.user
@@ -30,16 +25,6 @@ module.exports = {
             Response(res,"Success",transactions,200)
         } catch (error) {
             Response(res,error,null,400)
-        }
-    },
-    getTransactions_receive:async(req,res)=>{
-        try {
-            const id = req.user
-            const transactions=await Transaction.find({receiver:id}).populate('transactionTypeID').exec()
-            res.status(200).json({message:"Success",data:transactions})
-        } catch (error) {
-            res.status(400).json({error:error})
-            
         }
     }
 }

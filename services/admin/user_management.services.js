@@ -21,16 +21,15 @@ const getDetailsUser =async (userID)=>{
     }
 }
 const getTransactionsUser= async (userID, page, pagesize) => {
-    try {
-        const data = await Transaction.find({sender: userID})
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * pagesize)
-            .limit(pagesize);
-        return data;
-    } catch (error) {
-        console.log(error)
-        throw error
-    }
+    const data = await Transaction.find({$or:[{receiver:userID},{sender:userID}]})
+    .populate({path:'sender',select:'_id email full_name avatar '})
+    .populate({path:'receiver',select:'_id email full_name avatar '})
+    .populate({path:'currency',select:'_id symbol name'})
+    .populate({path:'partnerID',select:'_id name image'})
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * pagesize)
+    .limit(pagesize).exec();
+    return data;
 }
 const banUser = async(userID)=>{
     try {
