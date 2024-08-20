@@ -1,45 +1,51 @@
 const {model,Schema} = require('mongoose')
+const { Currency } = require('./wallet.model')
 
 const valueSchema = new Schema({
     value: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
     dailyGrowthRate: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     }
 })
 
 const statisticSchema = new Schema({
+    date:{
+        type:Date,
+        required:true,
+        default: new Date(),
+        unique:true
+    },
     total_user: valueSchema,
-    total_users_rate: valueSchema,
+    total_volume: valueSchema,
     total_partner: valueSchema,
     total_transaction: valueSchema
 })
 const volumeSchema= new Schema({
-    year:{
-        type:Number,
-        required:true
+    date:{
+        type:Date,
+        required:true,
+        default: new Date(),
+        unique:true
     },
-    months:{
-        month:{
-            type:Number,
+    value:[{
+        currency:{
+            type:String,
             required:true
         },
-        days:[{
-            day:{
-                type:Number,
-                required:true
-            },
-            data:{
-                type:Number,
-                required:true
-            }
-        }]
-    }
+        value:{
+            type:Number,
+            required:true,
+            default:0
+        }
+    }]
 })
-const Statistic= model('Statistic',statisticSchema)
+const TotalStatistic= model('TotalStatistic',statisticSchema)
 const VolumeStatistic= model('VolumeStatistic',volumeSchema)
 
-module.exports = {Statistic,VolumeStatistic}
+module.exports = {TotalStatistic,VolumeStatistic}

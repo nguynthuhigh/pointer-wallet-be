@@ -1,8 +1,9 @@
 const {Transaction} = require('../../models/transaction.model')
-const {VolumeStatistic} = require('../../models/statistic.model')
+const {VolumeStatistic, TotalStatistic} = require('../../models/statistic.model')
 const {Statistic} = require('../../models/statistic.model')
 const {Partner} = require('../../models/partner.model')
 const {User} = require('../../models/user.model')
+const nodemailer = require('../../utils/nodemailer')
 const calculateRate =(today,yesterday)=>{
     if(yesterday === 0 && today === 0){
         return 0
@@ -14,22 +15,37 @@ const calculateRate =(today,yesterday)=>{
 }
 module.exports ={
     statisticalCalculations:async()=>{
+       try {
         const now = new Date();
         const total_user_all_time = await User.countDocuments()
         const total_partner = await Partner.countDocuments()
         const total_transaction = await Transaction.countDocuments()
         //today
-        const startOfDay = new Date(now)
-        startOfDay.setDate(startOfDay.getDate()-12)//test
-        startOfDay.setHours(0,0,0,0)
-        const endOfDay = new Date(startOfDay)
-        endOfDay.setHours(23,59,59,59)
+        const startOfDay = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate(), 
+          0, 0, 0, 0
+        ))
+        const endOfDay = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - 1,
+          23, 59, 59, 999
+        ))
         //yesterday
-        const startOfYesterday = new Date(now);
-        startOfYesterday.setDate(now.getDate() - 13); //-1
-        startOfYesterday.setHours(0,0,0,0)
-        const endOfYesterday = new Date(startOfYesterday);
-        endOfYesterday.setHours(23,59,59,59)
+        const startOfYesterday = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - 1, 
+          0, 0, 0, 0
+        ));
+        const endOfYesterday = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate() - 1, // Trừ 1 ngày
+          23, 59, 59, 999
+        ));
         console.log(startOfYesterday)
         console.log(endOfYesterday)
         const total_user_yesterday = await User.countDocuments({
@@ -60,49 +76,127 @@ module.exports ={
                     \n Total transaction: ${total_transaction}
                     - Rate ${calculateRate(total_transaction_today,total_transaction_yesterday)} 
                     `)
-                    
-        const data = await Transaction.aggregate([
+        console.log(startOfDay)   
+        const data = await Transaction.aggregate(
+          [
             {
-                $match: {
-                  createdAt: {
-                    $gte: startOfDay,
-                    $lte: endOfDay
-                  }
+              $match: {
+                createdAt: {
+                  $gte: 
+                    startOfYesterday
+,
+                  $lte: 
+                    endOfYesterday
+                  
                 }
-              },
+              }
+            },
             {
               $group: {
                 _id: {
-                  currency: "$currency", // Nhóm theo currency (ObjectId)
-                  date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } // Nhóm theo ngày
+                  currency: '$currency',
+                  date: {
+                    $dateToString: {
+                      format: '%Y-%m-%d',
+                      date: '$createdAt'
+                    }
+                  }
                 },
-                totalAmount: { $sum: "$amount" } // Tính tổng số tiền
+                totalAmount: { $sum: '$amount' }
               }
             },
             {
               $lookup: {
-                from: "currencies",      // Tên collection chứa thông tin tiền tệ
-                localField: "_id.currency", // Trường trong collection transactions
-                foreignField: "_id", // Trường tương ứng trong collection currencies
-                as: "currencyInfo" // Tên trường chứa thông tin kết quả join
+                from: 'currencies',
+                localField: '_id.currency',
+                foreignField: '_id',
+                as: 'result'
               }
-            },
-            {
-              $unwind: "$currencyInfo" // Đảm bảo rằng bạn có một đối tượng currencyInfo cho mỗi bản ghi
             },
             {
               $group: {
                 _id: {
-                  currency: "$currencyInfo.name", // Sử dụng tên tiền tệ từ currencyInfo
-                  date: "$_id.date" // Ngày từ nhóm
+                  currency: '$result.symbol',
+                  date: '$_id.date'
                 },
-                totalAmount: { $sum: "$totalAmount" } // Tính tổng số tiền cho nhóm
+                totalAmount: { $sum: '$totalAmount' }
               }
-            },
-            {
-              $sort: { "_id.date": 1, "_id.currency": 1 } // Sắp xếp theo ngày và tên tiền tệ
             }
-          ])
-          console.log(data)
+          ],
+          { maxTimeMS: 60000, allowDiskUse: true }
+        );
+        const totalVolume = await Transaction.aggregate([
+          {
+           $group: {
+             _id: {
+               currency: '$currency',
+             },
+             totalAmount: { $sum: '$amount' }
+           }
+         },
+         {
+           $lookup: {
+             from: 'currencies',
+             localField: '_id.currency',
+             foreignField: '_id',
+             as: 'result'
+           }
+         },
+       ])
+       const calculate_total_volume = ()=>{
+          let total =0
+          totalVolume.forEach(element => {
+            if(element?.result[0]?.symbol  === 'VND'){
+              total += element.totalAmount;
+            }
+            if(element?.result[0]?.symbol  === 'ETH'){
+              total += element.totalAmount *3000 * 25000;
+            }
+            if(element?.result[0]?.symbol  === 'USD'){
+              total += element.totalAmount *25500;
+            }
+          });
+          return total
+       }
+       
+        await VolumeStatistic.create({
+          date:data[0]._id.date || startOfYesterday,
+          value:[{
+            currency:'VND',
+            value:data[0]?.totalAmount
+          },
+          {
+            currency:'USD',
+            value:data[1]?.totalAmount || 0
+          },
+          {
+            currency:'ETH',
+          value:data[2]?.totalAmount || 0
+          }
+          ]
+        })
+        await TotalStatistic.create({
+          date:startOfYesterday,
+          total_user:{
+            value:total_user_all_time,
+            dailyGrowthRate:calculateRate(total_user_today,total_user_yesterday)
+          },
+          total_volume:{
+            value:calculate_total_volume(),
+            dailyGrowthRate:0
+          },
+          total_partner:{
+            value:total_partner,
+            dailyGrowthRate:calculateRate(total_partner_today,total_partner_yesterday)
+          },
+          total_transaction:{
+            value:total_transaction,
+            dailyGrowthRate:calculateRate(total_transaction_today,total_partner_yesterday)
+          }
+        })
+        nodemailer.sendMail('minhnguyen11a1cmg@gmail.com','ok','pressPay statistic working.')
+       } catch (error) {
+        nodemailer.sendMail('minhnguyen11a1cmg@gmail.com',error,'pressPay statistic error')
+       }
     }
 } 
