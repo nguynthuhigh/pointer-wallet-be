@@ -21,16 +21,11 @@ module.exports ={
         })
     },
     updateStatusTransaction:async(transactionID,status,session)=>{
-        try {
-            const data = await Transaction.findByIdAndUpdate({_id:transactionID},
-                {status:status},
-                {new: true},
-                {session})
-            return data
-        } catch (error) {
-            throw error
-        }
-
+        const data = await Transaction.findByIdAndUpdate({_id:transactionID},
+            {status:status},
+            {new: true},
+            {session})
+        return data
     },
     getTransactionForPayment:async(transactionID)=>{
         const redis = getRedisClient()
@@ -57,45 +52,27 @@ module.exports ={
         return data
     },
     findTransactionAndUpadte:async(transactionID,sender,session)=>{
-        try {
-            // const data = await Transaction_Temp.findByIdAndUpdate(transactionID,{sender:sender,completedAt: new Date()},{session,new:true})
-            const data = await Transaction_Temp.findById(transactionID)
-            return data
-        } catch (error) {
-            console.log(error)
-        }
+        // const data = await Transaction_Temp.findByIdAndUpdate(transactionID,{sender:sender,completedAt: new Date()},{session,new:true})
+        const data = await Transaction_Temp.findById(transactionID)
+        return data
     },
     getTransactionsPartner: async (partnerID, page, pagesize) => {
-        try {
-            const data = await Transaction.find({ partnerID: partnerID })
-                .sort({ createdAt: -1 })
-                .skip((page - 1) * pagesize)
-                .limit(pagesize);
-            return data;
-        } catch (error) {
-            console.log(error);
-        }
+        const data = await Transaction.find({ partnerID: partnerID })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * pagesize)
+            .limit(pagesize);
+        return data;
     },
     countTransactionsPartner:async(partnerID)=>{
-        try {
-            const data = await Transaction.countDocuments({ partnerID: partnerID })
-            return data;
-        } catch (error) {
-            console.log(error);
-        }
+        const data = await Transaction.countDocuments({ partnerID: partnerID })
+        return data;
     },
     getTransactionRefund:async(partnerID,orderID)=>{
-        try{
-            const data = await Transaction.findOne({partnerID:partnerID, orderID:orderID}).sort({ createdAt: -1 })
-            if(!data){
-                throw new AppError("Không tìm thấy giao dịch",400)
-            }
-            return data
+        const data = await Transaction.findOne({partnerID:partnerID, orderID:orderID}).sort({ createdAt: -1 })
+        if(!data){
+            throw new AppError("Không tìm thấy giao dịch",400)
         }
-        catch (error){
-            console.log(data)
-            throw err
-        }
+        return data
     },
     updateTransactionRefund:async(transactionData,session)=>{
         const updateTransactionResult = await Transaction.updateOne(transactionData._id,{status:"refunded"},{session})

@@ -49,10 +49,12 @@ const voucherSchema = new Schema({
     },
     partnerID:{
         type:Schema.Types.ObjectId,
+        ref:'Partner',
         require:true
     },
     currency:{
-        type:String,
+        type:Schema.Types.ObjectId,
+        ref:'Currency',
         require:true
     }
     

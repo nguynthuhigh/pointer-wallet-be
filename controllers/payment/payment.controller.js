@@ -60,7 +60,7 @@ module.exports ={
         }
         let amount = transactionDataTemp.amount;
         const getCurrency = transactionDataTemp.currency;
-        const resultApply = await voucherServices.applyVoucherPayment(transactionDataTemp,session,voucher_code)
+        const resultApply = await voucherServices.applyVoucherPayment(transactionDataTemp,session,voucher_code,getCurrency._id)
         amount = resultApply?.amount ? resultApply.amount : amount
         const voucherID = resultApply?.voucherID
         await wallet.hasSufficientBalance(sender, getCurrency._id, amount)
@@ -105,7 +105,8 @@ module.exports ={
         const voucher = await voucherServices.getVoucherByCode(code);
         const transactionData = await transactionServices.getTransactionForPayment(transactionID);
         await voucherServices.checkOwnVoucher(transactionData.partnerID._id,voucher.partnerID)
-        const amount = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity,voucher);
+        console.log(transactionData.currency._id === voucher.currency.toString())
+        const amount = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity,transactionData.currency._id,voucher.currency);
         return Response(res, "Áp dụng voucher thành công", amount, 200);
     }),
 

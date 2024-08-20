@@ -7,6 +7,7 @@ exports.voucherSchema = yup.object({
     discountValue: yup.number().required("Discount value is required").min(1,"Discount value is more than 1"),
     type: yup.string().required("Type is required"),
     min_condition: yup.number().required("Minimum value is required").min(0,"Minimum is more than 0"),
-    code: yup.string().required("Code value is required")
+    code: yup.string().required("Code value is required"),
+    currency: yup.string().required("Currency is required")
 })
 
