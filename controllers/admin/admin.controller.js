@@ -3,6 +3,7 @@ const bcrypt = require('../../utils/bcrypt')
 const {Response} = require('../../utils/response')
 const tokenServices = require('../../services/token.services')
 const {LoginHistory} = require('../../models/admin/login_history.model')
+const catchError = require('../../middlewares/catchError.middleware')
 module.exports = {
     //[POST] /api/v1/admin/add-admin
     createAccount:async(req,res)=>{

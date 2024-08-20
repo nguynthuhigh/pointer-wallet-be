@@ -9,8 +9,9 @@ const nodemailer = require('../../utils/nodemailer')
 const userServices = require('../../services/user.services')
 const AppError = require('../../helpers/handleError')
 const creditCardServices = require('../../services/credit_card.services')
+const catchError = require('../../middlewares/catchError.middleware')
 module.exports  = {
-    sendMoney: async (req, res) => {
+    sendMoney:catchError(async (req, res) => {
         const session = await mongoose.startSession();
         const sender = req.user;
         const user_info = req.user_info
@@ -21,8 +22,9 @@ module.exports  = {
         if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
             throw new AppError("Mã bảo mật không đúng",402)
         }
+        console.log(getCurrency)
         session.startTransaction(); 
-        const transactionResult = await Transaction.create({
+        const transaction = new Transaction({
             type: 'transfer',
             amount: amount,
             message: message,
@@ -31,15 +33,16 @@ module.exports  = {
             sender: sender,
             receiver: receiver,
             status: "completed"
-        },{session});
+        });
+        const transactionResult = await transaction.save({ session });
         await wallet.updateBalance(sender, getCurrency._id, -amount, session);
         await wallet.updateBalance(receiver, getCurrency._id, amount, session);
         await session.commitTransaction(); 
         await session.endSession();
         Response(res, "Chuyển tiền thành công", transactionResult, 200);
         await nodemailer.sendMail(getReceiver.email,`Nhận ${amount + ' ' + currency} từ ${user_info.full_name}`,`[pressPay] - ${user_info.full_name} đã chuyển tiền đến bạn `)
-    },
-    depositMoney:async(req,res)=>{
+    }),
+    depositMoney:catchError(async(req,res)=>{
         const session = await mongoose.startSession()
         session.startTransaction()
         const sender = req.user
@@ -69,5 +72,5 @@ module.exports  = {
         Response(res,"Nạp tiền thành công",transactionData,200)
         await session.commitTransaction(); 
         await session.endSession(); 
-    },
+    }),
 }
