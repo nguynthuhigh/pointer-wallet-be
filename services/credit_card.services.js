@@ -8,7 +8,44 @@ const findCardById = (id)=>{
     }
     return cardData
 }
-
+const deleteCard =async (id,userID)=>{
+    const card = await findCardById(id)
+    if(card.userID.toString() !== userID){
+        throw new AppError("Không thể xóa thẻ",400)
+    }
+    const data = await CreditCard.deleteOne({_id:id})
+    if(data.deletedCount != 1){
+        throw new AppError("Không thể xóa thẻ, vuil òng thử lại",400)
+    }
+}
+const findCardAndUpdate =async (id,body)=>{
+    const data = await CreditCard.updateOne({_id:id},body)
+    if(data.modifiedCount !== 1){
+        throw new AppError("Không thể xóa thẻ, vui lòng thử lại",400)
+    }
+}
+const getCards = async(id)=>{
+    const data = await CreditCard.find({userID:id})
+    return data
+}
+const checkCardExists = async (number,userID)=>{
+    const data = await CreditCard.findOne({number:number,userID:userID})
+    if(data){
+        throw new AppError("Thẻ đã tồn tại",400)
+    }
+}
+const createCard = async(body)=>{
+    await checkCardExists(body.number,body.userID)
+    const data = await CreditCard.create(body)
+    if(!data){
+        throw new AppError("Tạo thẻ thất bại",400)
+    }
+    return data
+}
 module.exports = {
-    findCardById
+    findCardById,
+    deleteCard,
+    findCardAndUpdate,
+    getCards,
+    createCard
 }

@@ -1,6 +1,5 @@
 const {OTP} = require('../models/otp.model')
 const {OTP_Limit} = require('../models/otp_limit.model')
-
 const bcrypt = require('../utils/bcrypt');
 const otpGenerator = require('otp-generator')
 module.exports = {
@@ -23,12 +22,8 @@ module.exports = {
         }
     },
     countOTP:async (email)=>{
-       try {
-            const count = await OTP_Limit.countDocuments({email:email});
-            return count
-       } catch (error) {
-            return 3
-       }
+        const count = await OTP_Limit.countDocuments({email:email});
+        return count
     },
     addToken:async (body)=>{
         try {
