@@ -24,11 +24,12 @@ const partnerSchema = new Schema({
     },
     password:{
         type:String,
-        required:true
+        required:true,
+        select:false
     },
     privateKey:{
         type:String,
-        required:true
+        required:true,
     },
     publicKey:{
         type:String,

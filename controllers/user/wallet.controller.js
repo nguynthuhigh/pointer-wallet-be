@@ -10,35 +10,24 @@ const userServices = require('../../services/user.services')
 const AppError = require('../../helpers/handleError')
 const creditCardServices = require('../../services/credit_card.services')
 const catchError = require('../../middlewares/catchError.middleware')
+const {TransactionFactory} = require('../../services/transaction.services')
 module.exports  = {
     sendMoney:catchError(async (req, res) => {
-        const session = await mongoose.startSession();
         const sender = req.user;
         const user_info = req.user_info
-        const { receiver, amount, message, currency, security_code } = req.body;
+        const { receiver, amount, currency, security_code } = req.body;
         const getCurrency = await wallet.getCurrency(currency);
         const getReceiver = await userServices.getUserById(receiver)
         await wallet.hasSufficientBalance(sender, getCurrency._id, amount)
         if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
             throw new AppError("Mã bảo mật không đúng",402)
         }
-        console.log(getCurrency)
-        session.startTransaction(); 
-        const transaction = new Transaction({
-            type: 'transfer',
-            amount: amount,
-            message: message,
-            title: null,
-            currency: getCurrency._id,
-            sender: sender,
-            receiver: receiver,
-            status: "completed"
-        });
-        const transactionResult = await transaction.save({ session });
-        await wallet.updateBalance(sender, getCurrency._id, -amount, session);
-        await wallet.updateBalance(receiver, getCurrency._id, amount, session);
-        await session.commitTransaction(); 
-        await session.endSession();
+        const transactionResult = await TransactionFactory.createTransaction('transfer',
+            {...req.body,
+                currency: getCurrency._id,
+                type:'transfer',
+                sender:sender
+            })
         Response(res, "Chuyển tiền thành công", transactionResult, 200);
         await nodemailer.sendMail(getReceiver.email,`Nhận ${amount + ' ' + currency} từ ${user_info.full_name}`,`[pressPay] - ${user_info.full_name} đã chuyển tiền đến bạn `)
     }),

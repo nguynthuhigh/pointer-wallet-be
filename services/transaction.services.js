@@ -4,22 +4,105 @@ const {getRedisClient} = require('../configs/redis/redis')
 const moment = require('../utils/moment')
 const AppError = require('../helpers/handleError')
 const redis = require('../helpers/redis.helpers')
+const mongoose = require('mongoose')
+const walletServices = require('../services/wallet.services')
+class TransactionFactory{
+    static async createTransaction(type,body){
+        switch (type) {
+            case 'payment':
+                return new Transaction_Payment(body).createTransactionPayment()
+            case 'transfer':
+                return new Transaction_Transfer(body).createTransactionTransfer()
+            case 'deposit' || 'withdraw':
+                return new TransactionDeposit(body).createTransactionDeposit()
+            case 'refund':
+                return new TransactionRefund(body).createTransactionRefund()
+            default:
+                throw new AppError('Invalid type',402)
+        }
+    }
+}
+
+class Transactions {
+    constructor({
+        type,amount,title,message,status,currency,
+    }){
+        this.type = type,
+        this.amount = amount,
+        this.title = title,
+        this.message = message,
+        this.currency = currency
+    }
+}
+class Transaction_Transfer extends Transactions{
+    constructor({ sender, receiver, ...options }){
+        super(options)
+        this.sender = sender,
+        this.receiver = receiver,
+        this.status = 'completed'
+    }
+    async createTransactionTransfer(){
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        const data = new Transaction(this)
+        if(!data){
+            throw new AppError('Error Create Transactions',500)
+        }
+        const transactionResult = await data.save({ session });
+        await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
+        await walletServices.updateBalance(this.receiver, this.currency, this.amount, session);
+        await session.commitTransaction(); 
+        await session.endSession();
+        return transactionResult
+    }
+}
+class Transaction_Payment extends Transactions{
+    constructor({partnerID,userID,return_url,orderID,...options}){
+        super(options)
+        this.partnerID = partnerID,
+        this.userID = userID,
+        this.return_url = return_url,
+        this.orderID = orderID,
+        this.status ='pending'
+    }
+    async createTransactionPayment(){
+        const data = await Transaction.create(this)
+        if(!data){
+            throw new AppError('Error Create Transactions',500)
+        }
+        return data
+    }
+}
+class TransactionDeposit extends Transactions{
+    constructor({sender,creditcard,...options}){
+        super(options)
+        this.creditcard = creditcard,
+        this.sender = sender
+    }
+    async createTransactionDeposit(){
+        const data = await Transaction.create(this)
+        if(!data){
+            throw new AppError('Error Create Transactions',500)
+        }
+        return data
+    }
+}
+class TransactionRefund extends Transactions{
+    constructor({sender,partnerID,...options}){
+        super(options)
+        this.sender = sender,
+        this.partnerID = partnerID
+    }
+    async createTransactionRefund(){
+        const data = await Transaction.create(this)
+        if(!data){
+            throw new AppError('Error Create Transactions',500)
+        }
+        return data
+    }
+}
 module.exports ={
-    createTransaction:async(type,amount,message,currency,sender,receiver,partnerID)=>{
-        await Transaction.create({
-            type:type,
-            amount:amount,
-            message:message,
-            currency:currency,
-            sender:sender,
-            receiver:receiver,
-            partnerID: partnerID
-        }).then(data=>{
-            return data
-        }).catch(error=>{
-            console.log(error) 
-        })
-    },
+    TransactionFactory,
     updateStatusTransaction:async(transactionID,status,session)=>{
         const data = await Transaction.findByIdAndUpdate({_id:transactionID},
             {status:status},
@@ -52,7 +135,6 @@ module.exports ={
         return data
     },
     findTransactionAndUpadte:async(transactionID,sender,session)=>{
-        // const data = await Transaction_Temp.findByIdAndUpdate(transactionID,{sender:sender,completedAt: new Date()},{session,new:true})
         const data = await Transaction_Temp.findById(transactionID)
         return data
     },

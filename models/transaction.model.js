@@ -4,7 +4,7 @@ const transactionSchema = new Schema({
     type:{
         type:String,
         required:true,
-        enum:['transfer','payment','deposit','withdrawl','refund','pay-with-card'],
+        enum:['transfer','payment','deposit','withdraw','refund','pay-with-card'],
         index:true
     },
     amount:{
@@ -62,11 +62,7 @@ const transactionSchema = new Schema({
     },
     orderID:{
         type:String
-    },
-    card:{
-        
     }
-   
 },{
     timestamps: true 
 })

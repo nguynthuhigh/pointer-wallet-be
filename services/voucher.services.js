@@ -1,7 +1,7 @@
 const AppError = require('../helpers/handleError');
 const {Voucher} = require('../models/voucher.model')
 const applyVoucher= (type, amount, discountValue, quantity,transactionCurrency,voucherCurrency) => {
-    if(transactionCurrency!== voucherCurrency.toString()){
+    if(transactionCurrency.toString()!== voucherCurrency.toString()){
         throw new AppError("Voucher không hỗ trợ loại tiền tệ này",402)
     }
     let result;
@@ -27,7 +27,7 @@ const updateQuantityVoucher = async(id,session)=>{
         throw new AppError("Voucher đã hết vui lòng thử lại",400)
     }
 }
-const applyVoucherPayment=async(transactionDataTemp,session,voucher_code)=>{
+const applyVoucherPayment=async(transactionDataTemp,session,voucher_code,currencyID)=>{
     if(!voucher_code){
         return
     }
@@ -36,7 +36,7 @@ const applyVoucherPayment=async(transactionDataTemp,session,voucher_code)=>{
         throw new AppError("Voucher đã hết",400)
     }
 
-    const result_apply = applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity);
+    const result_apply = applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity,currencyID,getVoucher.currency);
     if (result_apply === false) {
         throw new AppError("Không thể áp dụng voucher",400)
     }

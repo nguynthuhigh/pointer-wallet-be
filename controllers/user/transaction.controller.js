@@ -26,5 +26,6 @@ module.exports = {
         } catch (error) {
             Response(res,error,null,400)
         }
-    }
+    },
+    
 }
