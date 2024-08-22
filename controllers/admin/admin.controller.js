@@ -10,7 +10,6 @@ module.exports = {
         try {
             const {email,password,role} = req.body
             const admin = await adminServices.findAdmin(email)
-            console.log(admin)
             if(!admin){
                 const passwordHash = bcrypt.bcryptHash(password)
                 await adminServices.createAdmin(email,passwordHash,role)

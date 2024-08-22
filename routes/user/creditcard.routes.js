@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const creditcard = require('../../controllers/user/creditcard.controller')
-const authUser = require('../../middlewares/role.middleware')
-const ROLE = require('../../utils/role')
-router.post('/add-card',authUser.Authenciation(ROLE.USER),creditcard.addCard)
-router.get('/get-cards',authUser.Authenciation(ROLE.USER),creditcard.getCardS)
-router.get('/details/:id',authUser.Authenciation(ROLE.USER),creditcard.getCardDetails)
-router.put('/edit-card/:id',authUser.Authenciation(ROLE.USER),creditcard.editCard)
-router.delete('/delete-card/:id',authUser.Authenciation(ROLE.USER),creditcard.deleteCard)
+const controller = require('../../controllers/user/creditcard.controller')
+
+const {authenticationUser} = require('../../middlewares/authentication.middleware')
+router.post('/add-card',authenticationUser,controller.addCard)
+router.get('/get-cards',authenticationUser,controller.getCardS)
+router.get('/details/:id',authenticationUser,controller.getCardDetails)
+router.put('/edit-card/:id',authenticationUser,controller.editCard)
+router.delete('/delete-card/:id',authenticationUser,controller.deleteCard)
 
 
 

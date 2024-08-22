@@ -1,11 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const roleAuth = require('../../middlewares/role.middleware')
-const ROLE = require('../../utils/role')
-const controller = require('../../controllers/user/wallet.controller')
 
-router.post('/send-money',roleAuth.Authenciation(ROLE.USER),controller.sendMoney)
-router.post('/deposit-money',roleAuth.Authenciation(ROLE.USER),controller.depositMoney)
+const controller = require('../../controllers/user/wallet.controller')
+const {authenticationUser} = require('../../middlewares/authentication.middleware')
+
+router.post('/send-money',authenticationUser,controller.sendMoney)
+router.post('/deposit-money',authenticationUser,controller.depositMoney)
 
 
 module.exports = router

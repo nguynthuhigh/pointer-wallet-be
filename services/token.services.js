@@ -33,7 +33,7 @@ module.exports = {
     deleteRefreshToken:async(refreshToken)=>{
         const token = await Key.deleteOne({refresh_token:refreshToken})
         if(token.deletedCount === 0){
-            throw new AppError("Fail delete refresh token",400)
+            throw new AppError("Fail log out, try again",400)
         }
     }
 }

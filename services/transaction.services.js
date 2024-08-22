@@ -15,6 +15,8 @@ class TransactionFactory{
                 return new Transaction_Transfer(body).createTransactionTransfer()
             case 'deposit' || 'withdraw':
                 return new TransactionDeposit(body).createTransactionDeposit()
+            case 'withdraw':
+                return new TransactionDeposit(body).createTransactionDeposit()
             case 'refund':
                 return new TransactionRefund(body).createTransactionRefund()
             default:
@@ -76,14 +78,21 @@ class TransactionDeposit extends Transactions{
     constructor({sender,creditcard,...options}){
         super(options)
         this.creditcard = creditcard,
-        this.sender = sender
+        this.sender = sender,
+        this.status ='completed'
     }
     async createTransactionDeposit(){
-        const data = await Transaction.create(this)
-        if(!data){
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        const data = new Transaction(this)
+        const transactionResult = await data.save({ session });
+        if(!transactionResult){
             throw new AppError('Error Create Transactions',500)
         }
-        return data
+        await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
+        await session.commitTransaction(); 
+        await session.endSession();
+        return transactionResult
     }
 }
 class TransactionRefund extends Transactions{

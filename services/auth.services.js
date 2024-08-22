@@ -5,6 +5,7 @@ const walletServices = require('../services/wallet.services')
 const bcrypt = require('../utils/bcrypt')
 const token = require('../utils/token')
 const AppError = require('../helpers/handleError')
+const {User} = require('../models/user.model')
 class AuthServices{
     static registerAccount = async(payload)=>{
         const {email,password} = payload
@@ -20,6 +21,13 @@ class AuthServices{
         const token = tokenServices.createTokenPair(userID)
         await walletServices.createWallet(userID,'user')
         return token
+    }
+    static updateSecurityCode = async(code)=>{
+        const hashCode = bcrypt.bcryptHash(code)
+        const user = await User.updateOne({id:req.user},{security_code:hashCode})
+        if(user.modifiedCount === 0){
+            throw new AppError("Cập nhật thất bại",400)
+        }
     }
     static loginAccount = async(payload)=>{
         const {email,password} = payload;

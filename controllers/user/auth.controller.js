@@ -1,16 +1,7 @@
 const {Response} = require("../../utils/response");    
 const {User} = require('../../models/user.model'); 
-const OTPservices = require('../../services/OTP.services')
-const {OTP} = require('../../models/otp.model')
-const {OTP_Limit} = require('../../models/otp_limit.model')
-const bcrypt = require('../../utils/bcrypt');
 const nodemailer = require('../../utils/nodemailer')
-const jwt = require('../../services/token.services')
-const wallet = require('../../services/wallet.services');
-const userServices = require("../../services/user.services");
-const crypto = require('../../utils/crypto-js')
 const catchError = require('../../middlewares/catchError.middleware')
-const token = require('../../utils/token')
 const AuthServices = require('../../services/auth.services')
 module.exports  = {
     Register: catchError(async (req,res)=>{
@@ -25,14 +16,9 @@ module.exports  = {
         return Response(res,"Đăng ký thành công",data,200)
 
     }),
-    update_SecurityCode: catchError(async(req,res)=>{
-        //need optimize
-        const code = bcrypt.bcryptHash(req.body.security_code)
-        User.findByIdAndUpdate(req.user,{security_code:code}).then(data=>{
-            Response(res,"Cập nhật mã bảo mật thành công",data,200)
-        }).catch(error=>{
-            Response(res,error,null,400)
-        })
+    updateSecurityCode: catchError(async(req,res)=>{
+        await AuthServices.updateSecurityCode(req.body.security_code)
+        return Response(res,"Cập nhật mã bảo mật thành công",data,200)
     }),
     Login: catchError( async(req,res)=>{
         const {OTP,email} = await AuthServices.loginAccount(req.body)
