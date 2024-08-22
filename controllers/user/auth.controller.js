@@ -1,5 +1,4 @@
 const {Response} = require("../../utils/response");    
-const {User} = require('../../models/user.model'); 
 const nodemailer = require('../../utils/nodemailer')
 const catchError = require('../../middlewares/catchError.middleware')
 const AuthServices = require('../../services/auth.services')
