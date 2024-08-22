@@ -22,7 +22,6 @@ class TransactionFactory{
         }
     }
 }
-
 class Transactions {
     constructor({
         type,amount,title,message,status,currency,

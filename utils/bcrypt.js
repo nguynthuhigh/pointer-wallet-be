@@ -6,12 +6,6 @@ module.exports ={
         return hash;
     },
     bcryptCompare:(key,hash)=>{
-        try {
-            return bcrypt.compareSync(key, hash);
-        } catch (error) {
-            console.log(error)
-            throw(error)
-        }
-        
+        return bcrypt.compareSync(key, hash);
     }
 }

@@ -1,34 +1,26 @@
 const {Partner} = require('../../models/partner.model')
 const {OTP} = require('../../models/otp.model')
 const OTPservices = require('../../services/OTP.services')
-const jwt = require('../../services/token.services')
 const bcrypt = require('../../utils/bcrypt')
 const nodemailer = require('../../utils/nodemailer');
 const {Response} = require('../../utils/response')
 const wallet = require('../../services/wallet.services')
 const crypto = require('../../utils/crypto-js')
 const {OTP_Limit} = require('../../models/otp_limit.model')
+const catchError = require('../../middlewares/catchError.middleware')
+const { PartnerServices } = require('../../services/partner/partner.services')
 module.exports = {
-    signUp:async(req,res)=>{
+    //need review
+    signUp:catchError(async(req,res)=>{
         const {email,password} = req.body
         const user =await Partner.findOne({email:email})
         const passwordHash = bcrypt.bcryptHash(password)
-        if(!user){
-            try {
-                //create OTP
-                const OTP = await OTPservices.createOTP(email,passwordHash)
-                //send nodemailer
-                nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP ,"Chúng tôi đến từ pressPay!")
-                Response(res,"Vui lòng kiểm tra email",null,200)
-
-            } catch (error) {
-                Response(res,error,null,400)
-            }
-        }
-        else{
-            return res.status(400).json({message:"Tài khoản đã tồn tại"})
-        }
-    },
+        //create OTP
+        const OTP = await OTPservices.createOTP(email,passwordHash)
+        //send nodemailer
+        nodemailer.sendMail(email,"Mã OTP của bạn "+ OTP ,"Chúng tôi đến từ pressPay!")
+        Response(res,"Vui lòng kiểm tra email",null,200)
+    }),
     verifyAccount:async(req,res)=>{
         try {
             const {email,otp} = req.body;
@@ -70,27 +62,11 @@ module.exports = {
             
         }
     },
-   signIn:async(req,res)=>{
-        try {
-            const {email,password} = req.body;
-            const partnerFind = await Partner.findOne({email:email})
-            if(partnerFind){
-                const passwordHash = partnerFind.password;
-                if(bcrypt.bcryptCompare(password,passwordHash)){
-                    const token =await jwt.createToken(partnerFind._id)
-                    Response(res,"Đăng nhập thành công",token,200)
-                }
-                else{
-                    Response(res,"Mật khẩu không đúng",null,400)
-                }
-            }
-            else{
-                res.status(400).json({message:"Tài khoản hoặc mật khẩu không đúng"})
-            }
-        } catch (error) {
-            res.status(400).json({error:error,message:"Tài khoản hoặc mật khẩu không đúng"})
-        }
-   }
+   signIn:catchError(async(req,res)=>{  
+        const {email,password} = req.body;
+        const data = await PartnerServices.signIn(email,password)
+        return Response(res,"Đăng nhập thành công",data,200)
+   })
    ,ResendEmail:async(req,res)=>{
     try {
         const {email,password} = req.body

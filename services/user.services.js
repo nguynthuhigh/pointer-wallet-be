@@ -19,21 +19,28 @@ module.exports = {
         return userData
     },
     getUserByEmail:async(email)=>{
-        try {
-            const userData = await User.findOne({email:email})
-            return userData
-        } catch (error) {
-            console.log(error)
-            throw error
+        const userData = await User.findOne({email:email})
+        if(!userData) {
+            throw new AppError('User not found',404)
         }
+        return userData
     },
     resetPasswordUser: async(email,password)=>{
         const hashPassword = bcrypt.bcryptHash(password)
-        try {
-            return await User.updateOne({email:email},{password:hashPassword})
-        } catch (error) {
-            console.log(error)
-            throw error
+        return await User.updateOne({email:email},{password:hashPassword})
+    },
+    existsUserByEmail:async(email)=>{
+        const userData = await User.findOne({email:email})
+        if(userData) {
+            throw new AppError('Tài khoản đã tồn tại',404)
         }
+        return userData
+    },
+    createUser:async(email,password)=>{
+        const user = await User.create({email:email,password:password})
+        if(!user){
+            throw new AppError('Tài khoản đã tồn tại',404)
+        }
+        return user
     }
 }

@@ -1,25 +1,28 @@
+const AppError = require('../helpers/handleError');
 const {OTP} = require('../models/otp.model')
 const {OTP_Limit} = require('../models/otp_limit.model')
 const bcrypt = require('../utils/bcrypt');
 const otpGenerator = require('otp-generator')
 module.exports = {
     createOTP:async(email,passwordHash)=>{
-        try {
-            const OTP_Generator = otpGenerator.generate(6, {digits:true, upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-            const hash = bcrypt.bcryptHash(OTP_Generator)
-            await OTP.create({email: email,password:passwordHash,otp: hash})
-            console.log(OTP_Generator)
-            return OTP_Generator
-        } catch (error) {
-            return console.log(error)
-        }
+        const OTP_Generator = otpGenerator.generate(6, {digits:true, upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+        const hash = bcrypt.bcryptHash(OTP_Generator)
+        await OTP.create({email: email,password:passwordHash,otp: hash})
+        console.log(OTP_Generator)
+        return OTP_Generator
     },
-    verifyOTP:(otp,hash)=>{
-        try {
-            return bcrypt.bcryptCompare(otp, hash);
-        } catch (error) {
-            return false
+    verifyOTP:async(email,otp)=>{
+        const otpArray = await OTP.find({email:email})
+        otpSchema=otpArray[otpArray.length-1]
+        if(!otpSchema){
+            throw new AppError("Mã OTP không hợp lệ",400)
         }
+        const result = bcrypt.bcryptCompare(otp,otpSchema.otp);
+        if(!result){
+            throw new AppError("Mã OTP không hợp lệ",400)
+        }
+        await OTP.deleteMany({email:email})
+        return otpSchema.password
     },
     countOTP:async (email)=>{
         const count = await OTP_Limit.countDocuments({email:email});
@@ -41,12 +44,4 @@ module.exports = {
             throw error 
         }
     },
-    deleteManyOTP:async(email)=>{
-        try {
-            return await OTP.deleteMany({email:email})
-        } catch (error) {
-            console.log(error)
-            throw error 
-        }
-    }
 }

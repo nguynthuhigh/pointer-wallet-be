@@ -5,42 +5,38 @@ const {getRedisClient} = require('../configs/redis/redis')
 const redis = require('../helpers/redis.helpers');
 const AppError = require('../helpers/handleError');
 module.exports = {
-    createWallet: (id,type) => {
-        return new Promise(async(resolve, reject) => {
-            const EVMwallet = ethers.Wallet.createRandom();
-            const getCurrency = await Currency.find();
-            const currencies = []
-            getCurrency.forEach(getCurrency=>{
-                currencies.push({currency:getCurrency._id,balance:0})
-            })
-            if(type === 'user'){
-                await Wallet.create({
-                    address: EVMwallet.address,
-                    mnemonic: EVMwallet.mnemonic.phrase,
+    createWallet:async (id,type) => {
+        const EVMWallet = ethers.Wallet.createRandom();
+        const getCurrency = await Currency.find();
+        const currencies = []
+        getCurrency.forEach(getCurrency=>{
+            currencies.push({currency:getCurrency._id,balance:0})
+        })
+        switch(type){
+            case 'user':{
+                const data = await Wallet.create({
+                    address: EVMWallet.address,
+                    mnemonic: EVMWallet.mnemonic.phrase,
                     userID: id,
                     currencies: currencies
-                }).then(() => {
-                    resolve(true);
-                }).catch((err) => {
-                    reject(err);
-                });
+                })
+                if(!data){
+                    throw new AppError("Đăng ký thất bại vui lòng thử lại",400)
+                }
             }
-            else if(type === 'partner'){
-                await Wallet.create({
-                    address: EVMwallet.address,
-                    mnemonic: EVMwallet.mnemonic.phrase,
+            case 'partner':{
+                const data = await Wallet.create({
+                    address: EVMWallet.address,
+                    mnemonic: EVMWallet.mnemonic.phrase,
                     partnerID: id,
                     currencies: currencies
-                }).then(() => {
-                    resolve(true);
-                }).catch((err) => {
-                    reject(err);
-                });
+                })
+                if(!data){
+                    throw new AppError("Error Register",400)
+                }
             }
-            else{
-                reject("Invalid")
-            }
-        });
+            default: return
+        }
     },
     getCurrency:async(currency)=>{
         const getCurrency = await Currency.findOne({symbol:currency});

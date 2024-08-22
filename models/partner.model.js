@@ -24,8 +24,7 @@ const partnerSchema = new Schema({
     },
     password:{
         type:String,
-        required:true,
-        select:false
+        required:true
     },
     privateKey:{
         type:String,
