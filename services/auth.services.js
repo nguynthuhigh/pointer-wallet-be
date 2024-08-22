@@ -34,7 +34,7 @@ class AuthServices{
     static verifyLogin = async(payload)=>{
         const {email,otp} = payload
         await OTPServices.verifyOTP(email,otp)
-        const user = userServices.getUserByEmail(email)
+        const user = await userServices.getUserByEmail(email)
         const userID = user._id
         const token = tokenServices.createTokenPair(userID)
         return token
@@ -42,7 +42,7 @@ class AuthServices{
     static refreshTokenAccess = async(refreshToken)=>{
         const key = await tokenServices.findRefreshToken(refreshToken);
         token.verifyToken(refreshToken)
-        const newToken = token.createToken(key.id)
+        const newToken = token.createToken(key.userID)
         await tokenServices.updateRefreshToken(refreshToken,newToken.refreshToken)
         return newToken  
     }
@@ -50,5 +50,4 @@ class AuthServices{
         await tokenServices.deleteRefreshToken(refreshToken)
     }
 }
-
 module.exports =  AuthServices

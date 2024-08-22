@@ -36,7 +36,7 @@ module.exports  = {
     }),
     Login: catchError( async(req,res)=>{
         const {OTP,email} = await AuthServices.loginAccount(req.body)
-        // nodemailer.sendMail(email,"Mã OTP đăng nhập của bạn là "+OTP +"\n Vui lòng không gửi cho bất kỳ ai.","Chúng tôi đến từ pressPay!")
+        nodemailer.sendMail(email,"Mã OTP đăng nhập của bạn là "+OTP +"\n Vui lòng không gửi cho bất kỳ ai.","Chúng tôi đến từ pressPay!")
         return Response(res,"Kiểm tra email để xác nhận",null,200)
     }),
     VerifyLogin: catchError(async(req,res)=>{

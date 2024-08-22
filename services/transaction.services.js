@@ -129,7 +129,7 @@ module.exports ={
     getTransactionById:async(transactionID)=>{
         const data = await Transaction.findById(transactionID).populate('currency sender receiver partnerID').exec() 
         if(data.status === 'completed'){
-            throw new AppError("Giao dịch abc",400) 
+            throw new AppError("Giao dịch hết hạn",400) 
         }
         return data
     },
@@ -177,7 +177,15 @@ module.exports ={
             ...data,
             _id:transactionID
         }
+    },
+    getTransactionDetails:async(transactionID,userID)=>{
+        const data =  await Transaction.findOne({
+            $or:[{_id:transactionID,sender:userID},{_id:transactionID,receiver:userID}]
+        }).populate('creditcard sender receiver currency')
+        .exec()
+        if(!data){
+            throw new AppError("Không tìm thấy giao dịch",404)
+        }
+        return data
     }
-    
-    
 }

@@ -2,13 +2,16 @@ const jwt = require('jsonwebtoken');
 const AppError = require('../helpers/handleError');
 module.exports = {
     createToken:(id)=>{
-        const accessToken =  jwt.sign({id:id},process.env.SECRET_TOKEN,
+        const payload = {
+            id:id
+        }
+        const accessToken =  jwt.sign(payload,process.env.SECRET_TOKEN,
             {
                 algorithm:'HS256',
                 expiresIn:'30m'
             }
         )
-        const refreshToken =  jwt.sign({id:id},process.env.SECRET_TOKEN,
+        const refreshToken =  jwt.sign(payload,process.env.SECRET_TOKEN,
             {
                 algorithm:'HS256',
                 expiresIn:'14 days'
