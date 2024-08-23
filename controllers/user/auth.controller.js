@@ -45,7 +45,20 @@ module.exports  = {
         Response(res,"Logout Success",null,200)
     }),
     refreshTokenAccess:catchError(async(req,res)=>{
-        const token = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
+        
+        const {accessToken,refreshToken} = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/'
+          });
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/'
+          })
         Response(res,"refresh token success",token,200)
     }),
     resendEmail:async(req,res)=>{
