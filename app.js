@@ -4,9 +4,15 @@ const express = require("express");
 const app = express();
 const {connectMongoDB} = require('./configs/mongodb/mongodb')
 const {connectRedis} = require('./configs/redis/redis')
+//Cookie
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
 //Config cors
 const cors = require("cors");
-app.use(cors());
+app.use(cors({
+  origin:['http://localhost:5173','https://presspay-wallet.vercel.app/'],
+  credentials: true
+}));
 //bodyParser
 const bodyParser = require("body-parser");
 const handleErrorMiddleware = require("./middlewares/handleError.middleware");

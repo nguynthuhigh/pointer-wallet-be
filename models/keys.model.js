@@ -16,12 +16,6 @@ const keySchema = new Schema({
         ref:'Partner',
         index:true
     },
-    private_key:{
-        type:String
-    },
-    public_key:{
-        type:String
-    },
     refresh_token:{
         type:String,
         required:true

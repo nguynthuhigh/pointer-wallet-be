@@ -39,7 +39,7 @@ module.exports = {
     createUser:async(email,password)=>{
         const user = await User.create({email:email,password:password})
         if(!user){
-            throw new AppError('Tài khoản đã tồn tại',404)
+            throw new AppError('Lỗi tạo tài khoản',400)
         }
         return user
     }

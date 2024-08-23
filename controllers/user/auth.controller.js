@@ -25,15 +25,27 @@ module.exports  = {
         return Response(res,"Kiểm tra email để xác nhận",null,200)
     }),
     VerifyLogin: catchError(async(req,res)=>{
-        const token = await AuthServices.verifyLogin(req.body)
-        return Response(res,"Đăng nhập thành công",token,200)
+        const {accessToken,refreshToken} = await AuthServices.verifyLogin(req.body)
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/'
+          });
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/'
+          })
+        return Response(res,"Đăng nhập thành công",null,200)
     }),
     Logout:catchError(async(req,res)=>{
         await AuthServices.logoutAccount(req.body.refreshToken)
         Response(res,"Logout Success",null,200)
     }),
     refreshTokenAccess:catchError(async(req,res)=>{
-        const token = await AuthServices.refreshTokenAccess(req.body.refreshToken)
+        const token = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
         Response(res,"refresh token success",token,200)
     }),
     resendEmail:async(req,res)=>{

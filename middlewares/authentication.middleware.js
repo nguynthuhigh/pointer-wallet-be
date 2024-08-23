@@ -4,7 +4,7 @@ const userServices = require('../services/user.services');
 const catchError = require("./catchError.middleware");
 module.exports = {
     authenticationUser:catchError(async(req,res,next)=>{
-        const accessToken = req.headers.authorization?.slice(7);
+        const accessToken = req.cookies['access_token']
         if(!accessToken){
             throw new AppError("Unauthorized",401)
         }
