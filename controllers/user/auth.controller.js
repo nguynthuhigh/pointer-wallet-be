@@ -30,13 +30,15 @@ module.exports  = {
             httpOnly:true,
             sameSite:'none',
             secure:true,
-            path:'/'
+            path:'/',
+            maxAge:60*60*24*15*1000
           });
         res.cookie("access_token", accessToken, {
             httpOnly:true,
             sameSite:'none',
             secure:true,
-            path:'/'
+            path:'/',
+            maxAge:60*60*24*15*1000
           })
         return Response(res,"Đăng nhập thành công",null,200)
     }),
@@ -51,15 +53,17 @@ module.exports  = {
             httpOnly:true,
             sameSite:'none',
             secure:true,
-            path:'/'
+            path:'/',
+            maxAge:60*60*24*15*1000
           });
         res.cookie("access_token", accessToken, {
             httpOnly:true,
             sameSite:'none',
             secure:true,
-            path:'/'
+            path:'/',
+            maxAge:60*60*24*15*1000
           })
-        Response(res,"refresh token success",token,200)
+        return Response(res,"refresh token success",null,200)
     }),
     resendEmail:async(req,res)=>{
         // try {
