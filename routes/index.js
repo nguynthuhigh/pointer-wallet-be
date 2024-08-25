@@ -8,7 +8,7 @@ const routePartner = require("./partner/partner.routes");
 const routePayment = require("./payment/payment.routes");
 const routeVoucher = require("./payment/voucher.routes");
 const routeWebhook = require("./partner/webhook.routes")
-const routeAdmin = require("./admin/admin.routes")
+const routeAdmin = require("./admin/auth.routes")
 const routePartnerManagement = require('./admin/partner_management.routes')
 const routeStatistic = require('./admin/statistic.routes')
 module.exports = (app)=>{

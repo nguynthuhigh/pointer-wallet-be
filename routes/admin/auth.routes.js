@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const ROLE = require('../../utils/role')
-const controller = require('../../controllers/admin/admin.controller')
+const controller = require('../../controllers/admin/auth.controller')
 const middleware = require('../../middlewares/role.middleware')
 
 router.post('/sign-in',controller.signIn)

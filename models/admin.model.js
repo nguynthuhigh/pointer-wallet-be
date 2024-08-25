@@ -11,6 +11,7 @@ const adminSchema = new Schema({
     email:{
         type:String,
         required:true,
+        unique:[true,'Email already exists']
     },
     password:{
         type:String,
