@@ -1,8 +1,5 @@
 const adminServices = require('../../services/admin/auth.services')
-const bcrypt = require('../../utils/bcrypt')
 const {Response} = require('../../utils/response')
-const tokenServices = require('../../services/token.services')
-const {LoginHistory} = require('../../models/admin/login_history.model')
 const catchError = require('../../middlewares/catchError.middleware')
 const AuthAdminServices = require('../../services/admin/auth.services')
 module.exports = {
@@ -33,18 +30,34 @@ module.exports = {
             });
         Response(res,"Sign in successfully",null,200)
     }),
+     //[GET] /api/v1/admin/refresh-token
+    refreshToken: catchError(async(req,res)=>{
+        const {refreshToken,accessToken} = await AuthAdminServices.refreshToken(req.cookies.refresh_token)
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+          });
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+            });
+        Response(res,"Success",null,200)
+    }),
     //[GET] /api/v1/admin/get-all-admins
     getAllAdmins: catchError(async(req,res)=>{
-        const data = await adminServices.getAllAdmins()
+        const data = await AuthAdminServices.getAllAdmins()
         return Response(res,"Success",data,200)
     }),
     //[PATCH] /api/v1/admin/ban-admin
     banAdmin: catchError(async(req,res)=>{
         const {id} = req.body
-        const data = await adminServices.banAdmin(id)
-        if(data.modifiedCount === 0){
-            return Response(res,"Fail, try again",null,400)
-        }
+        const data = await AuthAdminServices.banAdmin(id)
         if(data.active === true){
             return Response(res,"Member successfully unbanned",null,200)
         }

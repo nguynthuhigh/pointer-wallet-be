@@ -16,8 +16,8 @@ module.exports  = {
 
     }),
     updateSecurityCode: catchError(async(req,res)=>{
-        await AuthServices.updateSecurityCode(req.body.security_code)
-        return Response(res,"Cập nhật mã bảo mật thành công",data,200)
+        await AuthServices.updateSecurityCode(req.body.security_code,req.user)
+        return Response(res,"Cập nhật mã bảo mật thành công",null,200)
     }),
     Login: catchError( async(req,res)=>{
         const {OTP,email} = await AuthServices.loginAccount(req.body)

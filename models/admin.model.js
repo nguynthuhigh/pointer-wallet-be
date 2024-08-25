@@ -21,10 +21,10 @@ const adminSchema = new Schema({
         type:Boolean,
         default:true
     },
-    role:[{
-        type:String,
+    role:{
+        type:[String],
         enum:['admin','support','finance']
-    }]
+    }
 },{
     timestamps: true 
 })

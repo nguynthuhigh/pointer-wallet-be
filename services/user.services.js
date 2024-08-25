@@ -12,6 +12,7 @@ module.exports = {
         }
     },
     getUserById:async(id)=>{
+        console.log(id)
         const userData = await User.findById(id)
         if(!userData) {
             throw new AppError('User not found',404)

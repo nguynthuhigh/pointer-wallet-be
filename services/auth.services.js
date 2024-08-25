@@ -22,9 +22,9 @@ class AuthServices{
         await walletServices.createWallet(userID,'user')
         return token
     }
-    static updateSecurityCode = async(code)=>{
+    static updateSecurityCode = async(code,userID)=>{
         const hashCode = bcrypt.bcryptHash(code)
-        const user = await User.updateOne({id:req.user},{security_code:hashCode})
+        const user = await User.updateOne({_id:userID},{security_code:hashCode})
         if(user.modifiedCount === 0){
             throw new AppError("Cập nhật thất bại",400)
         }
