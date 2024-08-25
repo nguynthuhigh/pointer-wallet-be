@@ -33,21 +33,13 @@ module.exports  = {
             path:'/',
             maxAge:60*60*24*15*1000
           });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          })
-        return Response(res,"Đăng nhập thành công",null,200)
+        return Response(res,"Đăng nhập thành công",{accessToken:accessToken},200)
     }),
     Logout:catchError(async(req,res)=>{
         await AuthServices.logoutAccount(req.body.refreshToken)
         Response(res,"Logout Success",null,200)
     }),
     refreshTokenAccess:catchError(async(req,res)=>{
-        
         const {accessToken,refreshToken} = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
         res.cookie("refresh_token", refreshToken, {
             httpOnly:true,
@@ -56,14 +48,7 @@ module.exports  = {
             path:'/',
             maxAge:60*60*24*15*1000
           });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          })
-        return Response(res,"refresh token success",null,200)
+        return Response(res,"refresh token success",{accessToken:accessToken},200)
     }),
     resendEmail:async(req,res)=>{
         // try {
