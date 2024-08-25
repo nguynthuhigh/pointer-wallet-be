@@ -25,17 +25,5 @@ module.exports = {
         } catch (error) {
             throw new AppError("Unauthorized",401)
         }
-    },
-    createOneToken:(id)=>{
-        const payload = {
-            id:id
-        }
-        const token =  jwt.sign(payload,process.env.SECRET_TOKEN,
-            {
-                algorithm:'HS256',
-                expiresIn:'30m'
-            }
-        )
-        return token
     }
 }

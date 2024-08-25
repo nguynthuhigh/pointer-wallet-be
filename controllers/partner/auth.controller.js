@@ -5,31 +5,63 @@ const nodemailer = require('../../utils/nodemailer');
 const {Response} = require('../../utils/response')
 const {OTP_Limit} = require('../../models/otp_limit.model')
 const catchError = require('../../middlewares/catchError.middleware')
-const  PartnerServices = require('../../services/partner/auth.services')
+const  AuthPartnerServices = require('../../services/partner/auth.services')
 module.exports = {
     signUp:catchError(async(req,res)=>{
         const {email,password} = req.body
-        const otp = await PartnerServices.signUp(email,password)
+        const otp = await AuthPartnerServices.signUp(email,password)
         nodemailer.sendMail(email,"Mã OTP của bạn "+ otp ,"Chúng tôi đến từ pressPay!")
         Response(res,"Vui lòng kiểm tra email",null,200)
     }),
     verifyAccount:catchError(async(req,res)=>{
         const {email,otp} = req.body;
-        const token = await PartnerServices.verifySignUp(email,otp)
+        const {refreshToken,accessToken} = await AuthPartnerServices.verifySignUp(email,otp)
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+          });
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+            });
         res.status(200).json({message:"success",token:token})
     }),
     //using multer!
-    updateProfile:async(req,res)=>{
+    updateProfile: catchError(async(req,res)=>{
         const id = req.partner._id
         await Partner.findByIdAndUpdate({id},req.body)
         return Response(res,"Update profile successfully",null,200)
-    },
-   signIn:catchError(async(req,res)=>{  
+    }),
+    signIn: catchError(async(req,res)=>{  
         const {email,password} = req.body;
-        const data = await PartnerServices.signIn(email,password)
-        return Response(res,"Đăng nhập thành công",data,200)
-   })
-   ,ResendEmail: catchError(async(req,res)=>{
+        const {refreshToken,accessToken} = await AuthPartnerServices.signIn(email,password)
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+          });
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            secure:true,
+            path:'/',
+            maxAge:60*60*24*15*1000
+            });
+        return Response(res,"Đăng nhập thành công",null,200)
+   }),
+   refreshToken: catchError(async (req,res)=>{
+        const refreshToken = req.cookies['refresh_token']
+        
+   }),
+   ResendEmail: catchError(async(req,res)=>{
         const {email,password} = req.body
         const user =await Partner.findOne({email:email})
         if(user){

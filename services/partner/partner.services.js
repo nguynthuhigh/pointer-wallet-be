@@ -5,33 +5,38 @@ const bcrypt = require('../../utils/bcrypt')
 const AppError = require('../../helpers/handleError')
 const jwt = require('../token.services')
 const OTPServices = require('../OTP.services')
-
-module.exports= {
-    getDashboard:async(partner)=>{
-        try {
-            const data = await redis.get(`partner:${partner._id}`)
-            if(data){
-                const parsedData = JSON.parse(data);
-                return {
-                    partner: parsedData.partner,
-                    wallet: parsedData.wallet
-                };
-            }
-            const wallet = await walletServices.getPartnerWallet(partner._id)
-            await redis.set(`partner:${partner._id}`,
-                JSON.stringify({
-                    partner: partner,
-                    wallet: wallet
-                }),600)
+class PartnerServices{
+    static findPartnerById = async (id)=>{
+        const partner = await Partner.findById(id)
+        if(!partner){
+            throw new AppError("Unauthorized",401)
+        }
+        return partner
+    }
+    static getDashboard = async(partner)=>{
+        const data = await redis.get(`partner:${partner._id}`)
+        if(data){
+            const parsedData = JSON.parse(data);
             return {
+                partner: parsedData.partner,
+                wallet: parsedData.wallet
+            };
+        }
+        const wallet = await walletServices.getPartnerWallet(partner._id)
+        await redis.set(`partner:${partner._id}`,
+            JSON.stringify({
                 partner: partner,
                 wallet: wallet
-            }
-        } catch (error) {
-            console.log(error)
-            throw error
+            }),600)
+        return {
+            partner: partner,
+            wallet: wallet
         }
-    },
+    }
+}
+module.exports= {
+    PartnerServices,
+   
     getInfo:async (partnerID)=>{
         try {
             const partner = await Partner.findById(partnerID);

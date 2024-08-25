@@ -1,20 +1,15 @@
 const {Response} = require('../../utils/response')
-const partner = require('../../services/partner/partner.services')
+const {PartnerServices} = require('../../services/partner/partner.services')
 const {Partner} = require('../../models/partner.model')
 const transactionServices = require('../../services/transaction.services')
 const {getRedisClient} = require('../../configs/redis/redis')
-const walletServices = require('../../services/wallet.services')
 const upload = require('../../helpers/upload_cloudinary')
+const catchError = require('../../middlewares/catchError.middleware')
 module.exports = {
-  getDashboard: async (req, res) => {
-    try {
-      const data = await partner.getDashboard(req.partner)
-      return Response(res,'Success',data,200)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      return Response(res,'Internal server error',null,500)
-    }
-  },
+  getDashboard: catchError(async (req, res) => {
+    const data = await PartnerServices.getDashboard(req.partner)
+    return Response(res,'Success',data,200)
+  }),
     updateInfo:async (req,res)=>{
         const redis = getRedisClient()
         try {
@@ -35,20 +30,15 @@ module.exports = {
             return Response(res,error,null,400)
         }
     },
-    getTransactions:async(req,res)=>{
-        try {
-            const partnerID = req.partner
-            const {page,pagesize} = req.query
-            const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
-            const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
-            const data= {
-                transaction:transactionData,
-                page_count:page_count
-            }
-            return Response(res,"Success",data,200)
-        } catch (error) {
-            console.log(error)
-            return Response(res,"Không có giao dịch nào",null,400)
-        }
-    }
+    getTransactions: catchError(async(req,res)=>{
+      const partnerID = req.partner
+      const {page,pagesize} = req.query
+      const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
+      const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
+      const data= {
+          transaction:transactionData,
+          page_count:page_count
+      }
+      return Response(res,"Success",data,200)
+    })
 }

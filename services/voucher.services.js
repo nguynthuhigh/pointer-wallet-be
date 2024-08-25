@@ -6,20 +6,19 @@ const applyVoucher= (type, amount, discountValue, quantity,transactionCurrency,v
     }
     let result;
     if(quantity <= 0){
-        return false
+        throw new AppError("Voucher đã hết lượt sử dụng",400)
     }
-    if (type === "discount_amount") {
-        result = amount - discountValue;
-        if(result < 0){
-            result = 0
-            return result;
+    switch(type){
+        case "discount_amount":{
+            result = amount - discountValue;
+            if(result < 0) return 0
         }
-    } else if (type === "discount_percent") {
-        result = amount - (amount * (discountValue / 100));
-    } else {
-        throw new AppError("Không thể áp dụng voucher vui lòng thử lại",500)
+        case "discount_percent":{
+            result = amount - (amount * (discountValue / 100));
+            return result
+        }
+        default: throw new AppError("Không thể áp dụng voucher vui lòng thử lại",500)
     }
-    return isNaN(result) ? false : result;
 }
 const updateQuantityVoucher = async(id,session)=>{
     const data = Voucher.updateOne({_id:id},{$inc:{quantity:-1,usedCount:1}},{session})
@@ -31,7 +30,7 @@ const applyVoucherPayment=async(transactionDataTemp,session,voucher_code,currenc
     if(!voucher_code){
         return
     }
-    const getVoucher = await Voucher.findOne({code:voucher_code})
+    const getVoucher = await Voucher.findOne({code:voucher_code}).lean()
     if(!getVoucher && getVoucher.quantity <= 0){
         throw new AppError("Voucher đã hết",400)
     }

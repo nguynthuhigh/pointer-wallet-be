@@ -10,7 +10,7 @@ app.use(cookieParser())
 //Config cors
 const cors = require("cors");
 app.use(cors({
-  origin:['http://localhost:5173','https://presspay-wallet.vercel.app'],
+  origin:['http://localhost:5173','https://presspay-wallet.vercel.app','http://localhost:3000','https://presspay.vercel.app'],
   credentials: true
 }));
 //bodyParser
