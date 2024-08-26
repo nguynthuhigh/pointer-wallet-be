@@ -8,7 +8,7 @@ module.exports = {
         const accessToken =  jwt.sign(payload,process.env.SECRET_TOKEN,
             {
                 algorithm:'HS256',
-                expiresIn:'30s'
+                expiresIn:'15m'
             }
         )
         const refreshToken =  jwt.sign(payload,process.env.SECRET_TOKEN,
