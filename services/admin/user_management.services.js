@@ -28,7 +28,9 @@ const getTransactionsUser= async (userID, page, pagesize) => {
     .populate({path:'partnerID',select:'_id name image'})
     .sort({ createdAt: -1 })
     .skip((page - 1) * pagesize)
-    .limit(pagesize).exec();
+    .limit(pagesize)
+    .lean()
+    .exec()
     return data;
 }
 const banUser = async(userID)=>{

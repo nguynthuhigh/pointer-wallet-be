@@ -101,7 +101,6 @@ module.exports ={
         const voucher = await voucherServices.getVoucherByCode(code);
         const transactionData = await transactionServices.getTransactionForPayment(transactionID);
         await voucherServices.checkOwnVoucher(transactionData.partnerID._id,voucher.partnerID)
-        console.log(transactionData.currency._id === voucher.currency.toString())
         const amount = voucherServices.applyVoucher(voucher.type, transactionData.amount, voucher.discountValue, voucher.quantity,transactionData.currency._id,voucher.currency);
         return Response(res, "Áp dụng voucher thành công", amount, 200);
     }),

@@ -13,7 +13,7 @@ class TransactionFactory{
                 return new Transaction_Payment(body).createTransactionPayment()
             case 'transfer':
                 return new Transaction_Transfer(body).createTransactionTransfer()
-            case 'deposit' || 'withdraw':
+            case 'deposit':
                 return new TransactionDeposit(body).createTransactionDeposit()
             case 'withdraw':
                 return new TransactionDeposit(body).createTransactionDeposit()
@@ -190,7 +190,7 @@ module.exports ={
     getTransactionDetails:async(transactionID,userID)=>{
         const data =  await Transaction.findOne({
             $or:[{_id:transactionID,sender:userID},{_id:transactionID,receiver:userID}]
-        }).populate('creditcard sender receiver currency')
+        }).populate('creditcard sender receiver currency').lean()
         .exec()
         if(!data){
             throw new AppError("Không tìm thấy giao dịch",404)

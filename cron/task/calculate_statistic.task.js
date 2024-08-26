@@ -1,6 +1,5 @@
 const {Transaction} = require('../../models/transaction.model')
 const {VolumeStatistic, TotalStatistic} = require('../../models/statistic.model')
-const {Statistic} = require('../../models/statistic.model')
 const {Partner} = require('../../models/partner.model')
 const {User} = require('../../models/user.model')
 const nodemailer = require('../../utils/nodemailer')

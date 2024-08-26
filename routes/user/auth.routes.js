@@ -1,9 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const AuthController = require('../../controllers/user/auth.controller')
-const roleMiddleware = require("../../middlewares/role.middleware")
 const validateMiddleware = require('../../middlewares/validate.middleware')
-const ROLE = require('../../utils/role');
 const {authenticationUser} = require('../../middlewares/authentication.middleware')
 
 router.post('/signup',validateMiddleware.validateRegister,AuthController.Register)

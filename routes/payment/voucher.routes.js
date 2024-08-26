@@ -1,16 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const roleAuth = require('../../middlewares/role.middleware')
-const ROLE = require('../../utils/role')
 const controller = require('../../controllers/payment/voucher.controller')
 const validate = require('../../middlewares/validate.middleware')
 const upload = require('../../middlewares/multer.middleware')
-router.post('/add-voucher',upload.single('image'),validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.addVoucher)
-router.delete('/delete-voucher',roleAuth.Authenciation(ROLE.PARTNER),controller.deleteVoucher)
-router.put('/edit-voucher',validate.validateAddVoucher,roleAuth.Authenciation(ROLE.PARTNER),controller.editVoucher)
+const { authenticationPartner } = require('../../middlewares/authentication.middleware')
+router.post('/add-voucher',upload.single('image'),validate.validateAddVoucher,authenticationPartner,controller.addVoucher)
+router.delete('/delete-voucher',authenticationPartner,controller.deleteVoucher)
+router.put('/edit-voucher',validate.validateAddVoucher,authenticationPartner,controller.editVoucher)
 
-router.get('/get-vouchers',roleAuth.Authenciation(ROLE.PARTNER),controller.getVouchersPartner)
-router.get('/get-voucher-details',roleAuth.Authenciation(ROLE.PARTNER),controller.getVoucher)
+router.get('/get-vouchers',authenticationPartner,controller.getVouchersPartner)
+router.get('/get-voucher-details',authenticationPartner,controller.getVoucher)
 router.get('/get-vouchers-partner',controller.getVouchersPayment)
 
 
@@ -18,5 +17,5 @@ router.get('/get-vouchers-partner',controller.getVouchersPayment)
 
 
 
-//,roleAuth.Authenciation(ROLE.PARTNER)
+//,authenticationPartner
 module.exports = router

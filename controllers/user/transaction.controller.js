@@ -6,6 +6,7 @@ module.exports = {
     getTransactionPaginate:catchError(async(req,res)=>{
         const {page,limit} = req.query
         const id = req.user
+        console.log(id)
         const transactions=await managementUserServices.getTransactionsUser(id,page,limit)
         const data ={
             id:id,

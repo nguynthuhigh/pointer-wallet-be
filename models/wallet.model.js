@@ -39,12 +39,14 @@ const walletSchema = new Schema({
     userID:{
         type:Schema.Types.ObjectId,
         required:false,
-        ref:'User'
+        ref:'User',
+        index:true
     },
     partnerID:{
         type:Schema.Types.ObjectId,
         required:false,
-        ref:'Partner'
+        ref:'Partner',
+        index:true
     },
     currencies:[{
         balance:{

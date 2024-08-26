@@ -4,21 +4,19 @@ const keySchema = new Schema({
     userID:{
         type:Schema.Types.ObjectId,
         ref:'User',
-        index:true
     },
     partnerID:{
         type:Schema.Types.ObjectId,
         ref:'Admin',
-        index:true
     },
     adminID:{
         type:Schema.Types.ObjectId,
         ref:'Partner',
-        index:true
     },
     refresh_token:{
         type:String,
-        required:true
+        required:true,
+        index:true
     },
     refresh_token_used:[{
         type:String,

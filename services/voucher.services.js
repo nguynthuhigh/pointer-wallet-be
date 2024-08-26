@@ -1,5 +1,6 @@
 const AppError = require('../helpers/handleError');
-const {Voucher} = require('../models/voucher.model')
+const {Voucher} = require('../models/voucher.model');
+const convertToObjectId = require('../utils/convertTypeObject');
 const applyVoucher= (type, amount, discountValue, quantity,transactionCurrency,voucherCurrency) => {
     if(transactionCurrency.toString()!== voucherCurrency.toString()){
         throw new AppError("Voucher không hỗ trợ loại tiền tệ này",402)
@@ -34,11 +35,7 @@ const applyVoucherPayment=async(transactionDataTemp,session,voucher_code,currenc
     if(!getVoucher && getVoucher.quantity <= 0){
         throw new AppError("Voucher đã hết",400)
     }
-
     const result_apply = applyVoucher(getVoucher.type, transactionDataTemp.amount, getVoucher.discountValue, getVoucher.quantity,currencyID,getVoucher.currency);
-    if (result_apply === false) {
-        throw new AppError("Không thể áp dụng voucher",400)
-    }
     await updateQuantityVoucher(getVoucher._id,session)
     const data ={
         voucherID:getVoucher._id,
@@ -47,7 +44,7 @@ const applyVoucherPayment=async(transactionDataTemp,session,voucher_code,currenc
     return data
 }
 const getVouchersOfPartner = async(partnerID)=>{
-    const data = await Voucher.find({partnerID:partnerID})
+    const data = await Voucher.find({partnerID:convertToObjectId(partnerID)}).lean()
     return data
 }
 const checkOwnVoucher = async(partnerID,voucher_PartnerID)=>{
@@ -56,14 +53,14 @@ const checkOwnVoucher = async(partnerID,voucher_PartnerID)=>{
     }
 }
 const getVoucherByCode = async(code)=>{
-    const data = await Voucher.findOne({code:code})
+    const data = await Voucher.findOne({code:code}).lean()
     if(!data){
         throw new AppError("Voucher không tồn tại",404)
     }
     return data
 }
 const hasVoucherByCode = async(code)=>{
-    const data = await Voucher.findOne({code:code})
+    const data = await Voucher.findOne({code:code}).lean()
     if(data){
         throw new AppError("Voucher code already exists",400)
     }
@@ -81,7 +78,7 @@ const deleteVoucher = async(voucherID)=>{
     return data
 }
 const getDetailsVoucher = async(voucherID)=>{
-    const data = await Voucher.findById(voucherID)
+    const data = await Voucher.findById(voucherID).lean()
     return data
 }
 module.exports ={

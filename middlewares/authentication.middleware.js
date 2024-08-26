@@ -6,7 +6,7 @@ const AdminServices = require('../services/admin/admin.services');
 const { PartnerServices } = require("../services/partner/partner.services");
 module.exports = {
     authenticationUser: catchError(async(req,res,next)=>{
-        const accessToken = req.headers.authorization?.split(' ')[1]
+        const accessToken = req.cookies.access_token
         if(!accessToken){
             throw new AppError("Unauthorized",401)
         }
