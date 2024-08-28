@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const {connectMongoDB} = require('../configs/mongodb/mongodb')
 const {connectRedis} = require('../configs/redis/redis')
-
+const handleErrorMiddleware = require("../middlewares/handleError.middleware");
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 //Config cors
@@ -23,7 +23,7 @@ require('../routes/index')(app)
 connectMongoDB()
 //Connect to Redis
 connectRedis()
-
+app.use(handleErrorMiddleware)
 app.listen({ port: process.env.PORT }, () => {
   console.log("http://localhost:" + process.env.PORT);
 });
