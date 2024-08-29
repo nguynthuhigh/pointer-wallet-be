@@ -4,6 +4,12 @@ const express = require("express");
 const app = express();
 const {connectMongoDB} = require('./configs/mongodb/mongodb')
 const {connectRedis} = require('./configs/redis/redis')
+// Helmet 
+const helmet = require('helmet')
+app.use(helmet())
+// Compression
+const compression = require('compression')
+app.use(compression())
 //Cookie
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
