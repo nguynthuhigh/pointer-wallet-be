@@ -5,7 +5,7 @@ const nodemailer = require('../../utils/nodemailer');
 const {Response} = require('../../utils/response')
 const {OTP_Limit} = require('../../models/otp_limit.model')
 const catchError = require('../../middlewares/catchError.middleware')
-const  AuthPartnerServices = require('../../services/partner/auth.services')
+const  AuthPartnerServices = require('../../services/partner/auth.services');
 module.exports = {
     signUp:catchError(async(req,res)=>{
         const {email,password} = req.body
@@ -46,14 +46,16 @@ module.exports = {
             sameSite:'none',
             secure:true,
             path:'/',
-            maxAge:60*60*24*15*1000
+            maxAge:60*60*24*15*1000,
+            expire:60*60*24*15*1000
           });
         res.cookie("access_token", accessToken, {
             httpOnly:true,
             sameSite:'none',
             secure:true,
             path:'/',
-            maxAge:60*60*24*15*1000
+            maxAge:60*60*24*15*1000,
+            expire:60*60*24*15*1000
             });
         return Response(res,"Đăng nhập thành công",null,200)
    }),

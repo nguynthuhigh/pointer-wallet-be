@@ -1,16 +1,12 @@
 const {User} = require('../../models/user.model')
 const {Transaction} = require('../../models/transaction.model')
 const getUsers =async (page,page_limit)=>{
-    try {
         return await User.find()
                     .select('email image avatar createdAt inactive')
                     .limit(page_limit)
                     .skip((page-1)*page_limit)
                     .sort({ createdAt: -1 })
-    } catch (error) {
-        console.log(error)
-        throw(error)
-    }
+                    .lean()
 }
 const getDetailsUser =async (userID)=>{
     try {

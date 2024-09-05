@@ -10,35 +10,30 @@ module.exports = {
     const data = await PartnerServices.getDashboard(req.partner)
     return Response(res,'Success',data,200)
   }),
-    updateInfo:async (req,res)=>{
-        const redis = getRedisClient()
-        try {
-          let url = null
-          if (req.file && req.file.path) {
-            url = await upload.upload(req.file.path);
-          } 
-          const data = {
-            name:req.body.name,
-            description: req.body.description,
-            image:url
-          }
-          const partner = await Partner.updateOne({_id:req.partner},data,{new:true})
-          redis.del(`partner:${req.partner._id}`)
-          return Response(res,"Success",partner,200)
-        } catch (error) {
-            console.log(error)
-            return Response(res,error,null,400)
-        }
-    },
-    getTransactions: catchError(async(req,res)=>{
-      const partnerID = req.partner
-      const {page,pagesize} = req.query
-      const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
-      const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
-      const data= {
-          transaction:transactionData,
-          page_count:page_count
+  updateInfo: catchError(async (req,res)=>{
+      const redis = getRedisClient()
+      let url = null
+      if (req.file && req.file.path) {
+        url = await upload.upload(req.file.path);
+      } 
+      const data = {
+        name:req.body.name,
+        description: req.body.description,
+        image:url
       }
-      return Response(res,"Success",data,200)
-    })
+      const partner = await Partner.updateOne({_id:req.partner},data,{new:true})
+      redis.del(`partner:${req.partner._id}`)
+      return Response(res,"Success",partner,200)
+  }),
+  getTransactions: catchError(async(req,res)=>{
+    const partnerID = req.partner
+    const {page,pagesize} = req.query
+    const transactionData = await transactionServices.getTransactionsPartner(partnerID,page,pagesize)
+    const page_count = Math.ceil(await transactionServices.countTransactionsPartner(partnerID)/pagesize)
+    const data= {
+        transaction:transactionData,
+        page_count:page_count
+    }
+    return Response(res,"Success",data,200)
+  })
 }

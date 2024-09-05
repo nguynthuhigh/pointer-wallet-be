@@ -7,16 +7,11 @@ const uploadImage = require('../../helpers/upload_cloudinary')
 const catchError = require('../../middlewares/catchError.middleware')
 module.exports = {
     //admin
-    getUsers:async(req,res)=>{
-        try {
-            const {page,page_limit}= req.query
-            const data = await userManagementServices.getUsers(page,page_limit)
-            Response(res,"Success",data,200)
-        } catch (error) {
-            console.log(error)
-            Response(res,"Error System",null,500)
-        }
-    },
+    getUsers:catchError(async(req,res)=>{
+        const {page,page_limit}= req.query
+        const data = await userManagementServices.getUsers(page,page_limit)
+        Response(res,"Success",data,200)
+    }),
     banUser:async(req,res)=>{
         try {
             const {id} = req.body
