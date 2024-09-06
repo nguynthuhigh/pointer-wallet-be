@@ -40,63 +40,6 @@ module.exports = {
         }
     },
     //user
-    updateProfile:catchError(async(req,res)=>{
-        const id = req.user
-        const url = null
-        if(req.file && req.file.path){
-            url = await uploadImage.upload(req.file.path)
-        }
-        const data={
-            full_name:req.body.full_name,
-            avatar:url
-        }
-        await User.updateOne({_id:id},data,{new:true})
-        Response(res,"Cập nhật thông tin thành công",null,400)
-    }),
-    Profile: catchError(async (req,res)=>{
-        const redis = getRedisClient();
-        const id = req.user
-        const user = req.user_info
-        const userKey = `user:${id}`
-        const userData = await redis.hgetall(userKey)
-        if (Object.keys(userData).length === 0) {
-            const wallet = await userServices.getProfile(id)
-            const data = {
-                userData: user,
-                walletData:wallet
-            }
-            await redis.hset(userKey, {
-                userData: JSON.stringify(user),
-                walletData: JSON.stringify(wallet),
-            });
-            await redis.expire(userKey, 600);
-            return Response(res,"Success",data,200)
-        } 
-        if (userData) {
-            const userInfo = JSON.parse(userData.userData)
-            const walletInfo = JSON.parse(userData.walletData)
-            const data = { userData: userInfo, walletData: walletInfo }
-            return Response(res, 'Success', data, 200)
-            }
-        return Response(res,"Success",userData,200)
-    }),
-    // Profile: async (req,res)=>{
-    //     try{
-    //         const id = req.user
-    //         const user = req.user_info
-    //         const wallet = await userServices.getProfile(id);
-    //         const data = {
-    //             userData: user,
-    //             walletData:wallet
-    //         }
-    //         return Response(res,"Success",data,200)
-    //     }
-    //     catch (error){
-    //         console.log(error)
-    //         return Response(res,error,'',200)
-
-    //     }
-    // },
     getUser: async (req,res)=>{
         try{
             const email = req.query.email

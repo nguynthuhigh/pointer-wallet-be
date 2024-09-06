@@ -6,6 +6,7 @@ const {Response} = require('../../utils/response')
 const {OTP_Limit} = require('../../models/otp_limit.model')
 const catchError = require('../../middlewares/catchError.middleware')
 const  AuthPartnerServices = require('../../services/partner/auth.services');
+const { setCookie } = require('../../utils/cookie');
 module.exports = {
     signUp:catchError(async(req,res)=>{
         const {email,password} = req.body
@@ -41,27 +42,15 @@ module.exports = {
     signIn: catchError(async(req,res)=>{  
         const {email,password} = req.body;
         const {refreshToken,accessToken} = await AuthPartnerServices.signIn(email,password)
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000,
-            expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-          });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000,
-            expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-            });
+        setCookie(res,refreshToken,"refresh_token")
+        setCookie(res,accessToken,"access_token")
         return Response(res,"Đăng nhập thành công",null,200)
    }),
    refreshToken: catchError(async (req,res)=>{
-        const refreshToken = req.cookies['refresh_token']
-        
+        const {refreshToken,accessToken} = await AuthPartnerServices.refreshToken(req.cookies['refresh_token'])
+        setCookie(res,refreshToken,"refresh_token")
+        setCookie(res,accessToken,"access_token")
+        return Response(res,"Success",null,200)
    }),
    ResendEmail: catchError(async(req,res)=>{
         const {email,password} = req.body

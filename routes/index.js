@@ -1,6 +1,6 @@
 const routerAuth = require("./user/auth.routes");
 const routeCredit = require("./user/creditcard.routes");
-const routeUser = require("./admin/user.routes");
+const routeManagementUser = require("./admin/user.routes");
 const routeWallet = require("./user/wallet.routes");
 const routeTransaction = require("./user/transaction.routes");
 const routeAuthPartner = require("./partner/auth.partner.routes");
@@ -11,10 +11,14 @@ const routeWebhook = require("./partner/webhook.routes")
 const routeAdmin = require("./admin/auth.routes")
 const routePartnerManagement = require('./admin/partner_management.routes')
 const routeStatistic = require('./admin/statistic.routes')
+const routeSetting = require('./user/setting.routes')
+const routeUser = require('./user/user.routes')
 module.exports = (app)=>{
+    app.use("/api/v1/user", routeSetting);
     app.use("/api/v1/user", routerAuth);
-    app.use("/api/v1/card", routeCredit);
     app.use("/api/v1/user", routeUser);
+    app.use("/api/v1/card", routeCredit);
+    app.use("/api/v1/user", routeManagementUser);
     app.use("/api/v1/wallet", routeWallet);
     app.use("/api/v1/transaction", routeTransaction);
     app.use("/api/v1/partner", routeAuthPartner);

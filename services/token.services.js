@@ -1,7 +1,7 @@
 const token = require('../utils/token')
 const Key = require('../models/keys.model')
 const AppError = require('../helpers/handleError')
-const createKey = async(type,id)=>{
+const createKey = async(type,id,refreshToken)=>{
     switch(type){
         case 'partner':
             return await Key.create({
@@ -23,12 +23,10 @@ const createKey = async(type,id)=>{
 }
 module.exports = {
     
-    createTokenPair : async(userID)=>{
-        const {accessToken,refreshToken} = token.createToken(userID)
-        const data = await Key.create({
-            refresh_token:refreshToken,
-            userID:userID
-        })
+    createTokenPair : async(type,id)=>{
+        const {accessToken,refreshToken} = token.createToken(id)
+      
+        const data = await createKey(type,id,refreshToken)
         if(!data){
             throw new AppError("Error create token",404)
         }
@@ -46,6 +44,7 @@ module.exports = {
         return token
     },
     updateRefreshToken:async(refreshTokenOld, refreshTokenNew)=>{
+        
         const token = await Key.updateOne({refresh_token:refreshTokenOld},{refresh_token:refreshTokenNew})
         if(token.modifiedCount === 0){
             throw new AppError("Fail refresh token",400)

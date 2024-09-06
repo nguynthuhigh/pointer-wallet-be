@@ -44,7 +44,7 @@ class AuthServices{
         await OTPServices.verifyOTP(email,otp)
         const user = await userServices.getUserByEmail(email)
         const userID = user._id
-        const token = tokenServices.createTokenPair(userID)
+        const token = tokenServices.createTokenPair('user',userID)
         return token
     }
     static refreshTokenAccess = async(refreshToken)=>{

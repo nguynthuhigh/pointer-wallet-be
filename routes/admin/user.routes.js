@@ -10,8 +10,6 @@ router.put('/ban-user',roleAuth.Authentication_Admin(ROLE.ADMIN),controller.banU
 router.get('/get-transactions',roleAuth.Authentication_Admin(ROLE.ADMIN),controller.getTransactionsUser)
 
 //user
-router.put('/update-profile',authenticationUser,upload.single('image'),controller.updateProfile)
-router.get('/profile',authenticationUser,controller.Profile)
 router.get('/get-user',controller.getUser)
 
 

@@ -42,11 +42,11 @@ module.exports  = {
         });
         return Response(res,"Đăng nhập thành công",null,200)
     }),
-    Logout:catchError(async(req,res)=>{
+    Logout: catchError(async(req,res)=>{
         await AuthServices.logoutAccount(req.body.refreshToken)
         Response(res,"Logout Success",null,200)
     }),
-    refreshTokenAccess:catchError(async(req,res)=>{
+    refreshTokenAccess: catchError(async(req,res)=>{
         const {accessToken,refreshToken} = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
         res.cookie("refresh_token", refreshToken, {
             httpOnly:true,

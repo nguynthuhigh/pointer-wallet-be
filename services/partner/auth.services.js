@@ -14,7 +14,7 @@ class PartnerServices{
         if(!bcrypt.bcryptCompare(password,passwordHash)){
             throw new AppError("Tài khoản hoặc mật khẩu không đúng",400)
         }
-        const token =await tokenServices.createTokenPair(partnerFind._id)
+        const token = await tokenServices.createTokenPair('partner',partnerFind._id.toString())
         return token
     }
     static signUp = async(email,password)=>{
@@ -41,8 +41,9 @@ class PartnerServices{
         }
         const tokenCurrent = await tokenServices.findRefreshToken(refreshToken)
         token.verifyToken(refreshToken)
-
-
+        const newToken = token.createToken(tokenCurrent.partnerID)
+        await tokenServices.updateRefreshToken(refreshToken,newToken.refreshToken)
+        return newToken  
     }
 }
 
