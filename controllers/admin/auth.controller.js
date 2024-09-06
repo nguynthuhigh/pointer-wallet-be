@@ -1,6 +1,8 @@
 const {Response} = require('../../utils/response')
 const catchError = require('../../middlewares/catchError.middleware')
 const AuthAdminServices = require('../../services/admin/auth.services')
+const { setCookie } = require('../../utils/cookie');
+
 module.exports = {
     //[POST] /api/v1/admin/add-admin
     createAccount: catchError(async(req,res)=>{
@@ -13,20 +15,8 @@ module.exports = {
         const userIP = req.ip || req.connection.remoteAddress
         const {email,password} = req.body
         const {accessToken,refreshToken} = await AuthAdminServices.loginAccount(email,password,userIP)
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-            });
+        setCookie(res,refreshToken,'refresh_token')
+        setCookie(res,accessToken,'access_token')
         Response(res,"Sign in successfully",null,200)
     }),
      //[GET] /api/v1/admin/refresh-token

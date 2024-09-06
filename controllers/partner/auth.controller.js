@@ -17,20 +17,8 @@ module.exports = {
     verifyAccount:catchError(async(req,res)=>{
         const {email,otp} = req.body;
         const {refreshToken,accessToken} = await AuthPartnerServices.verifySignUp(email,otp)
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-            });
+        setCookie(res,refreshToken,"refresh_token")
+        setCookie(res,accessToken,"access_token")
         res.status(200).json({message:"success",token:token})
     }),
     //using multer!
@@ -43,7 +31,14 @@ module.exports = {
         const {email,password} = req.body;
         const {refreshToken,accessToken} = await AuthPartnerServices.signIn(email,password)
         setCookie(res,refreshToken,"refresh_token")
-        setCookie(res,accessToken,"access_token")
+        // setCookie(res,accessToken,"access_token")
+        res.cookie("access_token", accessToken, {
+            httpOnly:true,
+            sameSite:'none',
+            path:'/',
+            maxAge:60*60*24*15*1000,
+            expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+          });
         return Response(res,"Đăng nhập thành công",null,200)
    }),
    refreshToken: catchError(async (req,res)=>{
