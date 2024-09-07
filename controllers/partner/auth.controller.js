@@ -31,14 +31,7 @@ module.exports = {
         const {email,password} = req.body;
         const {refreshToken,accessToken} = await AuthPartnerServices.signIn(email,password)
         setCookie(res,refreshToken,"refresh_token")
-        // setCookie(res,accessToken,"access_token")
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            path:'/',
-            maxAge:60*60*24*15*1000,
-            expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-          });
+        setCookie(res,accessToken,"access_token")
         return Response(res,"Đăng nhập thành công",null,200)
    }),
    refreshToken: catchError(async (req,res)=>{

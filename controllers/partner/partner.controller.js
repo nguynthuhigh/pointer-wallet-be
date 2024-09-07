@@ -10,9 +10,10 @@ module.exports = {
     const data = await PartnerServices.getDashboard(req.partner)
     return Response(res,'Success',data,200)
   }),
-  updateInfo: catchError(async (req,res)=>{
+  editProfile: catchError(async (req,res)=>{
       const redis = getRedisClient()
       let url = null
+      console.log(req.file)
       if (req.file && req.file.path) {
         url = await upload.upload(req.file.path);
       } 
