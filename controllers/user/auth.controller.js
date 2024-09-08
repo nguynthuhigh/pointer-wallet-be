@@ -12,8 +12,10 @@ module.exports  = {
     }),
     VerifyAccount: catchError(async(req,res)=>{
         const {email,otp} = req.body
-        const data = await AuthServices.verifyRegister(email,otp)
-        return Response(res,"Đăng ký thành công",data,200)
+        const {accessToken,refreshToken} = await AuthServices.verifyRegister(email,otp)
+        setCookie(res,accessToken,"access_token")
+        setCookie(res,refreshToken,"refresh_token")
+        return Response(res,"Đăng ký thành công",null,200)
 
     }),
     updateSecurityCode: catchError(async(req,res)=>{

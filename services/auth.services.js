@@ -18,7 +18,7 @@ class AuthServices{
         const password = await OTPServices.verifyOTP(email,otp)
         const user = await userServices.createUser(email,password)
         const userID = user._id
-        const token = tokenServices.createTokenPair(userID)
+        const token = tokenServices.createTokenPair('user',userID)
         await walletServices.createWallet(userID,'user')
         return token
     }
@@ -43,7 +43,6 @@ class AuthServices{
         const {email,otp} = body
         await OTPServices.verifyOTP(email,otp)
         const user = await userServices.getUserByEmail(email)
-        console.log(user)
         const token = tokenServices.createTokenPair('user',user._id)
         return token
     }
