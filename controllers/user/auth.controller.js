@@ -1,7 +1,8 @@
 const {Response} = require("../../utils/response");    
 const nodemailer = require('../../utils/nodemailer')
 const catchError = require('../../middlewares/catchError.middleware')
-const AuthServices = require('../../services/auth.services')
+const AuthServices = require('../../services/auth.services');
+const { setCookie } = require("../../utils/cookie");
 module.exports  = {
     Register: catchError(async (req,res)=>{
         const data = await AuthServices.registerAccount(req.body)
@@ -26,20 +27,8 @@ module.exports  = {
     }),
     VerifyLogin: catchError(async(req,res)=>{
         const {accessToken,refreshToken} = await AuthServices.verifyLogin(req.body)
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-        });
+        setCookie(res,accessToken,"access_token")
+        setCookie(res,refreshToken,"refresh_token")
         return Response(res,"Đăng nhập thành công",null,200)
     }),
     Logout: catchError(async(req,res)=>{
@@ -48,20 +37,8 @@ module.exports  = {
     }),
     refreshTokenAccess: catchError(async(req,res)=>{
         const {accessToken,refreshToken} = await AuthServices.refreshTokenAccess(req.cookies['refresh_token'])
-        res.cookie("refresh_token", refreshToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-          });
-        res.cookie("access_token", accessToken, {
-            httpOnly:true,
-            sameSite:'none',
-            secure:true,
-            path:'/',
-            maxAge:60*60*24*15*1000
-        });
+        setCookie(res,accessToken,"access_token")
+        setCookie(res,refreshToken,"refresh_token")
         return Response(res,"refresh token success",null,200)
     }),
     resendEmail:async(req,res)=>{

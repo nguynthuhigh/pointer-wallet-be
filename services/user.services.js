@@ -68,7 +68,7 @@ module.exports = {
     getProfile: async(userData)=>{
         const userRedis = await redis.get(`user:${userData._id}`)
         if(!userRedis){
-            const walletData = await Wallet.findOne({userID:userData._id})
+            const walletData = await Wallet.findOne({userID:userData._id}).populate('currencies.currency').lean().exec()
             redis.set(`user:${userData._id}`,JSON.stringify({
                 userData:userData,
                 walletData:walletData

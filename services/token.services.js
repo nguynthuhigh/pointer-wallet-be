@@ -25,7 +25,6 @@ module.exports = {
     
     createTokenPair : async(type,id)=>{
         const {accessToken,refreshToken} = token.createToken(id)
-      
         const data = await createKey(type,id,refreshToken)
         if(!data){
             throw new AppError("Error create token",404)

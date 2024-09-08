@@ -46,9 +46,6 @@ class Transaction_Transfer extends Transactions{
         const session = await mongoose.startSession();
         session.startTransaction();
         const data = new Transaction(this)
-        if(!data){
-            throw new AppError('Error Create Transactions',500)
-        }
         const transactionResult = await data.save({ session });
         await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
         await walletServices.updateBalance(this.receiver, this.currency, this.amount, session);

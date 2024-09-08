@@ -39,12 +39,12 @@ class AuthServices{
         const OTP = await OTPServices.createOTP(email,passwordHash)
         return {OTP,email}
     }
-    static verifyLogin = async(payload)=>{
-        const {email,otp} = payload
+    static verifyLogin = async(body)=>{
+        const {email,otp} = body
         await OTPServices.verifyOTP(email,otp)
         const user = await userServices.getUserByEmail(email)
-        const userID = user._id
-        const token = tokenServices.createTokenPair('user',userID)
+        console.log(user)
+        const token = tokenServices.createTokenPair('user',user._id)
         return token
     }
     static refreshTokenAccess = async(refreshToken)=>{

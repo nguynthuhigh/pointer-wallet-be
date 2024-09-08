@@ -2,7 +2,7 @@ const multer = require('multer')
 
 const storage = multer.diskStorage({
     filename: function (req,file,cb){
-        cb(null,file.originalname)
+        cb(null,req.user.toString())
     }
 });
 const upload = multer({storage:storage});

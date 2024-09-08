@@ -48,7 +48,7 @@ module.exports = {
     hasSufficientBalance:async(userID,currencyID,amount)=>{
         const user_wallet =await Wallet.findOne({userID:userID})
         const currencyBalance = user_wallet.currencies.find(item => item.currency.equals(currencyID))
-        if(!currencyBalance.balance >= amount){
+        if(currencyBalance.balance < amount){
             throw new AppError("Số dư không đủ",402)
         }
     },
@@ -58,9 +58,6 @@ module.exports = {
         if(!currencyBalance.balance >= amount){
             throw new AppError("Số dư không đủ",402)
         }
-
-    },
-        getBalance:(userID,currency)=>{
 
     },
     updateBalance: async (userID, currencyID, amount, session) => {

@@ -5,6 +5,7 @@ const uploadImage = require('../../helpers/upload_cloudinary')
 module.exports = {
     changePassword: catchError(async(req,res)=>{
         await userService.changePassword(req.body.old_password,req.body.new_password,req.user_info)
+        console.log('first')
         Response(res,"Đổi mật khẩu thành công",null,200)
     }),
     changeSecurityCode: catchError(async(req,res)=>{
@@ -13,14 +14,14 @@ module.exports = {
     }),
     editProfile: catchError(async(req,res)=>{
         let url = null
-        if(req.file.path){
+        if(req?.file?.path){
             url = await uploadImage.upload(req.file.path)
         }
         await userService.editProfile({
             ...req.body,
-            avatar:url,
+            avatar:url || req.user_info.avatar,
             _id:req.user
         })
-        Response(res,"Cập nhật thông tin thành công",null,400)
+        Response(res,"Cập nhật thông tin thành công",null,200)
     }),
 }

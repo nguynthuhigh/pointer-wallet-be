@@ -53,7 +53,7 @@ const walletSchema = new Schema({
             type:Number,
             default:0,
             required:true,
-            min: [0,"Invalid"]
+            min: 0
         },
         currency:{
             type:Schema.Types.ObjectId,
