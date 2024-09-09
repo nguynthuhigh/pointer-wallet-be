@@ -5,6 +5,7 @@ const {Response} = require('../../utils/response')
 const catchError = require('../../middlewares/catchError.middleware')
 const cardServices = require('../../services/credit_card.services')
 const AppError = require('../../helpers/handleError')
+const convertToObjectId = require('../../utils/convertTypeObject')
 module.exports = {
     addCard: catchError(async (req,res,next)=>{
         const userID = req.user
@@ -53,9 +54,9 @@ module.exports = {
         await cardServices.findCardAndUpdate(id,req.body)
         return Response(res,"Sửa thông tin thẻ thành công",null,200)
     }),
-    deleteCard:catchError(async (req,res)=>{
+    deleteCard: catchError(async (req,res)=>{
         const id = req.params.id
-        await cardServices.deleteCard(id,req.user)
+        await cardServices.deleteCard(convertToObjectId(id),req.user) 
         return Response(res,"Xóa thẻ thành công",null,200)
     })
 }
