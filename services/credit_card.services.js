@@ -31,8 +31,18 @@ const checkCardExists = async (number,userID)=>{
         throw new AppError("Thẻ đã tồn tại",400)
     }
 }
-const createCard = async(body)=>{
-    await checkCardExists(body.number,body.userID)
+const addCard = async(body)=>{
+    const userID = body.userID
+    await checkCardExists(body.number,userID)
+    const name = body.user.full_name
+    const resultCompare = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g,"")
+    if(resultCompare !== body.name.toLowerCase().replace(/ /g,"")){
+        throw new AppError("Tên thẻ phải khớp với tên người dùng",400)
+    }
+    const cardCount = await CreditCard.countDocuments({userID:userID})
+    if(cardCount > 3){
+        throw new AppError("Mỗi tài khoản chỉ được thêm tối đa 4 thẻ",400)
+    }
     const data = await CreditCard.create(body)
     if(!data){
         throw new AppError("Tạo thẻ thất bại",400)
@@ -44,5 +54,5 @@ module.exports = {
     deleteCard,
     findCardAndUpdate,
     getCards,
-    createCard
+    addCard
 }

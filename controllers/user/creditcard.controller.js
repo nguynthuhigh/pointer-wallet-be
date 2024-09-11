@@ -16,9 +16,10 @@ module.exports = {
         const body = {
             ...req.body,
             userID:userID,
-            type:typeCard
+            type:typeCard,
+            user:req.user_info
         }
-        await cardServices.createCard(body);
+        await cardServices.addCard(body);
         return Response(res,"Thêm thẻ thành công",null,200)
     }),
     getCardS:catchError(async(req,res,next)=>{
@@ -29,7 +30,9 @@ module.exports = {
                 const decrypt = {
                         _id: element._id,
                         number: element.number.substring(0,4) + '*'.repeat(element.number.length-8) + element.number.substring(element.number.length-4,element.number.length),
-                        name:element.name,
+                        name: cryptoJS.decrypt(element.name),
+                        expiryMonth: cryptoJS.decrypt(element.expiryMonth),
+                        expiryYear: cryptoJS.decrypt(element.expiryYear),
                         type:element.type
                     }
                 list_card.push(decrypt)
