@@ -93,7 +93,7 @@ class TransactionDeposit extends Transactions{
         if(!transactionResult){
             throw new AppError('Error Create Transactions',500)
         }
-        await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
+        await walletServices.updateBalance(this.sender, this.currency, this.amount, session);
         await session.commitTransaction(); 
         await session.endSession();
         return transactionResult
@@ -115,7 +115,7 @@ class TransactionWithdraw extends Transactions{
         if(!transactionResult){
             throw new AppError('Error Create Transactions',500)
         }
-        await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
+        await walletServices.updateBalance(this.sender, this.currency, this.amount, session);
         await session.commitTransaction(); 
         await session.endSession();
         return transactionResult

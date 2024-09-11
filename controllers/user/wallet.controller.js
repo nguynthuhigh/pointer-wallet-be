@@ -4,6 +4,7 @@ const userServices = require('../../services/user.services')
 const creditCardServices = require('../../services/credit_card.services')
 const catchError = require('../../middlewares/catchError.middleware')
 const {TransactionFactory, checkConditionCreateTransaction} = require('../../services/transaction.services')
+const walletServices = require('../../services/wallet.services')
 module.exports  = {
     sendMoney:catchError(async (req, res) => {
         const sender = req.user;
@@ -22,9 +23,9 @@ module.exports  = {
     }),
     depositMoney:catchError(async(req,res)=>{
         const sender = req.user
-        const {cardID,amount} = req.body
+        const {cardID,amount,currency} = req.body
         const cardData =  await creditCardServices.findCardById(cardID,sender)
-        const getCurrency = await checkConditionCreateTransaction({...req.body,current_security_code:req.security_code,userID:req.user})
+        const getCurrency = await walletServices.getCurrency(currency)
         const number = cardData.number.substring(cardData.number.length-4,cardData.number.length-1)
         const transactionResult = await TransactionFactory.createTransaction('deposit',
         {...req.body,
