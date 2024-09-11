@@ -1,24 +1,16 @@
-const wallet = require('../../services/wallet.services')
 const {Response} = require('../../utils/response')
-const bcrypt = require('../../utils/bcrypt')
-const stripe = require('../../services/stripe.services')
 const nodemailer = require('../../utils/nodemailer')
 const userServices = require('../../services/user.services')
-const AppError = require('../../helpers/handleError')
 const creditCardServices = require('../../services/credit_card.services')
 const catchError = require('../../middlewares/catchError.middleware')
-const {TransactionFactory} = require('../../services/transaction.services')
+const {TransactionFactory, checkConditionCreateTransaction} = require('../../services/transaction.services')
 module.exports  = {
     sendMoney:catchError(async (req, res) => {
         const sender = req.user;
         const user_info = req.user_info
-        const { receiver, amount, currency, security_code } = req.body;
-        const getCurrency = await wallet.getCurrency(currency);
+        const { receiver, amount, currency } = req.body;
         const getReceiver = await userServices.getUserById(receiver)
-        await wallet.hasSufficientBalance(sender, getCurrency._id, amount)
-        if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
-            throw new AppError("Mã bảo mật không đúng",402)
-        }
+        const getCurrency = await checkConditionCreateTransaction({...req.body,current_security_code:req.security_code,userID:req.user})
         const transactionResult = await TransactionFactory.createTransaction('transfer',
             {...req.body,
                 currency: getCurrency._id,
@@ -30,22 +22,13 @@ module.exports  = {
     }),
     depositMoney:catchError(async(req,res)=>{
         const sender = req.user
-        const {currency,cardID,security_code,amount} = req.body
+        const {cardID,amount} = req.body
         const cardData =  await creditCardServices.findCardById(cardID,sender)
-        console.log(cardData)
-        if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
-            throw new AppError("Mã bảo mật không đúng",402)
-        }
-        // const paymentIntent =await stripe.depositStripe(amount*100,currency)
-        // if(paymentIntent.status !== 'succeeded'){
-        //     return Response(res,"Nạp tiền thất bại",null,400)
-        // }
-        const getCurrency = await wallet.getCurrency(currency)
+        const getCurrency = await checkConditionCreateTransaction({...req.body,current_security_code:req.security_code,userID:req.user})
         const number = cardData.number.substring(cardData.number.length-4,cardData.number.length-1)
         const transactionResult = await TransactionFactory.createTransaction('deposit',
         {...req.body,
             currency: getCurrency._id,
-            type:'deposit',
             sender:sender,
             creditcard:cardData._id,
             title:"Nạp tiền từ thẻ ***"+number,
@@ -53,5 +36,22 @@ module.exports  = {
             amount:amount
         })
         Response(res,"Nạp tiền thành công",transactionResult,200)
+    }),
+    withdrawMoney:catchError(async(req,res)=>{
+        const sender = req.user
+        const {cardID,amount} = req.body
+        const cardData =  await creditCardServices.findCardById(cardID,sender)
+        const getCurrency = await checkConditionCreateTransaction({...req.body,current_security_code:req.security_code,userID:req.user})
+        const number = cardData.number.substring(cardData.number.length-4,cardData.number.length-1)
+        const transactionResult = await TransactionFactory.createTransaction('deposit',
+        {...req.body,
+            currency: getCurrency._id,
+            sender:sender,
+            creditcard:cardData._id,
+            title:"Rút tiền về thẻ ***"+number,
+            message:"Nạp tiền thành công",
+            amount:-amount
+        })
+        Response(res,"Rút tiền thành công",transactionResult,200)
     }),
 }

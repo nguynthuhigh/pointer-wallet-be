@@ -6,17 +6,18 @@ const AppError = require('../helpers/handleError')
 const redis = require('../helpers/redis.helpers')
 const mongoose = require('mongoose')
 const walletServices = require('../services/wallet.services')
+const bcrypt = require('../utils/bcrypt')
 class TransactionFactory{
     static async createTransaction(type,body){
         switch (type) {
             case 'payment':
-                return new Transaction_Payment(body).createTransactionPayment()
+                return new TransactionPayment(body).createTransactionPayment()
             case 'transfer':
-                return new Transaction_Transfer(body).createTransactionTransfer()
+                return new TransactionTransfer(body).createTransactionTransfer()
             case 'deposit':
                 return new TransactionDeposit(body).createTransactionDeposit()
             case 'withdraw':
-                return new TransactionDeposit(body).createTransactionDeposit()
+                return new TransactionWithdraw(body).createTransactionWithdraw()
             case 'refund':
                 return new TransactionRefund(body).createTransactionRefund()
             default:
@@ -34,8 +35,9 @@ class Transactions {
         this.message = message,
         this.currency = currency
     }
+
 }
-class Transaction_Transfer extends Transactions{
+class TransactionTransfer extends Transactions{
     constructor({ sender, receiver, ...options }){
         super(options)
         this.sender = sender,
@@ -54,7 +56,7 @@ class Transaction_Transfer extends Transactions{
         return transactionResult
     }
 }
-class Transaction_Payment extends Transactions{
+class TransactionPayment extends Transactions{
     constructor({partnerID,userID,return_url,orderID,...options}){
         super(options)
         this.partnerID = partnerID,
@@ -76,9 +78,36 @@ class TransactionDeposit extends Transactions{
         super(options)
         this.creditcard = creditcard,
         this.sender = sender,
-        this.status ='completed'
+        this.status ='completed',
+        this.type = 'deposit'
     }
     async createTransactionDeposit(){
+        const session = await mongoose.startSession();
+        session.startTransaction();
+        const data = new Transaction(this)
+        const transactionResult = await data.save({ session });
+           // const paymentIntent =await stripe.depositStripe(amount*100,currency)
+        // if(paymentIntent.status !== 'succeeded'){
+        //     return Response(res,"Nạp tiền thất bại",null,400)
+        // }
+        if(!transactionResult){
+            throw new AppError('Error Create Transactions',500)
+        }
+        await walletServices.updateBalance(this.sender, this.currency, -this.amount, session);
+        await session.commitTransaction(); 
+        await session.endSession();
+        return transactionResult
+    }
+}
+class TransactionWithdraw extends Transactions{
+    constructor({sender,creditcard,...options}){
+        super(options)
+        this.creditcard = creditcard,
+        this.sender = sender,
+        this.status ='completed',
+        this.type = 'withdraw'
+    }
+    async createTransactionWithdraw(){
         const session = await mongoose.startSession();
         session.startTransaction();
         const data = new Transaction(this)
@@ -108,6 +137,14 @@ class TransactionRefund extends Transactions{
 }
 module.exports ={
     TransactionFactory,
+    checkConditionCreateTransaction: async({ userID, amount, currency, security_code, current_security_code })=>{
+        const getCurrency = await walletServices.getCurrency(currency);
+        await walletServices.hasSufficientBalance(userID, getCurrency._id, amount)
+        if (!bcrypt.bcryptCompare(security_code, current_security_code)) {
+            throw new AppError("Mã bảo mật không đúng",402)
+        }
+        return getCurrency
+    },
     updateStatusTransaction:async(transactionID,status,session)=>{
         const data = await Transaction.findByIdAndUpdate({_id:transactionID},
             {status:status},
