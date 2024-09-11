@@ -1,8 +1,9 @@
 const AppError = require("../helpers/handleError");
-const { CreditCard } = require("../models/creditcard.model")
+const { CreditCard } = require("../models/creditcard.model");
+const convertToObjectId = require("../utils/convertTypeObject");
 
-const findCardById = (id)=>{
-    const cardData = CreditCard.findById(id);
+const findCardById = async (id,userID)=>{
+    const cardData = await CreditCard.findOne({_id:convertToObjectId(id),userID:userID}); 
     if(!cardData){
         throw new AppError("Thẻ không tồn tại",404)
     }

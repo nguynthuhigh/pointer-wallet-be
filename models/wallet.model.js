@@ -31,11 +31,6 @@ const walletSchema = new Schema({
         required:false,
         set:cryptoJS.encrypt,
     },
-    balance:{
-        type:Number,
-        required:true,
-        default:0
-    },
     userID:{
         type:Schema.Types.ObjectId,
         required:false,

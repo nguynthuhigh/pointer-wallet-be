@@ -23,6 +23,7 @@ module.exports = {
                 if(!data){
                     throw new AppError("Đăng ký thất bại vui lòng thử lại",400)
                 }
+                break;
             }
             case 'partner':{
                 const data = await Wallet.create({
@@ -34,6 +35,7 @@ module.exports = {
                 if(!data){
                     throw new AppError("Error Register",400)
                 }
+                break;
             }
             default: return
         }

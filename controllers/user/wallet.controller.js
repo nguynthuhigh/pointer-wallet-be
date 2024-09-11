@@ -30,8 +30,9 @@ module.exports  = {
     }),
     depositMoney:catchError(async(req,res)=>{
         const sender = req.user
-        const {currency,cardID,security_code} = req.body
-        const cardData = creditCardServices.findCardById(cardID)
+        const {currency,cardID,security_code,amount} = req.body
+        const cardData =  await creditCardServices.findCardById(cardID,sender)
+        console.log(cardData)
         if (!bcrypt.bcryptCompare(security_code, req.security_code)) {
             throw new AppError("Mã bảo mật không đúng",402)
         }
@@ -49,6 +50,7 @@ module.exports  = {
             creditcard:cardData._id,
             title:"Nạp tiền từ thẻ ***"+number,
             message:"Nạp tiền thành công",
+            amount:amount
         })
         Response(res,"Nạp tiền thành công",transactionResult,200)
     }),
