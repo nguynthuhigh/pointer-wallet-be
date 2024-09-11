@@ -28,7 +28,8 @@ module.exports = {
             card.forEach(element => {
                 const decrypt = {
                         _id: element._id,
-                        number: element.number,
+                        number: element.number.substring(0,4) + '*'.repeat(element.number.length-8) + element.number.substring(element.number.length-4,element.number.length),
+                        name:element.name,
                         type:element.type
                     }
                 list_card.push(decrypt)
@@ -37,11 +38,10 @@ module.exports = {
     }),
     getCardDetails: catchError(async (req, res) => {
         const id = req.params.id;
-        const card = await cardServices.findCardById(id)
+        const card = await cardServices.findCardById(id,req.user)
         const cardDecrypt = {
             name: cryptoJS.decrypt(card.name),
-            number: card.number,
-            cvv: cryptoJS.decrypt(card.cvv),
+            number: card.number.substring(0,4) + '*'.repeat(card.number.length-8) + card.number.substring(card.number.length-4,card.number.length),
             expiryMonth: cryptoJS.decrypt(card.expiryMonth),
             expiryYear: cryptoJS.decrypt(card.expiryYear),
             type:card.type
