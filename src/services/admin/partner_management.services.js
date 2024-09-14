@@ -1,39 +1,40 @@
+const { Transaction } = require('../../models/transaction.model')
 const {Partner} = require('../../models/partner.model')
-const {Transaction} = require('../../models/transaction.model')
-const getPartners =async (page,page_limit)=>{
-    try {
-        return await Partner.find()
-                    .select('email image description createdAt inactive')
-                    .limit(page_limit)
-                    .skip((page-1)*page_limit)
-                    .sort({ createdAt: -1 })
-    } catch (error) {
-        console.log(error)
-        throw(error)
-    }
+const { getTransactions } = require('../../repositories/transaction.repo')
+const { unSelectData } = require('../../utils')
+const convertToObjectId = require('../../utils/convertTypeObject')
+const getPartners =async (option)=>{
+    const [data,pageCount] = await Promise.all([
+        await Partner.find(option.filter)
+        .select(option.select)
+        .limit(option.page_limit)
+        .skip((option.page-1)*option.page_limit)
+        .sort({ createdAt: option.sort }),
+        Math.ceil(await Partner.countDocuments(option.filter)/option.page_limit)
+    ])
+    return {data,pageCount}
 }
-const getDetailsPartner =async (partnerID)=>{
-    try {
-        return await Partner.findById(partnerID).select('email image description createdAt inactive')
-    } catch (error) {
-        console.log(error)
-        throw(error)
-    }
+const getPartnerDetails =async (id)=>{
+    const partnerID = convertToObjectId(id)
+    return await Partner.findById(partnerID).select(unSelectData(['password','privateKey','publicKey']))
 }
-const getTransactionsPartner= async (partnerID, page, pagesize) => {
-    try {
-        const data = await Transaction.find({ partnerID: partnerID })
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * pagesize)
-            .limit(pagesize);
-        return data;
-    } catch (error) {
-        console.log(error);
-    }
+const getPartnerTransactions =async (option)=>{
+    const [data,pageCount] = await Promise.all([
+        await getTransactions(option),
+        Math.ceil(await Transaction.countDocuments(option.filter)/option.page_limit)
+    ])
+    return {data,pageCount}
 }
-const func = {
+const banPartner = async(id)=>{
+    const result =  await Partner.findByIdAndUpdate(convertToObjectId(id),[{$set:{inactive:{$eq:[false,"$inactive"]}}}],{new:true}).select('inactive')
+    if(result.modifiedCount === 0){
+        throw new AppError('Fail, try again',404)
+    }
+    return result
+}
+module.exports = {
     getPartners,
-    getDetailsPartner,
-    getTransactionsPartner
+    getPartnerDetails,
+    getPartnerTransactions,
+    banPartner
 }
-module.exports = func

@@ -1,13 +1,10 @@
 const express = require('express')
-
 const router = express.Router()
 const controller = require('../../controllers/admin/partner_management.controller')
-const middleware = require('../../middlewares/role.middleware')
-const ROLE = require('../../contains/role')
-router.get('/get-partners',middleware.Authentication_Admin(ROLE.ADMIN),controller.getPartners)
-router.get('/details-partner',middleware.Authentication_Admin(ROLE.ADMIN),controller.getDetailsPartner)
-router.get('/get-transactions',middleware.Authentication_Admin(ROLE.ADMIN),controller.getTransactionsPartner)
 
-
+router.get('/get-partners',controller.getPartners)
+router.get('/get-details',controller.getPartnerDetails)
+router.get('/get-transactions',controller.getPartnerTransactions)
+router.post('/ban-partner',controller.banPartner)
 
 module.exports = router
