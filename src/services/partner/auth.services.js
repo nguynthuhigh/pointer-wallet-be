@@ -19,7 +19,7 @@ class PartnerServices{
     }
     static signUp = async(email,password)=>{
         const partner =await Partner.findOne({email:email})
-        if(!partner){
+        if(partner){
             throw new AppError("Email is exists",400)
         }
         const passwordHash = bcrypt.bcryptHash(password)

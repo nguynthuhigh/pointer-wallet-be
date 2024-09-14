@@ -1,9 +1,9 @@
 require("dotenv").config();
-require('./cron')
+require('./src/cron')
 const express = require("express");
 const app = express();
-const {connectMongoDB} = require('./configs/mongodb/mongodb')
-const {connectRedis} = require('./configs/redis/redis')
+const {connectMongoDB} = require('./src/configs/mongodb/mongodb')
+const {connectRedis} = require('./src/configs/redis/redis')
 // Helmet 
 const helmet = require('helmet')
 app.use(helmet())
@@ -21,11 +21,11 @@ app.use(cors({
 }));
 //bodyParser
 const bodyParser = require("body-parser");
-const handleErrorMiddleware = require("./middlewares/handleError.middleware");
+const handleErrorMiddleware = require("./src/middlewares/handleError.middleware");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //Routes
-require('./routes/index')(app)
+require('./src/routes/index')(app)
 //Connect to MongoDB
 connectMongoDB()
 //Connect to Redis

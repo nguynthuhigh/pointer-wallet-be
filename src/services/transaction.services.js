@@ -184,7 +184,8 @@ module.exports ={
         const data = await Transaction.find({ partnerID: partnerID })
             .sort({ createdAt: -1 })
             .skip((page - 1) * pagesize)
-            .limit(pagesize);
+            .limit(pagesize)
+            .lean();
         return data;
     },
     countTransactionsPartner:async(partnerID)=>{
