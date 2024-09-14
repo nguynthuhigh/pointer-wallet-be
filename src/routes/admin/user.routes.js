@@ -1,13 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const roleAuth = require('../../middlewares/role.middleware')
-const ROLE = require('../../contains/role')
 const controller = require('../../controllers/admin/user_management.controller')
-const upload = require('../../middlewares/multer.middleware')
-const {authenticationUser} = require('../../middlewares/authentication.middleware')
 router.get('/get-users',controller.getUsers)
-router.put('/ban-user',roleAuth.Authentication_Admin(ROLE.ADMIN),controller.banUser)
-router.get('/get-transactions',roleAuth.Authentication_Admin(ROLE.ADMIN),controller.getTransactionsUser)
+router.patch('/ban-user',controller.banUser)
+router.get('/get-transactions',controller.getUserDetails)
 
 //user
 router.get('/get-user',controller.getUser)

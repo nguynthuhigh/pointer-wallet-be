@@ -1,46 +1,54 @@
 const {User} = require('../../models/user.model')
 const {Transaction} = require('../../models/transaction.model')
-const getUsers =async (page,page_limit)=>{
-        return await User.find()
-                    .select('email image avatar createdAt inactive')
-                    .limit(page_limit)
-                    .skip((page-1)*page_limit)
-                    .sort({ createdAt: -1 })
-                    .lean()
-}
-const getDetailsUser =async (userID)=>{
-    try {
-        return await User.findById(userID).select('email image avatar createdAt inactive')
-    } catch (error) {
-        console.log(error)
-        throw(error)
+const AppError = require('../../helpers/handleError')
+const getUsers =async (sort,page,page_limit,filter,select)=>{
+    const [data, count] = await Promise.all([
+        await User.find(filter)
+        .select(select)
+        .limit(page_limit)
+        .skip((page-1)*page_limit)
+        .sort({ createdAt: sort })
+        .lean(),
+        Math.ceil(await User.countDocuments(filter)/page_limit)
+    ])
+    return {
+        data:data,
+        pageCount: count
     }
 }
-const getTransactionsUser= async (userID, page, pagesize) => {
-    const data = await Transaction.find({$or:[{receiver:userID},{sender:userID}]})
-    .populate({path:'sender',select:'_id email full_name avatar '})
-    .populate({path:'receiver',select:'_id email full_name avatar '})
-    .populate({path:'currency',select:'_id symbol name'})
-    .populate({path:'partnerID',select:'_id name image'})
-    .sort({ createdAt: -1 })
-    .skip((page - 1) * pagesize)
-    .limit(pagesize)
-    .lean()
-    .exec()
-    return data;
+
+const getUserTransactions = async (userID, page, page_limit, filter, sort) => {
+    const query = { $or: [{ receiver: userID }, { sender: userID }], $and: filter };
+    const [transactions, count] = await Promise.all([
+      Transaction.find(query)
+        .populate({ path: 'currency', select: '_id symbol name' })
+        .sort({ createdAt: sort })
+        .skip((page - 1) * page_limit)
+        .limit(page_limit)
+        .lean()
+        .exec(),
+      Transaction.countDocuments(query)
+    ]);
+    return {
+      transaction: transactions,
+      pageCount: Math.ceil(count / page_limit)
+    };
+  };
+  
+const getUserDetails = async (id,select)=>{
+    return await User.findById(id).select(select)
 }
 const banUser = async(userID)=>{
-    try {
-        return await User.findByIdAndUpdate(userID,[{$set:{inactive:{$eq:[false,"$inactive"]}}}],{new:true}).select('inactive')
-    } catch (error) {
-        console.log(error)
-        throw error
-    }
+    const result =  await User.findByIdAndUpdate(userID,[{$set:{inactive:{$eq:[false,"$inactive"]}}}],{new:true}).select('inactive')
+      if(result.modifiedCount === 0){
+            throw new AppError('Fail, try again',404)
+        }
+    return result
 }
 const func = {
     getUsers,
-    getDetailsUser,
-    getTransactionsUser,
+    getUserTransactions,
+    getUserDetails,
     banUser
 }
 module.exports = func

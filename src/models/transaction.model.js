@@ -4,7 +4,7 @@ const transactionSchema = new Schema({
     type:{
         type:String,
         required:true,
-        enum:['transfer','payment','deposit','withdraw','refund','pay-with-card'],
+        enum:['transfer','payment','deposit','withdraw',],
         index:true
     },
     amount:{
@@ -21,7 +21,7 @@ const transactionSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:['pending','completed','fail','refunded'],
+        enum:['pending','completed','fail','refund'],
         default:"pending"
     },
     currency:{
