@@ -34,9 +34,9 @@ module.exports = {
             type,status,
             createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
         }
-        const data = await userManagementServices.getUserTransactions(
-            id, page, page_limit, cleanData(filter), sort === 'asc' ? 1 : -1,
-        )
+        const data = await userManagementServices.getUserTransactions({
+            userID:id, page, page_limit, filter: cleanData(filter), sort:sort === 'asc' ? 1 : -1,
+        })
         const user = await userManagementServices.getUserDetails(id,unSelectData(['password','security_code']))
         return Response(res,"Success",{user:user,transactions:data},200)
     }),

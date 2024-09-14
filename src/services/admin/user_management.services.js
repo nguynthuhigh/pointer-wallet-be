@@ -1,6 +1,7 @@
 const {User} = require('../../models/user.model')
 const {Transaction} = require('../../models/transaction.model')
 const AppError = require('../../helpers/handleError')
+const { getTransactions } = require('../../repositories/transaction.repo')
 const getUsers =async (sort,page,page_limit,filter,select)=>{
     const [data, count] = await Promise.all([
         await User.find(filter)
@@ -17,21 +18,15 @@ const getUsers =async (sort,page,page_limit,filter,select)=>{
     }
 }
 
-const getUserTransactions = async (userID, page, page_limit, filter, sort) => {
-    const query = { $or: [{ receiver: userID }, { sender: userID }], $and: filter };
+const getUserTransactions = async (option) => {
+    const query = { $or: [{ receiver: option.userID }, { sender: option.userID }], $and: option.filter };
     const [transactions, count] = await Promise.all([
-      Transaction.find(query)
-        .populate({ path: 'currency', select: '_id symbol name' })
-        .sort({ createdAt: sort })
-        .skip((page - 1) * page_limit)
-        .limit(page_limit)
-        .lean()
-        .exec(),
+      await getTransactions({...option,filter:query}),
       Transaction.countDocuments(query)
     ]);
     return {
       transaction: transactions,
-      pageCount: Math.ceil(count / page_limit)
+      pageCount: Math.ceil(count / option.page_limit)
     };
   };
   

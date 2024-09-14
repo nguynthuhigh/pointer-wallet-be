@@ -7,6 +7,7 @@ const redis = require('../helpers/redis.helpers')
 const mongoose = require('mongoose')
 const walletServices = require('../services/wallet.services')
 const bcrypt = require('../utils/bcrypt')
+const {getTransactionDetails } = require('../repositories/transaction.repo')
 class TransactionFactory{
     static async createTransaction(type,body){
         switch (type) {
@@ -223,13 +224,9 @@ module.exports ={
         }
     },
     getTransactionDetails:async(transactionID,userID)=>{
-        const data =  await Transaction.findOne({
+        const query = {
             $or:[{_id:transactionID,sender:userID},{_id:transactionID,receiver:userID}]
-        }).populate('creditcard sender receiver currency').lean()
-        .exec()
-        if(!data){
-            throw new AppError("Không tìm thấy giao dịch",404)
         }
-        return data
+        return await getTransactionDetails(query)
     }
 }

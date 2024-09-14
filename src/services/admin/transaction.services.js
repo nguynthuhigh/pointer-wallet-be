@@ -1,12 +1,15 @@
 const { Transaction } = require("../../models/transaction.model")
+const repository = require('../../repositories/transaction.repo')
 
 class TransactionServices{
-    static getTransaction = async(limit,page)=>{
-        return await Transaction.find()
-            .limit(limit)
-            .skip((page-1)*limit)
-            .sort({createdAt:-1})
-            .lean()
+    static getTransaction = async(option)=>{
+        return await repository.getTransactions(option)
+    }
+    static getTransactionDetails = async(id)=>{
+        const filter = {
+            _id:id
+        }
+        return await repository.getTransactionDetails(filter)
     }
 }
 
