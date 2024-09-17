@@ -34,6 +34,7 @@ module.exports = {
         return Response(res,"Success",data,200)
     }),
     deleteVoucher:catchError(async(req,res)=>{
+        console.log(req.body)
         const {voucherID} = req.body
         const data = await voucherServices.deleteVoucher(voucherID);
         return Response(res,"Success",data,200)

@@ -15,6 +15,7 @@ const routeSetting = require('./user/setting.routes')
 const routeUser = require('./user/user.routes')
 const routeTransactionAdmin = require('../routes/admin/transaction.routes')
 module.exports = (app)=>{
+    app.use("/api/v1/voucher", routeVoucher);
     app.use("/api/v1/user", routeSetting);
     app.use("/api/v1/user", routerAuth);
     app.use("/api/v1/user", routeUser);
@@ -23,7 +24,6 @@ module.exports = (app)=>{
     app.use("/api/v1/transaction", routeTransaction);
     app.use("/api/v1/partner", routeAuthPartner);
     app.use("/api/v1/partner", routePartner);
-    app.use("/api/v1/voucher", routeVoucher);
     app.use("/api/v1/webhook",routeWebhook)
     //Admin
     app.use("/api/v1/admin",routeAdmin)

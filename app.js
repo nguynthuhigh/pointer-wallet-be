@@ -19,9 +19,9 @@ app.use(cors({
   origin:['http://192.168.1.218:3000','https://pointer.io.vn','https://wallet.pointer.io.vn','http://localhost:5173','https://presspay-wallet.vercel.app','http://localhost:3000','https://presspay.vercel.app'],
   credentials: true
 }));
+const handleErrorMiddleware = require("./src/middlewares/handleError.middleware");
 //bodyParser
 const bodyParser = require("body-parser");
-const handleErrorMiddleware = require("./src/middlewares/handleError.middleware");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //Routes
