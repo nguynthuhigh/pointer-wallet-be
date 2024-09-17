@@ -8,7 +8,6 @@ module.exports = {
                     token:'tok_visa'
                 },
             });
-            console.log(amount)
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount, 
                 currency: currency, 

@@ -44,7 +44,7 @@ module.exports  = {
         const cardData =  await creditCardServices.findCardById(cardID,sender)
         const getCurrency = await checkConditionCreateTransaction({...req.body,current_security_code:req.security_code,userID:req.user})
         const number = cardData.number.substring(cardData.number.length-4,cardData.number.length-1)
-        const transactionResult = await TransactionFactory.createTransaction('deposit',
+        const transactionResult = await TransactionFactory.createTransaction('withdraw',
         {...req.body,
             currency: getCurrency._id,
             sender:sender,

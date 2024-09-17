@@ -56,8 +56,12 @@ const voucherSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'Currency',
         require:true
+    },
+    isPublic:{
+        type:Boolean,
+        required:true,
+        default:false
     }
-    
 },{
     timestamps:true
 })

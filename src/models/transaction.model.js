@@ -4,7 +4,7 @@ const transactionSchema = new Schema({
     type:{
         type:String,
         required:true,
-        enum:['transfer','payment','deposit','withdraw',],
+        enum:['transfer','payment','deposit','withdraw'],
         index:true
     },
     amount:{

@@ -3,12 +3,13 @@ const partnerManagementServices = require('../../services/admin/partner_manageme
 const catchError = require('../../middlewares/catchError.middleware')
 const { unSelectData, cleanData } = require('../../utils')
 const convertToObjectId = require('../../utils/convertTypeObject')
+const { getRange, toBoolean } = require('../../helpers/mongoose.helpers')
 module.exports = {
     getPartners: catchError(async(req,res)=>{
         const { page = 1, page_limit = 10, active, sort = 'desc', start, end } = req.query;
         const filter = {
-            inactive: active === 'true' ? true : false,
-            createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
+            inactive: toBoolean(active),
+            createdAt: getRange(start,end)
         }
         const data = await partnerManagementServices.getPartners({
             page,
@@ -29,12 +30,15 @@ module.exports = {
         const filter = {
             partnerID:convertToObjectId(id),
             type,status,
-            createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
+            createdAt: getRange(start,end)
         }
         const data = await partnerManagementServices.getPartnerTransactions({
             id,page,page_limit,filter:cleanData(filter),sort:sort === 'desc' ? -1 : 1,
         })
         Response(res,"Success",data,200)
+    }),
+    getPartnerVouchers: catchError(()=>{
+
     }),
     banPartner: catchError(async(req,res)=>{
         const {id} = req.body
