@@ -1,6 +1,4 @@
 const {getRedisClient} = require('../configs/redis/redis')
-
-
 const set =async (key,value,expire)=>{
     const redis = getRedisClient()
     try {
@@ -41,10 +39,9 @@ const expire = async (key,expire)=>{
         throw error
     }
 }
-const feat = {
+module.exports = {
     set,
     get,
     expire,
     del
 }
-module.exports = feat

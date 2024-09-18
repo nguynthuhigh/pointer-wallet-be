@@ -50,7 +50,7 @@ module.exports  = {
             sender:sender,
             creditcard:cardData._id,
             title:"Rút tiền về thẻ ***"+number,
-            message:"Nạp tiền thành công",
+            message:"Rút tiền thành công",
             amount:amount
         })
         Response(res,"Rút tiền thành công",transactionResult,200)
