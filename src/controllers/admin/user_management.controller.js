@@ -7,7 +7,7 @@ module.exports = {
     getUsers:catchError(async(req,res)=>{
         const { page = 1, page_limit = 10, active, sort = 'desc', start, end } = req.query;
         const filter = {
-            inactive: active === 'true' ? true : false,
+            inactive: active === 'false' ? true : false,
             createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
         }
         const data = await userManagementServices.getUsers(
@@ -29,16 +29,21 @@ module.exports = {
         }
     }),
     getUserDetails: catchError(async(req,res)=>{
-        const {id,page = 1,page_limit = 10, sort = 'desc', type, status, start, end} = req.query
+        const {id} = req.query
+        const user = await userManagementServices.getUserDetails(id,unSelectData(['password','security_code']))
+        return Response(res,"Success",user,200)
+    }),
+    getUserTransactions: catchError(async(req,res)=>{
+        const {id,page = 1,page_limit = 10, sort = 'desc', type = 'all', status = 'all', start, end} = req.query
         const filter = {
-            type,status,
+            type:type === 'all' && undefined,
+            status: status === 'all' && undefined,
             createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
         }
         const data = await userManagementServices.getUserTransactions({
             userID:id, page, page_limit, filter: cleanData(filter), sort:sort === 'asc' ? 1 : -1,
         })
-        const user = await userManagementServices.getUserDetails(id,unSelectData(['password','security_code']))
-        return Response(res,"Success",{user:user,transactions:data},200)
+        return Response(res,"Success",data,200)
     }),
     //user
     getUser: catchError(async (req,res)=>{
