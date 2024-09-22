@@ -3,7 +3,11 @@ const partnerManagementServices = require("../../services/admin/partner_manageme
 const catchError = require("../../middlewares/catchError.middleware");
 const { unSelectData, cleanData } = require("../../utils");
 const convertToObjectId = require("../../utils/convertTypeObject");
-const { getRange, toBoolean } = require("../../helpers/mongoose.helpers");
+const {
+  getRange,
+  toBoolean,
+  sortBy,
+} = require("../../helpers/mongoose.helpers");
 module.exports = {
   getPartners: catchError(async (req, res) => {
     const {
@@ -23,7 +27,7 @@ module.exports = {
       page_limit,
       select: unSelectData(["password", "privateKey", "publicKey"]),
       filter: cleanData(filter),
-      sort: sort === "desc" ? -1 : 1,
+      sort: sortBy(sort),
     });
     Response(res, "Success", data, 200);
   }),
@@ -38,8 +42,8 @@ module.exports = {
       page = 1,
       page_limit = 10,
       sort = "desc",
-      type,
-      status,
+      type = "all",
+      status = "all",
       start,
       end,
     } = req.query;
@@ -54,7 +58,7 @@ module.exports = {
       page,
       page_limit,
       filter: cleanData(filter),
-      sort: sort === "desc" ? -1 : 1,
+      sort: sortBy(sort),
     });
     Response(res, "Success", data, 200);
   }),
