@@ -12,7 +12,7 @@
   "license": "ISC",
   "proxy": "*",
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cloudinary": "^2.3.0",
@@ -40,6 +40,7 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
     "npmlog": "^7.0.1",
+    "oauth-pointer": "^1.0.3",
     "otp-generator": "^4.0.1",
     "qrcode": "^1.5.3",
     "redis": "^4.7.0",
