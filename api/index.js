@@ -1,10 +1,10 @@
 require("dotenv").config();
-require("../cron");
+require("../src/cron");
 const express = require("express");
 const app = express();
-const { connectMongoDB } = require("../configs/mongodb/mongodb");
-const { connectRedis } = require("../configs/redis/redis");
-const handleErrorMiddleware = require("../middlewares/handleError.middleware");
+const { connectMongoDB } = require("../src/configs/mongodb/mongodb");
+const { connectRedis } = require("../src/configs/redis/redis");
+const handleErrorMiddleware = require("../src/middlewares/handleError.middleware");
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 //Config cors
@@ -28,7 +28,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //Routes
-require("../routes/index")(app);
+require("../src/routes/index")(app);
 //Connect to MongoDB
 connectMongoDB();
 //Connect to Redis
