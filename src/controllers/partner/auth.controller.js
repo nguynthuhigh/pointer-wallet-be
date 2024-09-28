@@ -1,9 +1,7 @@
 const { Partner } = require("../../models/partner.model");
-const OTPservices = require("../../services/OTP.services");
-const bcrypt = require("../../utils/bcrypt");
+const OTPService = require("../../services/OTP.services");
 const nodemailer = require("../../utils/nodemailer");
 const { Response } = require("../../utils/response");
-const { OTP_Limit } = require("../../models/otp_limit.model");
 const catchError = require("../../middlewares/catchError.middleware");
 const AuthPartnerServices = require("../../services/partner/auth.services");
 const { setCookie } = require("../../utils/cookie");
@@ -56,26 +54,26 @@ module.exports = {
     return Response(res, "Success", null, 200);
   }),
   ResendEmail: catchError(async (req, res) => {
-    const { email, password } = req.body;
-    const user = await Partner.findOne({ email: email });
-    if (user) {
-      return res.status(400).json({ message: "Account already exists" });
-    }
-    const count = await OTPservices.countOTP(email);
-    if (count < 3) {
-      const passwordHash = bcrypt.bcryptHash(password);
-      console.log(passwordHash);
-      const OTP = await OTPservices.createOTP(email, passwordHash);
-      console.log(OTP);
-      await OTP_Limit.create({ email: email });
-      await nodemailer.sendMail(
-        email,
-        "Mã OTP của bạn " + OTP + " Vui lòng không gửi cho bất kì ai",
-        "Chúng tôi đến từ pressPay!"
-      );
-      return Response(res, "Check your email", "", 200);
-    } else {
-      return Response(res, "Please try again after 1 hour", "", 400);
-    }
+    // const { email, password } = req.body;
+    // const user = await Partner.findOne({ email: email });
+    // if (user) {
+    //   return res.status(400).json({ message: "Account already exists" });
+    // }
+    // const count = await OTPservices.countOTP(email);
+    // if (count < 3) {
+    //   const passwordHash = bcrypt.bcryptHash(password);
+    //   console.log(passwordHash);
+    //   const OTP = await OTPservices.createOTP(email, passwordHash);
+    //   console.log(OTP);
+    //   await OTP_Limit.create({ email: email });
+    //   await nodemailer.sendMail(
+    //     email,
+    //     "Mã OTP của bạn " + OTP + " Vui lòng không gửi cho bất kì ai",
+    //     "Chúng tôi đến từ pressPay!"
+    //   );
+    //   return Response(res, "Check your email", "", 200);
+    // } else {
+    //   return Response(res, "Please try again after 1 hour", "", 400);
+    // }
   }),
 };
