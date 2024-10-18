@@ -10,6 +10,7 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
+    console.log(accessToken);
     const payload = token.verifyToken(accessToken, process.env.ACCESS_KEY);
     const user = await userService.getUserById(payload.id);
     req.user = user._id;
