@@ -1,4 +1,4 @@
-const OTPServices = require("../services/OTP.services");
+const OTPServices = require("../services/otp.services");
 const userServices = require("../services/user.services");
 const tokenServices = require("../services/token.services");
 const walletServices = require("../services/wallet.services");

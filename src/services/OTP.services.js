@@ -28,10 +28,6 @@ module.exports = {
     await OTP.deleteMany({ email: email });
     return otpSchema.password;
   },
-  // countOTP: async (email) => {
-  //   const count = await OTP_Limit.countDocuments({ email: email });
-  //   return count;
-  // },
   addToken: async (body) => {
     return await OTP.create(body);
   },
