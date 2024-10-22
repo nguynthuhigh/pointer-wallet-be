@@ -4,7 +4,7 @@ const catchError = require("./catchError.middleware");
 module.exports = {
   ///cache with url
   cache: catchError(async (req, res, next) => {
-    const data = await get(`${req.originalUrl}/${req.user}`);
+    const data = await get(`user:${req.user}`);
     if (data) {
       return res.status(200).json(data);
     }
