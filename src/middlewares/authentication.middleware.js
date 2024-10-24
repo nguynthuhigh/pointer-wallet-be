@@ -2,8 +2,6 @@ const AppError = require("../helpers/handleError");
 const token = require("../utils/token");
 const userService = require("../services/user.services");
 const catchError = require("./catchError.middleware");
-const AdminServices = require("../services/admin/admin.services");
-const { PartnerServices } = require("../services/partner/partner.services");
 const { verifyAccessToken } = require("../services/sso.service");
 const { Partner } = require("../models/partner.model");
 module.exports = {
@@ -12,7 +10,6 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
-    console.log(accessToken);
     const payload = token.verifyToken(accessToken, process.env.ACCESS_KEY);
     const user = await userService.getUserById(payload.id);
     req.user = user._id;
