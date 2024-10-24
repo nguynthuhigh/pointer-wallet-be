@@ -5,7 +5,7 @@ const tokenServices = require("../token.services");
 const OTPServices = require("../otp.services");
 const token = require("../../utils/token");
 const walletService = require("../../services/wallet.services");
-const { getAccessToken } = require("../sso.service");
+const { getAccessToken } = require("../sso.services");
 class PartnerServices {
   // static signIn = async (email, password) => {
   //   const partnerFind = await Partner.findOne({ email: email });

@@ -3,7 +3,13 @@ const repository = require("../../repositories/transaction.repo");
 const convertToObjectId = require("../../utils/convertTypeObject");
 class TransactionServices {
   static getTransaction = async (option) => {
-    return await repository.getTransactions(option);
+    const [transactions, pageCount] = await Promise.all([
+      repository.getTransactions(option),
+      Transaction.countDocuments(option.filter).then((count) =>
+        Math.ceil(count / option.page_limit)
+      ),
+    ]);
+    return { transactions, pageCount };
   };
   static getTransactionDetails = async (id) => {
     const filter = {

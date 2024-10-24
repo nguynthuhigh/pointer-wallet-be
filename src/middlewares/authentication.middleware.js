@@ -2,7 +2,7 @@ const AppError = require("../helpers/handleError");
 const token = require("../utils/token");
 const userService = require("../services/user.services");
 const catchError = require("./catchError.middleware");
-const { verifyAccessToken } = require("../services/sso.service");
+const { verifyAccessToken } = require("../services/sso.services");
 const { Partner } = require("../models/partner.model");
 module.exports = {
   authenticationUser: catchError(async (req, res, next) => {
@@ -27,7 +27,13 @@ module.exports = {
   //   next();
   // }),
   authenticationPartner: catchError(async (req, res, next) => {
-    const accessToken = req.cookies.access_token;
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ message: "Access token is missing or invalid" });
+    }
+    const accessToken = authHeader.split(" ")[1];
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
