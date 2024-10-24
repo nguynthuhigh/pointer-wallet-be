@@ -45,7 +45,7 @@ module.exports = {
     );
     setCookie(res, accessToken, "access_token");
     setCookie(res, refreshToken, "refresh_token");
-    return Response(res, "Đăng nhập thành công", null, 200);
+    return Response(res, "Đăng nhập thành công", accessToken, 200);
   }),
   Logout: catchError(async (req, res) => {
     await AuthServices.logoutAccount(req.body.refreshToken);

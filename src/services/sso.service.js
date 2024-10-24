@@ -1,4 +1,5 @@
 const { PointerStrategy } = require("sso-pointer");
+const AppError = require("../helpers/handleError");
 const pointer = new PointerStrategy({ apiKey: "" });
 
 module.exports = {
@@ -6,9 +7,13 @@ module.exports = {
     return await pointer.getAccessToken(code);
   },
   verifyAccessToken: async (token) => {
-    return await pointer.verifyAccessToken({
-      accessToken: token,
-      session: false,
-    });
+    try {
+      return await pointer.verifyAccessToken({
+        accessToken: token,
+        session: false,
+      });
+    } catch (error) {
+      throw new AppError("Unauthorized", 400);
+    }
   },
 };

@@ -30,7 +30,7 @@ module.exports = {
   //   next();
   // }),
   authenticationPartner: catchError(async (req, res, next) => {
-    const accessToken = req.cookies["access_token"];
+    const accessToken = req.cookies.access_token;
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }

@@ -42,8 +42,7 @@ module.exports = {
   signInWithPointer: catchError(async (req, res) => {
     const tokens = await AuthPartnerServices.signInWithPointer(req.body.code);
     setCookie(res, tokens.refreshToken, "refresh_token");
-    setCookie(res, tokens.accessToken, "access_token");
-    return Response(res, "Success", null, 200);
+    return Response(res, "Success", { token: tokens.accessToken }, 200);
   }),
   refreshToken: catchError(async (req, res) => {
     const { refreshToken, accessToken } =
