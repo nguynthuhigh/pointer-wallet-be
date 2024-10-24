@@ -13,7 +13,7 @@ module.exports = {
         session: false,
       });
     } catch (error) {
-      throw new AppError("Unauthorized", 400);
+      throw new AppError("Unauthorized", 401);
     }
   },
 };
