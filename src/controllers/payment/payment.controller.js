@@ -10,53 +10,53 @@ const webhookAPI = require("../../utils/webhook.call.api");
 const catchError = require("../../middlewares/catchError.middleware");
 const AppError = require("../../helpers/handleError");
 module.exports = {
-  requestPayment: catchError(async (req, res) => {
-    const { amount, currency, userID, orderID, return_url, message } = req.body;
-    const partner = req.partner;
-    const getCurrency = await wallet.getCurrency(currency);
-    const data = await Transaction.create({
-      type: "payment",
-      amount: amount,
-      partnerID: partner._id,
-      currency: getCurrency._id,
-      title: "Thanh toán hóa đơn " + partner.name,
-      orderID: orderID,
-      userID: userID,
-      return_url: return_url,
-      message: message,
-    });
-    res.status(200).json({
-      message: "Redirect to url",
-      url: process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id,
-    });
-  }),
+  // requestPayment: catchError(async (req, res) => {
+  //   const { amount, currency, userID, orderID, return_url, message } = req.body;
+  //   const partner = req.partner;
+  //   const getCurrency = await wallet.getCurrency(currency);
+  //   const data = await Transaction.create({
+  //     type: "payment",
+  //     amount: amount,
+  //     partnerID: partner._id,
+  //     currency: getCurrency._id,
+  //     title: "Thanh toán hóa đơn " + partner.name,
+  //     orderID: orderID,
+  //     userID: userID,
+  //     return_url: return_url,
+  //     message: message,
+  //   });
+  //   res.status(200).json({
+  //     message: "Redirect to url",
+  //     url: process.env.PAYMENT_HOST + "/payment-gateway?token=" + data._id,
+  //   });
+  // }),
   //[GET] /payment-gateway?token=id
-  getTransaction: catchError(async (req, res) => {
-    const token = req.query.token;
-    const transactionData = await transactionServices.getTransactionForPayment(
-      token
-    );
-    const timeLimit = moment.limitTime(transactionData.createdAt);
-    if (
-      timeLimit < 0 ||
-      transactionData?.status != "pending" ||
-      !transactionData
-    ) {
-      throw new AppError("Không tìm thấy giao dịch", 402);
-    }
-    if (transactionData.status === "completed") {
-      return Response(
-        res,
-        "Redirect to url",
-        transactionData.return_url.replace(
-          "{orderID}",
-          transactionData.orderID
-        ),
-        201
-      );
-    }
-    return Response(res, "Success", transactionData, 200);
-  }),
+  // getTransaction: catchError(async (req, res) => {
+  //   const token = req.query.token;
+  //   const transactionData = await transactionServices.getTransactionForPayment(
+  //     token
+  //   );
+  //   const timeLimit = moment.limitTime(transactionData.createdAt);
+  //   if (
+  //     timeLimit < 0 ||
+  //     transactionData?.status != "pending" ||
+  //     !transactionData
+  //   ) {
+  //     throw new AppError("Không tìm thấy giao dịch", 402);
+  //   }
+  //   if (transactionData.status === "completed") {
+  //     return Response(
+  //       res,
+  //       "Redirect to url",
+  //       transactionData.return_url.replace(
+  //         "{orderID}",
+  //         transactionData.orderID
+  //       ),
+  //       201
+  //     );
+  //   }
+  //   return Response(res, "Success", transactionData, 200);
+  // }),
   //[POST] /api/v1/confirm-payment
   confirmPayment: catchError(async (req, res) => {
     const session = await mongoose.startSession();
@@ -79,7 +79,7 @@ module.exports = {
       voucher_code,
       getCurrency._id
     );
-    amount = resultApply.amount;
+    amount = !resultApply?.amount && amount;
     const voucherID = resultApply?.voucherID;
     await wallet.hasSufficientBalance(sender, getCurrency._id, amount);
     await wallet.updateBalance(sender, getCurrency._id, -amount, session);
@@ -97,7 +97,7 @@ module.exports = {
       session
     );
     await webhookAPI.postWebhook(transactionDataTemp?.partnerID?.webhook, {
-      status: "completed",
+      status: 200,
       orderID: transactionDataTemp.orderID,
     });
     await session.commitTransaction();

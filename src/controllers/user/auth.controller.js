@@ -20,9 +20,8 @@ module.exports = {
       email,
       otp
     );
-    setCookie(res, accessToken, "access_token");
     setCookie(res, refreshToken, "refresh_token");
-    return Response(res, "Đăng ký thành công", null, 200);
+    return Response(res, "Đăng ký thành công", accessToken, 200);
   }),
   updateSecurityCode: catchError(async (req, res) => {
     await AuthServices.updateSecurityCode(req.body.security_code, req.user);
@@ -43,7 +42,6 @@ module.exports = {
     const { accessToken, refreshToken } = await AuthServices.verifyLogin(
       req.body
     );
-    setCookie(res, accessToken, "access_token");
     setCookie(res, refreshToken, "refresh_token");
     return Response(res, "Đăng nhập thành công", accessToken, 200);
   }),
@@ -55,9 +53,8 @@ module.exports = {
     const { accessToken, refreshToken } = await AuthServices.refreshTokenAccess(
       req.cookies["refresh_token"]
     );
-    setCookie(res, accessToken, "access_token");
     setCookie(res, refreshToken, "refresh_token");
-    return Response(res, "refresh token success", null, 200);
+    return Response(res, "refresh token success", accessToken, 200);
   }),
   resendEmail: async (req, res) => {
     // try {
