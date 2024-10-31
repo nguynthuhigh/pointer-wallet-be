@@ -3,7 +3,6 @@ const wallet = require("../../services/wallet.services");
 const { Transaction } = require("../../models/transaction.model");
 const mongoose = require("mongoose");
 const bcrypt = require("../../utils/bcrypt");
-const moment = require("../../utils/moment");
 const voucherServices = require("../../services/voucher.services");
 const transactionServices = require("../../services/transaction.services");
 const webhookAPI = require("../../utils/webhook.call.api");
@@ -96,10 +95,14 @@ module.exports = {
       transactionID,
       session
     );
-    await webhookAPI.postWebhook(transactionDataTemp?.partnerID?.webhook, {
-      status: 200,
-      orderID: transactionDataTemp.orderID,
-    });
+    await webhookAPI.postWebhook(
+      transactionDataTemp?.partnerID?.webhook,
+      {
+        status: 200,
+        orderID: transactionDataTemp.orderID,
+      },
+      session
+    );
     await session.commitTransaction();
     session.endSession();
     return Response(res, "Thanh toán thành công", transactionData, 200);
@@ -161,7 +164,6 @@ module.exports = {
       transactionData.partnerID._id,
       voucher.partnerID
     );
-    console.log(voucher);
     const amount = voucherServices.applyVoucher(
       voucher.type,
       transactionData.amount,
