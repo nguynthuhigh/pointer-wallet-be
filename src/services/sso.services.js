@@ -1,19 +1,39 @@
-const { PointerStrategy } = require("sso-pointer");
+const axios = require("axios");
+const { jwtDecode } = require("jwt-decode");
+
 const AppError = require("../helpers/handleError");
-const pointer = new PointerStrategy({ apiKey: "" });
+
+const axiosInstance = axios.create({
+  baseURL: "https://oauth.pointer.io.vn",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 module.exports = {
-  getAccessToken: async (code) => {
-    return await pointer.getAccessToken(code);
-  },
-  verifyAccessToken: async (token) => {
+  async isTokenExpired(token) {
     try {
-      return await pointer.verifyAccessToken({
-        accessToken: token,
-        session: false,
-      });
+      const decoded = jwtDecode(token);
+      if (!decoded.exp) {
+        return false;
+      }
+      const currentTime = Math.floor(Date.now() / 1000);
+      return decoded.exp < currentTime;
     } catch (error) {
       throw new AppError("Unauthorized", 401);
     }
+  },
+  async getAccessToken(code) {
+    console.log({
+      clientId: process.env.POINTER_CLIENT_ID,
+      clientSecret: process.env.POINTER_CLIENT_SECRET,
+      code,
+    });
+    const response = await axiosInstance.post("/auth/access-token", {
+      clientId: process.env.POINTER_CLIENT_ID,
+      clientSecret: process.env.POINTER_CLIENT_SECRET,
+      code,
+    });
+    return response.data;
   },
 };

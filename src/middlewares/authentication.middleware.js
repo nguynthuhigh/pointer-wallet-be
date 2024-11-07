@@ -2,8 +2,10 @@ const AppError = require("../helpers/handleError");
 const token = require("../utils/token");
 const userService = require("../services/user.services");
 const catchError = require("./catchError.middleware");
-const { verifyAccessToken } = require("../services/sso.services");
 const { Partner } = require("../models/partner.model");
+const { isTokenExpired } = require("../services/sso.services");
+const { jwtDecode } = require("jwt-decode");
+
 module.exports = {
   authenticationUser: catchError(async (req, res, next) => {
     const accessToken = req.headers.authorization?.split(" ")[1];
@@ -37,8 +39,16 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
-    const payload = await verifyAccessToken(accessToken);
-    const partner = await Partner.findOne({ email: payload.email });
+    if (!isTokenExpired(accessToken)) {
+      throw new AppError("Unauthorized", 401);
+    }
+    const payload = jwtDecode(accessToken);
+    console.log(payload.id.email);
+    const partner = await Partner.findOne({ email: payload.id.email });
+    if (!partner) {
+      throw new AppError("Unauthorized", 401);
+    }
+    console.log(partner);
     req.partner = partner;
     next();
   }),

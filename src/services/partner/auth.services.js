@@ -26,10 +26,10 @@ class PartnerServices {
     await walletService.createWallet(createdPartner._id, "partner");
   };
   static signInWithPointer = async (code) => {
-    const { accessToken, email, id } = await getAccessToken(code);
-    const partnerFind = await Partner.findOne({ email: email });
+    const { accessToken, user } = await getAccessToken(code);
+    const partnerFind = await Partner.findOne({ email: user.email });
     if (!partnerFind) {
-      await this.createPartner(email);
+      await this.createPartner(user.email);
     }
     return { accessToken: accessToken };
   };
