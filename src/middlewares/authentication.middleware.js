@@ -39,11 +39,8 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
-    if (!isTokenExpired(accessToken)) {
-      throw new AppError("Unauthorized", 401);
-    }
+    await isTokenExpired(accessToken);
     const payload = jwtDecode(accessToken);
-    console.log(payload.id.email);
     const partner = await Partner.findOne({ email: payload.id.email });
     if (!partner) {
       throw new AppError("Unauthorized", 401);

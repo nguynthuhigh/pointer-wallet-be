@@ -24,11 +24,6 @@ module.exports = {
     }
   },
   async getAccessToken(code) {
-    console.log({
-      clientId: process.env.POINTER_CLIENT_ID,
-      clientSecret: process.env.POINTER_CLIENT_SECRET,
-      code,
-    });
     const response = await axiosInstance.post("/auth/access-token", {
       clientId: process.env.POINTER_CLIENT_ID,
       clientSecret: process.env.POINTER_CLIENT_SECRET,
