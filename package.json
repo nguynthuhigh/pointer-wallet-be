@@ -42,7 +42,7 @@
     "otp-generator": "^4.0.1",
     "qrcode": "^1.5.3",
     "redis": "^4.7.0",
-    "sso-pointer": "^1.0.6",
+    "sso-pointer": "^1.0.7",
     "stripe": "^16.1.0",
     "yup": "^1.4.0"
   }

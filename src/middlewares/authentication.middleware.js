@@ -3,7 +3,10 @@ const token = require("../utils/token");
 const userService = require("../services/user.services");
 const catchError = require("./catchError.middleware");
 const { Partner } = require("../models/partner.model");
-const { isTokenExpired } = require("../services/sso.services");
+const {
+  isTokenExpired,
+  verifyAccessToken,
+} = require("../services/sso.services");
 const { jwtDecode } = require("jwt-decode");
 
 module.exports = {
@@ -39,9 +42,10 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
-    await isTokenExpired(accessToken);
-    const payload = jwtDecode(accessToken);
-    const partner = await Partner.findOne({ email: payload.id.email });
+
+    const payload = await verifyAccessToken(accessToken);
+    console.log(payload);
+    const partner = await Partner.findOne({ email: payload.email });
     if (!partner) {
       throw new AppError("Unauthorized", 401);
     }

@@ -27,6 +27,7 @@ class PartnerServices {
   };
   static signInWithPointer = async (code) => {
     const { accessToken, user } = await getAccessToken(code);
+    console.log(user);
     const partnerFind = await Partner.findOne({ email: user.email });
     if (!partnerFind) {
       await this.createPartner(user.email);

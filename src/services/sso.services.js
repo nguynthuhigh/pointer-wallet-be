@@ -1,34 +1,19 @@
-const axios = require("axios");
-const { jwtDecode } = require("jwt-decode");
-
-const AppError = require("../helpers/handleError");
-
-const axiosInstance = axios.create({
-  baseURL: "https://oauth.pointer.io.vn",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const { PointerStrategy } = require("sso-pointer");
+const pointer = new PointerStrategy(
+  process.env.POINTER_CLIENT_ID,
+  process.env.POINTER_CLIENT_SECRET
+);
 
 module.exports = {
-  async isTokenExpired(token) {
-    try {
-      const decoded = jwtDecode(token);
-      if (!decoded.exp) {
-        return false;
-      }
-      const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp < currentTime;
-    } catch (error) {
-      throw new AppError("Unauthorized", 401);
-    }
+  getAccessToken: async (code) => {
+    return await pointer.getAccessToken(code);
   },
-  async getAccessToken(code) {
-    const response = await axiosInstance.post("/auth/access-token", {
-      clientId: process.env.POINTER_CLIENT_ID,
-      clientSecret: process.env.POINTER_CLIENT_SECRET,
-      code,
-    });
-    return response.data;
+  verifyAccessToken: async (accessToken) => {
+    return await pointer.verifyAccessToken(accessToken);
   },
 };
+// {
+//   accessToken: 'eyJhbGciOiJSUz.......',
+//   user: { _id: '66f18f7c2c298da02e857d85', email: 'admin@pointer.com',image:'image.url.com',name:'Admin' }
+// }
+//Verify token
