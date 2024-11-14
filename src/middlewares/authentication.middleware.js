@@ -42,14 +42,11 @@ module.exports = {
     if (!accessToken) {
       throw new AppError("Unauthorized", 401);
     }
-
     const payload = await verifyAccessToken(accessToken);
-    console.log(payload);
     const partner = await Partner.findOne({ email: payload.email });
     if (!partner) {
       throw new AppError("Unauthorized", 401);
     }
-    console.log(partner);
     req.partner = partner;
     next();
   }),
