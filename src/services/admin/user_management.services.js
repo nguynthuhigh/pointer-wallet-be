@@ -1,10 +1,19 @@
 const { User } = require("../../models/user.model");
 const AppError = require("../../helpers/handleError");
+const mongoose = require('mongoose')
 const {
   getTransactionsV2,
   countTransactions,
 } = require("../../repositories/transaction.repo");
-const getUsers = async (sort, page, page_limit, filter, select) => {
+const getUsers = async (sort, page, page_limit, filter, select, search) => {
+  if (search) {
+    filter.$or = [];
+    if (mongoose.Types.ObjectId.isValid(search)) {
+      filter.$or.push({_id:search})
+    }
+    filter.$or.push({full_name: {$regex:search,$options: "i"}})
+    filter.$or.push({email: {$regex:search,$options: "i"}})
+  }
   const [data, count] = await Promise.all([
     await User.find(filter)
       .select(select)

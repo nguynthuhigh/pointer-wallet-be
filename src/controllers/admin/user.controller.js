@@ -17,6 +17,7 @@ module.exports = {
       sort = "desc",
       start,
       end,
+      search
     } = req.query;
     const filter = {
       inactive: toBoolean(inactive),
@@ -27,7 +28,8 @@ module.exports = {
       page,
       page_limit,
       cleanData(filter),
-      unSelectData(["password", "security_code"])
+      unSelectData(["password", "security_code"]),
+      search
     );
     return Response(res, "Success", data, 200);
   }),
