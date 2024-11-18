@@ -17,6 +17,7 @@ module.exports = {
       sort = "desc",
       start,
       end,
+      search
     } = req.query;
     const filter = {
       inactive: toBoolean(active),
@@ -28,6 +29,7 @@ module.exports = {
       select: unSelectData(["password", "privateKey", "publicKey"]),
       filter: cleanData(filter),
       sort: sortBy(sort),
+      search
     });
     Response(res, "Success", data, 200);
   }),

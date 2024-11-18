@@ -4,7 +4,7 @@ const { cleanData } = require("../../utils");
 const {Response} = require('../../utils/response')
 module.exports = {
     getTransactions: catchError( async(req,res)=>{
-        const {page = 1,page_limit = 10, sort = 'desc', type, status, start, end} = req.query
+        const {page = 1,page_limit = 10, sort = 'desc', type, status, start, end,search} = req.query
         const filter = {
             type,status,
             createdAt: !start || !end ? undefined : {$gte: new Date(start), $lt: new Date(end)}
