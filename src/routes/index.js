@@ -17,6 +17,9 @@ const routeTransactionAdmin = require("../routes/admin/transaction.routes");
 const routeVoucherAdmin = require("../routes/admin/voucher.routes");
 
 module.exports = (app) => {
+  app.post("/hello-world", (req, res) => {
+    res.status(200).json({ message: req.body });
+  });
   app.use("/api/v1/voucher", routeVoucher);
   app.use("/api/v1/user", routeSetting);
   app.use("/api/v1/user", routerAuth);
@@ -39,8 +42,5 @@ module.exports = (app) => {
   app.use("", routePayment);
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
-  });
-  app.post("/hello-world", (req, res) => {
-    res.status(200).json({ message: req.body });
   });
 };
