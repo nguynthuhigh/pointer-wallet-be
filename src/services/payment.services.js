@@ -22,20 +22,16 @@ module.exports = {
     if (!transaction || transaction.status === "completed") {
       throw new AppError("Không tìm thấy giao dịch", 404);
     }
-    console.log(sender);
     if (!bcrypt.bcryptCompare(security_code, sender.security_code)) {
       throw new AppError("Mã bảo mật không đúng", 400);
     }
-    let amount = transaction.amount;
     const currencyID = transaction.currency._id;
-    const resultApply = await voucherService.applyVoucherPayment(
+    const { amount, voucherID } = await voucherService.applyVoucherPayment(
       transaction,
       session,
       voucher_code,
       currencyID
     );
-    amount = resultApply?.amount || amount;
-    const voucherID = resultApply?.voucherID;
     await walletService.hasSufficientBalance(sender, currencyID, amount);
     await walletService.updateBalance(sender, currencyID, -amount, session);
     await walletService.updateBalancePartner(
@@ -77,12 +73,9 @@ module.exports = {
       voucher.partnerID
     );
     const amount = voucherService.applyVoucher(
-      voucher.type,
       transactionData.amount,
-      voucher.discountValue,
-      voucher.quantity,
       transactionData.currency._id,
-      voucher.currency
+      voucher
     );
     return amount;
   },
