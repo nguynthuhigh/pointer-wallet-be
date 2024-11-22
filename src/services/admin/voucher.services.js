@@ -2,6 +2,15 @@ const { Voucher } = require("../../models/voucher.model");
 const convertToObjectId = require("../../utils/convert-type-object");
 class VoucherService {
   static getVouchers = async (option) => {
+    if (option.search) {
+      option.filter.$or = [];
+      option.filter.$or.push({
+        _id:option.search
+      });
+      option.filter.$or.push({
+        code: {$regex: option.search, $options: "i"},
+      });
+    }
     const [vouchers, pageCount] = await Promise.all([
       Voucher.find(option.filter)
         .populate({ path: "currency", select: "_id symbol name" })

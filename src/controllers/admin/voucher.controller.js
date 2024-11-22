@@ -17,6 +17,7 @@ module.exports = {
       start,
       end,
       type,
+      search
     } = req.query;
     const filter = {
       isPublic: toBoolean(isPublic),
@@ -28,6 +29,7 @@ module.exports = {
       page_limit,
       filter: cleanData(filter),
       sort: sortBy(sort),
+      search
     });
     return Response(res, "Success", data, 200);
   }),
