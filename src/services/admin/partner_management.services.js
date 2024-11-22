@@ -2,7 +2,7 @@ const { Transaction } = require("../../models/transaction.model");
 const { Partner } = require("../../models/partner.model");
 const { getTransactions } = require("../../repositories/transaction.repo");
 const { unSelectData } = require("../../utils");
-const convertToObjectId = require("../../utils/convertTypeObject");
+const convertToObjectId = require("../../utils/convert-type-object");
 const getPartners = async (option) => {
   const [data, pageCount] = await Promise.all([
     await Partner.find(option.filter)

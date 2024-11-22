@@ -1,7 +1,7 @@
 const { Response } = require("../../utils/response");
 const nodemailer = require("../../utils/nodemailer");
 const userServices = require("../../services/user.services");
-const creditCardServices = require("../../services/credit_card.services");
+const creditCardServices = require("../../services/credit-card.services");
 const catchError = require("../../middlewares/catchError.middleware");
 const {
   TransactionFactory,

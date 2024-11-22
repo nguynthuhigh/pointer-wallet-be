@@ -1,6 +1,6 @@
 const AppError = require("../helpers/handleError");
 const { CreditCard } = require("../models/creditcard.model");
-const convertToObjectId = require("../utils/convertTypeObject");
+const convertToObjectId = require("../utils/convert-type-object");
 
 const findCardById = async (id, userID) => {
   const cardData = await CreditCard.findOne({

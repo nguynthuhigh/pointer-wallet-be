@@ -1,6 +1,6 @@
 const AppError = require("../helpers/handleError");
 const { Voucher } = require("../models/voucher.model");
-const convertToObjectId = require("../utils/convertTypeObject");
+const convertToObjectId = require("../utils/convert-type-object");
 const applyVoucher = (
   type,
   amount,

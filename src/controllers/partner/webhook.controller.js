@@ -1,46 +1,24 @@
 const webhookServices = require("../../services/webhook.services");
 const { Response } = require("../../utils/response");
-const webhook = require("../../utils/webhook.call.api");
+const catchError = require("../../middlewares/catchError.middleware");
+
 module.exports = {
-  addWebhookEndpoint: async (req, res) => {
-    try {
-      const { endpoint } = req.body;
-      const partnerID = req.partner;
-      if (await webhookServices.checkWebhook(partnerID)) {
-        return Response(res, "Only one webhook per partner", null, 400);
-      }
-      const data = await webhookServices.addWebhookEndpoint(
-        endpoint,
-        partnerID
-      );
-      Response(res, "Added", data, 200);
-    } catch (error) {
-      console.log(error);
-      Response(res, "Error, Please try again", null, 400);
-    }
-  },
-  deleteWebhookEndpoint: async (req, res) => {
-    try {
-      const partnerID = req.partner;
-      const data = await webhookServices.deleteWebhook(partnerID);
-      Response(res, "Deleted", data, 200);
-    } catch (error) {
-      console.log(error);
-      Response(res, "Error, Please try again", null, 400);
-    }
-  },
-  testEndpoint: async (req, res) => {
-    try {
-      const endpoint = req.partner.webhook;
-      const { orderID, status } = req.body;
-      const response = await webhook.postWebhook(endpoint, { orderID, status });
-      if (response.status === 200) {
-        return Response(res, "It's working", response.data, 200);
-      }
-      return Response(res, "It's not working", null, 400);
-    } catch (error) {
-      console.log(error);
-      Response(res, "Error system", error, 500);
-    }
-  },
+  getWebhookEndpoints: catchError(async (req, res) => {
+    const data = await webhookServices.getWebhookEndpoints(req.partner._id);
+    return Response(res, null, data, 200);
+  }),
+  addWebhookEndpoint: catchError(async (req, res) => {
+    const { url, event } = req.body;
+    const data = await webhookServices.addWebhookEndpoint(
+      url,
+      req.partner._id,
+      event
+    );
+    return Response(res, "Webhook added successfully!", data, 200);
+  }),
+  deleteWebhookEndpoint: catchError(async (req, res) => {
+    const { id } = req.params;
+    const data = await webhookServices.deleteWebhook(id, req.partner._id);
+    return Response(res, "Webhook deleted successfully!", data, 200);
+  }),
 };
