@@ -22,20 +22,10 @@ const getThisWeek = catchError(async(req,res) => {
     return Response(res,'Get this week successful',data,200)
 })
 
-const getThisMonth = async (req,res) => {
-    try {
-        const data = await AdminService.getThisMonth()
-        res.status(200).json({
-            message: 'Get this month successful',
-            data: data
-        });
-    } catch (error) {
-        res.status(400).json({
-            message: 'Get this month fail',
-            error: error instanceof Error ? error.message : 'Unknown error'
-        })
-    }
-}
+const getThisMonth = async catchError((req,res) => {
+    const data = await AdminService.getThisMonth()
+    return Response(res,'Get this month successful',data,200)
+})
 
 const getCustomerAnalyst = async (req,res) => {
     const data = await AdminService.getCustomerAnalyst();

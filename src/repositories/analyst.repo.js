@@ -362,8 +362,6 @@ async function getTransaction1W(start,end) {
 }
 
 async function getTransaction1M(start,end) {
-    console.log('Start',start);
-    console.log('End',end)
     const data = await Transaction.aggregate([
         {
             $match: {
