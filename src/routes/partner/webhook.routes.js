@@ -4,17 +4,10 @@ const controller = require("../../controllers/partner/webhook.controller");
 const {
   authenticationPartner,
 } = require("../../middlewares/authentication.middleware");
-
-router.post(
-  "/add-endpoint",
-  authenticationPartner,
-  controller.addWebhookEndpoint
-);
-router.delete(
-  "/delete-endpoint",
-  authenticationPartner,
-  controller.deleteWebhookEndpoint
-);
-router.post("/test-endpoint", authenticationPartner, controller.testEndpoint);
+router.use(authenticationPartner);
+router
+  .post("/add-endpoint", controller.addWebhookEndpoint)
+  .delete("/delete-endpoint/:id", controller.deleteWebhookEndpoint)
+  .get("", controller.getWebhookEndpoints);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const { Transaction } = require("../../models/transaction.model");
 const { Partner } = require("../../models/partner.model");
 const { getTransactions } = require("../../repositories/transaction.repo");
 const { unSelectData } = require("../../utils");
-const convertToObjectId = require("../../utils/convertTypeObject");
+const convertToObjectId = require("../../utils/convert-type-object");
 const mongoose = require("mongoose");
 const getPartners = async (option) => {
   if (option.search) {
@@ -10,11 +10,11 @@ const getPartners = async (option) => {
     if (mongoose.Types.ObjectId.isValid(option.search)) {
       option.filter.$or.push({ _id: option.search });
     }
-    option.filter.$or.push({ name: { $regex: option.search, $options: "i"}});
-    option.filter.$or.push({ email: {$regex: option.search, $options: "i"}});
+    option.filter.$or.push({ name: { $regex: option.search, $options: "i" } });
+    option.filter.$or.push({ email: { $regex: option.search, $options: "i" } });
   }
   const [data, pageCount] = await Promise.all([
-     Partner.find(option.filter)
+    Partner.find(option.filter)
       .select(option.select)
       .limit(option.page_limit)
       .skip((option.page - 1) * option.page_limit)

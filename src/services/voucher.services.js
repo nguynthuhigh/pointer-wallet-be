@@ -1,15 +1,11 @@
 const AppError = require("../helpers/handleError");
 const { Voucher } = require("../models/voucher.model");
-const convertToObjectId = require("../utils/convertTypeObject");
-const applyVoucher = (
-  type,
-  amount,
-  discountValue,
-  quantity,
-  transactionCurrency,
-  voucherCurrency
-) => {
-  if (transactionCurrency.toString() !== voucherCurrency.toString()) {
+const convertToObjectId = require("../utils/convert-type-object");
+const applyVoucher = (amount, transactionCurrency, voucher) => {
+  const { type, discountValue, quantity, currency } = voucher;
+  console.log(transactionCurrency);
+  console.log(voucher);
+  if (transactionCurrency.toString() !== currency.toString()) {
     throw new AppError("Voucher không hỗ trợ loại tiền tệ này", 402);
   }
   let result;
@@ -30,12 +26,13 @@ const applyVoucher = (
   }
 };
 const updateQuantityVoucher = async (id, session) => {
-  const data = Voucher.updateOne(
+  const data = await Voucher.updateOne(
     { _id: id },
     { $inc: { quantity: -1, usedCount: 1 } },
     { session }
   );
   if (data.modifiedCount === 0) {
+    session.abortTransaction();
     throw new AppError("Voucher đã hết vui lòng thử lại", 400);
   }
 };
@@ -45,24 +42,22 @@ const applyVoucherPayment = async (
   voucher_code,
   currencyID
 ) => {
+  const amount = transactionDataTemp.amount;
   if (!voucher_code) {
-    return;
+    return {
+      amount,
+      voucherID: null,
+    };
   }
-  const getVoucher = await Voucher.findOne({ code: voucher_code }).lean();
-  if (!getVoucher && getVoucher.quantity <= 0) {
+  const voucher = await Voucher.findOne({ code: voucher_code }).lean();
+  if (!voucher && voucher.quantity <= 0) {
+    session.abortTransaction();
     throw new AppError("Voucher đã hết", 400);
   }
-  const result_apply = applyVoucher(
-    getVoucher.type,
-    transactionDataTemp.amount,
-    getVoucher.discountValue,
-    getVoucher.quantity,
-    currencyID,
-    getVoucher.currency
-  );
-  await updateQuantityVoucher(getVoucher._id, session);
+  const result_apply = applyVoucher(amount, currencyID, voucher);
+  await updateQuantityVoucher(voucher._id, session);
   const data = {
-    voucherID: getVoucher._id,
+    voucherID: voucher._id,
     amount: result_apply,
   };
   return data;

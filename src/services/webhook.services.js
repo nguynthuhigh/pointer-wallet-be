@@ -1,25 +1,41 @@
-const { Partner } = require("../models/partner.model");
-const { del } = require("../helpers/redis.helpers");
-
+const AppError = require("../helpers/handleError");
+const { Webhook } = require("../models/webhook.model");
+const convertToObjectId = require("../utils/convert-type-object");
+const getWebhookEndpoints = async (partnerID) => {
+  const data = await Webhook.find({
+    partner: partnerID,
+  });
+  return data;
+};
+const getWebhookPartner = async (partnerID, event) => {
+  const data = await Webhook.findOne({
+    partner: convertToObjectId(partnerID),
+    event,
+  });
+  if (!data) {
+    throw new AppError("Event not found!");
+  }
+  return data;
+};
+const addWebhookEndpoint = async (endpoint, partnerID, event) => {
+  const data = await Webhook.create({
+    url: endpoint,
+    partner: partnerID,
+    event: event,
+  });
+  return data;
+};
+const deleteWebhook = async (_id, partner) => {
+  const webhook = await Webhook.findById(convertToObjectId(_id));
+  if (!webhook || webhook.partner.toString() !== partner.toString()) {
+    throw new AppError("Webhook not found");
+  }
+  await webhook.deleteOne();
+};
 module.exports = {
-  addWebhookEndpoint: async (endpoint, partnerID) => {
-    const data = Partner.findByIdAndUpdate(partnerID, { webhook: endpoint });
-    await del(`partner:${partnerID._id}`);
-    return data;
-  },
-  checkWebhook: async (partnerID) => {
-    const partner = await Partner.findById(partnerID);
-    if (partner.webhook === undefined) {
-      return false;
-    }
-    return true;
-  },
-  deleteWebhook: async (partnerID) => {
-    console.log(partnerID._id);
-    const data = Partner.findByIdAndUpdate(partnerID, {
-      $unset: { webhook: "" },
-    });
-    await del(`partner:${partnerID._id}`);
-    return data;
-  },
+  getWebhookEndpoints,
+  getWebhookPartner,
+  deleteWebhook,
+  addWebhookEndpoint,
+  deleteWebhook,
 };

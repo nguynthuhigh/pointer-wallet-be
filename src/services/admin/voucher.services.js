@@ -1,5 +1,5 @@
 const { Voucher } = require("../../models/voucher.model");
-const convertToObjectId = require("../../utils/convertTypeObject");
+const convertToObjectId = require("../../utils/convert-type-object");
 class VoucherService {
   static getVouchers = async (option) => {
     if (option.search) {
