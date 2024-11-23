@@ -6,7 +6,8 @@ const {
 } = require("../../middlewares/authentication.middleware");
 router.use(authenticationUser);
 router
-  .post("/api/v1/confirm-payment", controller.confirmPayment)
-  .post("/api/v1/apply-voucher", controller.applyVoucher);
+  .post("/confirm-payment", controller.confirmPayment)
+  .post("/apply-voucher", controller.applyVoucher)
+  .post("/connect-wallet", controller.connectWallet);
 
 module.exports = router;

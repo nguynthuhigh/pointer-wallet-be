@@ -10,6 +10,13 @@ class PartnerServices {
     }
     return partner;
   };
+  static findPartner = async (id) => {
+    const partner = await Partner.findById(id);
+    if (!partner) {
+      throw new AppError("Partner Not Found", 400);
+    }
+    return partner;
+  };
   static getDashboard = async (partner) => {
     const data = await redis.get(`partner:${partner._id}`);
     if (data) {

@@ -39,7 +39,7 @@ module.exports = (app) => {
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1/statistic", routeStatistic);
 
-  app.use("", routePayment);
+  app.use("/api/v1", routePayment);
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
   });

@@ -4,9 +4,12 @@ const walletService = require("../services/wallet.services");
 const transactionService = require("../services/transaction.services");
 const webhookService = require("../services/webhook.services");
 const voucherService = require("../services/voucher.services");
-const webhookAPI = require("../utils/webhook.call.api");
+const { PartnerServices } = require("../services/partner/partner.services");
 const bcrypt = require("../utils/bcrypt");
+const { signature } = require("../utils/crypto-js");
+const { verifySecurityCode } = require("../services/security.services");
 const WEBHOOK_EVENT = require("../contains/webhook-event");
+const convertToObjectId = require("../utils/convert-type-object");
 module.exports = {
   confirmPayment: async ({
     sender,
@@ -47,12 +50,9 @@ module.exports = {
       transactionID,
       session
     );
-    const webhook = await webhookService.getWebhookPartner(
+    await webhookService.postWebhook(
       transaction?.partnerID._id,
-      WEBHOOK_EVENT.PAYMENT_SUCCEEDED
-    );
-    await webhookAPI.postWebhookPayment(
-      webhook.url,
+      WEBHOOK_EVENT.PAYMENT_SUCCEEDED,
       {
         status: 200,
         orderID: transaction.orderID,
@@ -78,5 +78,20 @@ module.exports = {
       voucher
     );
     return amount;
+  },
+  connectWallet: async ({ partnerID, user, security_code }) => {
+    const partner = await PartnerServices.findPartner(
+      convertToObjectId(partnerID)
+    );
+    await verifySecurityCode(security_code, user.security_code, 3, user);
+    const signatureData = signature(partner.privateKey, user);
+    await webhookService.postWebhook(
+      transaction?.partnerID._id,
+      WEBHOOK_EVENT.CONNECT_WALLET,
+      {
+        status: 200,
+        signatureData,
+      }
+    );
   },
 };

@@ -11,8 +11,19 @@ module.exports = {
     ).toString(CryptoJS.enc.Utf8);
   },
   generateKeyPair: () => {
-    const privateKey = "sk_pointer" + crypto.randomBytes(32).toString("hex");
-    const publicKey = "pk_pointer" + crypto.randomBytes(32).toString("hex");
-    return { privateKey, publicKey };
+    const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 2048,
+    });
+    return {
+      privateKey: `sk_pointer_${privateKey}`,
+      publicKey: `pk_pointer_${publicKey}`,
+    };
+  },
+  signature: (privateKey, data) => {
+    const jsonString = JSON.stringify(data._id);
+    return crypto
+      .createHmac("sha256", privateKey)
+      .update(jsonString)
+      .digest("hex");
   },
 };

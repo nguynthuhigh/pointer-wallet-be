@@ -1,6 +1,7 @@
 const AppError = require("../helpers/handleError");
 const { Webhook } = require("../models/webhook.model");
 const convertToObjectId = require("../utils/convert-type-object");
+const webhookAPI = require("../utils/webhook.call.api");
 const getWebhookEndpoints = async (partnerID) => {
   const data = await Webhook.find({
     partner: partnerID,
@@ -39,10 +40,15 @@ const deleteWebhook = async (_id, partner) => {
   }
   await webhook.deleteOne();
 };
+const postWebhook = async (partnerID, event, payload, session) => {
+  const webhook = await getWebhookPartner(partnerID, event);
+  await webhookAPI.postWebhookPayment(webhook.url, payload, session);
+};
 module.exports = {
   getWebhookEndpoints,
   getWebhookPartner,
   deleteWebhook,
   addWebhookEndpoint,
   deleteWebhook,
+  postWebhook,
 };

@@ -18,4 +18,11 @@ module.exports = {
     });
     return Response(res, "Áp dụng voucher thành công", data, 200);
   }),
+  connectWallet: catchError(async (req, res) => {
+    await PaymentService.connectWallet({
+      ...req.body,
+      user: req.user_info,
+    });
+    return Response(res, "Liên kết ví thành công", null, 200);
+  }),
 };
