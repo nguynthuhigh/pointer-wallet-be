@@ -19,9 +19,18 @@ const expire = async (key, expire) => {
   const redis = getRedisClient();
   return await redis.expire(key, expire);
 };
+const incr = async (key, expire) => {
+  const redis = getRedisClient();
+  const value = await redis.incr(key);
+  if (expire) {
+    await redis.expire(key, expire);
+  }
+  return value;
+};
 module.exports = {
   set,
   get,
   expire,
   del,
+  incr,
 };

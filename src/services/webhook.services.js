@@ -18,12 +18,19 @@ const getWebhookPartner = async (partnerID, event) => {
   return data;
 };
 const addWebhookEndpoint = async (endpoint, partnerID, event) => {
-  const data = await Webhook.create({
-    url: endpoint,
+  const webhook = await Webhook.findOne({
     partner: partnerID,
-    event: event,
+    event,
   });
-  return data;
+  if (!webhook) {
+    const data = await Webhook.create({
+      url: endpoint,
+      partner: partnerID,
+      event: event,
+    });
+    return data;
+  }
+  await webhook.updateOne({ url: endpoint });
 };
 const deleteWebhook = async (_id, partner) => {
   const webhook = await Webhook.findById(convertToObjectId(_id));

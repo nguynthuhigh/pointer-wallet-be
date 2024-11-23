@@ -10,7 +10,6 @@ const webhookSchema = new Schema(
       type: String,
       enum: Object.values(WEBHOOK_EVENT),
       required: true,
-      unique:true
     },
     partner: {
       type: Schema.Types.ObjectId,
