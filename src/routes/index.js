@@ -15,7 +15,7 @@ const routeSetting = require("./user/setting.routes");
 const routeUser = require("./user/user.routes");
 const routeTransactionAdmin = require("../routes/admin/transaction.routes");
 const routeVoucherAdmin = require("../routes/admin/voucher.routes");
-
+const routeAnalystAdmin = require("../routes/admin/analyst.routes");
 module.exports = (app) => {
   app.post("/hello-world", (req, res) => {
     res.status(200).json({ message: req.body });
@@ -34,6 +34,10 @@ module.exports = (app) => {
   app.use("/api/v1/admin", routeAdmin);
   app.use("/api/v1/admin", routeTransactionAdmin);
   app.use("/api/v1/admin", routeVoucherAdmin);
+
+  //Analyst Admin
+  app.use("/api/v1/admin-analyst", routeAnalystAdmin);
+
 
   app.use("/api/v1/partner-management", routePartnerManagement);
   app.use("/api/v1/user", routeManagementUser);

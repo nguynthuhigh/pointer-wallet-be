@@ -27,6 +27,10 @@ const userSchema = new Schema({
         required:true,
         default:false
     },
+    role: {
+        type: String,
+        enum: ['admin', 'finance', 'support']
+    }
 },{
     timestamps: true 
 })
