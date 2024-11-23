@@ -22,8 +22,8 @@ const getThisWeek = catchError(async(req,res) => {
     return Response(res,'Get this week successful',data,200)
 })
 
-const getThisMonth = async catchError((req,res) => {
-    const data = await AdminService.getThisMonth()
+const getThisMonth = catchError(async(req,res) => {
+    const data = await AdminService.getThisMonth();
     return Response(res,'Get this month successful',data,200)
 })
 
