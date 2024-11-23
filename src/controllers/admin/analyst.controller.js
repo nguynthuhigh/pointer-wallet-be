@@ -27,25 +27,25 @@ const getThisMonth = catchError(async(req,res) => {
     return Response(res,'Get this month successful',data,200)
 })
 
-const getCustomerAnalyst = async (req,res) => {
+const getCustomerAnalyst = catchError(async (req,res) => {
     const data = await AdminService.getCustomerAnalyst();
     return Response(res,'Get customer analyst',data,200)
-}
+})
 
-const getPartnerAnalyst = async (req,res) => {
+const getPartnerAnalyst = catchError(async (req,res) => {
     const data = await AdminService.getPartnerAnalyst();
     return Response(res,'Get partner analyst',data,200)
-}
+})
 
-const getTransactionAnalyst = async (req,res) => {
+const getTransactionAnalyst = catchError(async (req,res) => {
     const data = await AdminService.getTransactionAnalyst();
     return Response(res,'Get transaction analyst',data,200)
-}
+})
 
-const getTotalMoneyType = async (req,res) => {   
+const getTotalMoneyType = catchError(async (req,res) => {   
     const data = await AdminService.getTotalMoneyType();
     return Response(res,'Get total money type',data,200)
-}
+})
 
 const getTransaction1D = catchError(async (req,res) => {
     const {date} = req.query;
@@ -53,17 +53,17 @@ const getTransaction1D = catchError(async (req,res) => {
     return Response(res,'Get transaction 1 day successful',data,200)
 })
 
-const getTransaction1W = async (req,res) => {
+const getTransaction1W = catchError(async (req,res) => {
     const {start,end} = req.query;
     const data = await AdminService.getTransaction1W(start,end);
     return Response(res,'Get transaction 1 week successful',data,200)   
-}
+})
 
-const getTransaction1M = async(req,res) => {
+const getTransaction1M = catchError(async(req,res) => {
     const {start,end} = req.query
     const data = await AdminService.getTransaction1M(start,end);
     return Response(res,'Get transaction 1 month successful',data,200) 
-}
+})
 
 module.exports = {
     getTotalDashBoard,
