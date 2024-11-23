@@ -1,16 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('../../controllers/admin/auth.controller')
+const { CheckToken } = require('../../middlewares/auth.middle')
 
-router.post('/sign-in',controller.signIn)
-router.post('/add-admin',controller.createAccount)
-router.get('/get-all-admins',controller.getAllAdmins)
-router.patch('/ban-admin',controller.banAdmin)
-router.post('/refresh-token',controller.refreshToken)
+router.use(CheckToken) //global
 
-
-
-
-
+router.post('/add-admin',controller.createAdmin)
+router.post('/sign-in-admin',controller.loginAdmin)
+router.get('/get-admin',controller.getAdmin)
+router.delete('/delete-admin/:id',controller.deleteAdmin)
 
 module.exports = router
