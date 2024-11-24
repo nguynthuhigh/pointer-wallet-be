@@ -6,7 +6,6 @@ const adminSchema = new Schema({
     },
     avatar:{
         type:String,
-        default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwzw_Ti47ovNmMbRwz3HaY7hDhHFeAmER6kw&s"
     },
     email:{
         type:String,
