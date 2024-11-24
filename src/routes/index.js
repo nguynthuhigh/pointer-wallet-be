@@ -20,6 +20,8 @@ module.exports = (app) => {
   app.post("/hello-world", (req, res) => {
     res.status(200).json({ message: req.body });
   });
+  //payment
+  app.use("/api/v1", routePayment);
   app.use("/api/v1/voucher", routeVoucher);
   app.use("/api/v1/user", routeSetting);
   app.use("/api/v1/user", routerAuth);
@@ -39,7 +41,6 @@ module.exports = (app) => {
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1/statistic", routeStatistic);
 
-  app.use("/api/v1", routePayment);
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
   });

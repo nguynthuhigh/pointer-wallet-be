@@ -1,11 +1,11 @@
 module.exports = {
-  setCookie: (res, token, key_word) => {
+  setCookie: (res, token, key_word, expire) => {
     res.cookie(key_word, token, {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      sameSite: process.env.PRODUCTION ? "none" : "lax",
+      secure: process.env.PRODUCTION === "PRODUCTION",
       path: "/",
-      maxAge: 60 * 60 * 24 * 15 * 1000,
+      maxAge: expire,
     });
   },
 };

@@ -6,7 +6,7 @@ module.exports = {
     try {
       await axios.post(endpoint, body);
     } catch (error) {
-      await session.abortTransaction();
+      session && (await session.abortTransaction());
       throw new AppError("Lỗi hệ thống bên phía đối tác vui lòng thử lại", 500);
     }
   },

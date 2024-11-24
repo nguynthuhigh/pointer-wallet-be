@@ -25,4 +25,8 @@ module.exports = {
     });
     return Response(res, "Liên kết ví thành công", null, 200);
   }),
+  getPartnerConnect: catchError(async (req, res) => {
+    const data = await PaymentService.getPartnerConnect(req.params.id);
+    return Response(res, "Success", data, 200);
+  }),
 };

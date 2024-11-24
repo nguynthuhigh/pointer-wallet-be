@@ -51,7 +51,6 @@ class AuthServices {
   };
   static refreshTokenAccess = async (refreshToken) => {
     const payload = token.verifyToken(refreshToken, process.env.REFRESH_KEY);
-    console.log(payload.id);
     const newToken = token.createToken(payload.id);
     await tokenServices.updateRefreshToken(refreshToken, newToken.refreshToken);
     return newToken;

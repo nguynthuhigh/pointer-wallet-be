@@ -4,12 +4,13 @@ const walletService = require("../services/wallet.services");
 const transactionService = require("../services/transaction.services");
 const webhookService = require("../services/webhook.services");
 const voucherService = require("../services/voucher.services");
-const { PartnerServices } = require("../services/partner/partner.services");
+const { PartnerServices } = require("./partner.services");
 const bcrypt = require("../utils/bcrypt");
 const { signature } = require("../utils/crypto-js");
 const { verifySecurityCode } = require("../services/security.services");
 const WEBHOOK_EVENT = require("../contains/webhook-event");
 const convertToObjectId = require("../utils/convert-type-object");
+const ConnectWallet = require("../models/connect-wallet.model");
 module.exports = {
   confirmPayment: async ({
     sender,
@@ -85,6 +86,11 @@ module.exports = {
     );
     await verifySecurityCode(security_code, user.security_code, 3, user);
     const signatureData = signature(partner.privateKey, user);
+    await ConnectWallet.create({
+      partnerID: convertToObjectId(partnerID),
+      userID: user._id,
+      signature: signatureData,
+    });
     await webhookService.postWebhook(
       transaction?.partnerID._id,
       WEBHOOK_EVENT.CONNECT_WALLET,
@@ -93,5 +99,8 @@ module.exports = {
         signatureData,
       }
     );
+  },
+  getPartnerConnect: async (partnerID) => {
+    return await PartnerServices.findPartner(convertToObjectId(partnerID));
   },
 };

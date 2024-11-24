@@ -1,5 +1,5 @@
 const { Response } = require("../../utils/response");
-const { PartnerServices } = require("../../services/partner/partner.services");
+const { PartnerServices } = require("../../services/partner.services");
 const { Partner } = require("../../models/partner.model");
 const transactionServices = require("../../services/transaction.services");
 const { getRedisClient } = require("../../configs/redis/redis");
