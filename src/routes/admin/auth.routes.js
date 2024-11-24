@@ -3,7 +3,7 @@ const router = express.Router()
 const controller = require('../../controllers/admin/auth.controller')
 const { CheckToken } = require('../../middlewares/auth.middle')
 
-router.use(CheckToken) //global
+// router.use(CheckToken) //global
 
 router.post('/add-admin',controller.createAdmin)
 router.post('/sign-in-admin',controller.loginAdmin)

@@ -40,7 +40,7 @@ module.exports = (app) => {
   //Analyst Admin
   app.use("/api/v1/admin-analyst", routeAnalystAdmin);
 
-
+  
   app.use("/api/v1/partner-management", routePartnerManagement);
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1/statistic", routeStatistic);
