@@ -21,7 +21,6 @@ module.exports = (app) => {
     res.status(200).json({ message: req.body });
   });
   //payment
-  app.use("/api/v1", routePayment);
   app.use("/api/v1/voucher", routeVoucher);
   app.use("/api/v1/user", routeSetting);
   app.use("/api/v1/user", routerAuth);
@@ -32,18 +31,17 @@ module.exports = (app) => {
   app.use("/api/v1/partner", routeAuthPartner);
   app.use("/api/v1/partner", routePartner);
   app.use("/api/v1/webhook", routeWebhook);
-  //Admin
-  app.use("/api/v1/admin", routeAdmin);
+  
+  // app.use("/api/v1/admin", routeAdmin);
   app.use("/api/v1/admin", routeTransactionAdmin);
   app.use("/api/v1/admin", routeVoucherAdmin);
 
-  //Analyst Admin
   app.use("/api/v1/admin-analyst", routeAnalystAdmin);
-
 
   app.use("/api/v1/partner-management", routePartnerManagement);
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1/statistic", routeStatistic);
+  app.use("/api/v1", routePayment);
 
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
