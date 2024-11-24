@@ -80,7 +80,9 @@ module.exports = {
     );
     return amount;
   },
-  connectWallet: async ({ partnerID, user, security_code }) => {
+  connectWallet: async ({ partnerID, user, security_code, userID }) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     const partner = await PartnerServices.findPartnerById(
       convertToObjectId(partnerID)
     );
@@ -96,9 +98,13 @@ module.exports = {
       WEBHOOK_EVENT.CONNECT_WALLET,
       {
         status: 200,
-        signatureData,
-      }
+        signature:signatureData,
+        userID,
+      },
+      session
     );
+    await session.commitTransaction();
+    session.endSession();
   },
   getPartnerConnect: async (partnerID) => {
     return await PartnerServices.findPartner(convertToObjectId(partnerID));
