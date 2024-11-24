@@ -81,7 +81,7 @@ module.exports = {
     return amount;
   },
   connectWallet: async ({ partnerID, user, security_code }) => {
-    const partner = await PartnerServices.findPartner(
+    const partner = await PartnerServices.findPartnerById(
       convertToObjectId(partnerID)
     );
     await verifySecurityCode(security_code, user.security_code, 3, user);
