@@ -10,6 +10,8 @@ router
   .post("/confirm-payment", controller.confirmPayment)
   .post("/apply-voucher", controller.applyVoucher)
   .post("/connect-wallet", controller.connectWallet)
-  .get("/partner/:id", controller.getPartnerConnect);
+  .get("/connected-app", controller.getConnectApps)
+  .get("/partner/:id", controller.getPartnerConnect)
+  .delete("/disconnect-wallet/:id", controller.disconnectApp);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 const AppError = require("../helpers/handleError");
 const ConnectWallet = require("../models/connect-wallet.model");
+const convertToObjectId = require("../utils/convert-type-object");
+const { signature } = require("../utils/crypto-js");
 
 const createConnect = async (partner, userID, signature, session) => {
   const connected = await ConnectWallet.findOne({ signature });
@@ -14,6 +16,27 @@ const createConnect = async (partner, userID, signature, session) => {
   });
   await connect.save({ session });
 };
+const getConnectApps = async (userID) => {
+  return await ConnectWallet.find({
+    userID: convertToObjectId(userID),
+  })
+    .populate({
+      path: "partnerID",
+      select: "name image description",
+    })
+    .select({ signature: 0 });
+};
+const disconnectApp = async (partnerID, userID) => {
+  const disconnected = await ConnectWallet.deleteOne({
+    partnerID: convertToObjectId(partnerID),
+    userID,
+  });
+  if (disconnected.deletedCount !== 1) {
+    throw new AppError("Hủy liên kết thất bại", 400);
+  }
+};
 module.exports = {
   createConnect,
+  getConnectApps,
+  disconnectApp,
 };

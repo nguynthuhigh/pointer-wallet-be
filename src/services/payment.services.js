@@ -91,7 +91,7 @@ module.exports = {
     const signatureData = signature(partner.privateKey, user);
     await ConnectWalletService.createConnect(
       partner,
-      userID,
+      user._id,
       signatureData,
       session
     );
@@ -108,6 +108,7 @@ module.exports = {
     await session.commitTransaction();
     session.endSession();
   },
+
   getPartnerConnect: async (partnerID) => {
     return await PartnerServices.findPartner(convertToObjectId(partnerID));
   },

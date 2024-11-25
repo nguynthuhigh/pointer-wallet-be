@@ -3,7 +3,8 @@ const { Schema, model } = require("mongoose");
 const connectWalletSchema = new Schema(
   {
     userID: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
     partnerID: {
       type: Schema.Types.ObjectId,
