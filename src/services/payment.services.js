@@ -10,7 +10,8 @@ const { signature } = require("../utils/crypto-js");
 const { verifySecurityCode } = require("../services/security.services");
 const WEBHOOK_EVENT = require("../contains/webhook-event");
 const convertToObjectId = require("../utils/convert-type-object");
-const ConnectWallet = require("../models/connect-wallet.model");
+const ConnectWalletService = require("../services/connect-wallet.services");
+const { sign } = require("crypto");
 module.exports = {
   confirmPayment: async ({
     sender,
@@ -88,17 +89,18 @@ module.exports = {
     );
     await verifySecurityCode(security_code, user.security_code, 3, user);
     const signatureData = signature(partner.privateKey, user);
-    await ConnectWallet.create({
-      partnerID: convertToObjectId(partnerID),
-      userID: user._id,
-      signature: signatureData,
-    });
+    await ConnectWalletService.createConnect(
+      partner,
+      userID,
+      signatureData,
+      session
+    );
     await webhookService.postWebhook(
-      transaction?.partnerID._id,
+      convertToObjectId(partnerID),
       WEBHOOK_EVENT.CONNECT_WALLET,
       {
         status: 200,
-        signature:signatureData,
+        signature: signatureData,
         userID,
       },
       session

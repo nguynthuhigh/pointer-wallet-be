@@ -4,7 +4,6 @@ const Redis = require("../helpers/redis.helpers");
 const { sendMail } = require("../utils/nodemailer");
 const verifySecurityCode = async (code, hashCode, limit, user) => {
   const wrongCount = await Redis.get(`security_code:${user._id}`);
-  console.log(wrongCount);
   if (wrongCount >= limit) {
     wrongCount === 3 &&
       (await sendMail(

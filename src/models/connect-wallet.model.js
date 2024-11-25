@@ -3,17 +3,17 @@ const { Schema, model } = require("mongoose");
 const connectWalletSchema = new Schema(
   {
     userID: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
     },
     partnerID: {
       type: Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "Partner",
     },
     signature: {
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
   },
   {
