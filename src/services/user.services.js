@@ -71,29 +71,26 @@ module.exports = {
     }
     await redis.del(`user:${data._id}`);
   },
-  // getProfile: async(userData)=>{
-  //     const userRedis = await redis.get(`user:${userData._id}`)
-  //     if(!userRedis){
-  //         const walletData = await Wallet.findOne({userID:userData._id}).populate('currencies.currency').lean().exec()
-  //         redis.set(`user:${userData._id}`,JSON.stringify({
-  //             userData:userData,
-  //             walletData:walletData
-  //         }),600)
-  //         return {
-  //             userData:userData,
-  //             walletData:walletData
-  //         }
-  //     }
-  //     return JSON.parse(userRedis)
-  // }
   getProfile: async (userData) => {
-    const walletData = await Wallet.findOne({ userID: userData._id })
-      .populate("currencies.currency")
-      .lean()
-      .exec();
-    return {
-      userData: userData,
-      walletData: walletData,
-    };
+    const userRedis = await redis.get(`user:${userData._id}`);
+    if (!userRedis) {
+      const walletData = await Wallet.findOne({ userID: userData._id })
+        .populate("currencies.currency")
+        .lean()
+        .exec();
+      await redis.set(
+        `user:${userData._id}`,
+        JSON.stringify({
+          userData: userData,
+          walletData: walletData,
+        }),
+        600
+      );
+      return {
+        userData: userData,
+        walletData: walletData,
+      };
+    }
+    return JSON.parse(userRedis);
   },
 };
