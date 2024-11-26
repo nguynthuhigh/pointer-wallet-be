@@ -46,7 +46,7 @@ module.exports = {
     return Response(res, "Đăng nhập thành công", accessToken, 200);
   }),
   Logout: catchError(async (req, res) => {
-    await AuthServices.logoutAccount(req.body.refreshToken);
+    await AuthServices.logoutAccount(req.cookies.refresh_token);
     Response(res, "Logout Success", null, 200);
   }),
   refreshTokenAccess: catchError(async (req, res) => {
