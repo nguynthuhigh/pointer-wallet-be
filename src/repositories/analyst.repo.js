@@ -204,9 +204,14 @@ async function getThisMonth(start,end) {
                 _id:0,
                 transaction: "$total"
             }
+        },
+        {
+            $sort: {
+                _id: -1
+            }
         }
     ]);
-    return data
+    return data.length > 0 ? data[0].transaction : 0
 }
 
 async function getTransactionToday(start,end) {

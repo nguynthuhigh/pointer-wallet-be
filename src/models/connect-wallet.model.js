@@ -8,7 +8,7 @@ const connectWalletSchema = new Schema(
     },
     partnerID: {
       type: Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "Partner",
     },
     signature: {
       type: String,
