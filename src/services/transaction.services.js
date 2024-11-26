@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const walletServices = require("../services/wallet.services");
 const bcrypt = require("../utils/bcrypt");
 const { getTransactionDetails } = require("../repositories/transaction.repo");
+const SecurityService = require("../services/security.services");
 class TransactionFactory {
   static async createTransaction(type, body) {
     switch (type) {
@@ -154,17 +155,21 @@ class TransactionRefund extends Transactions {
 module.exports = {
   TransactionFactory,
   checkConditionCreateTransaction: async ({
-    userID,
+    user,
     amount,
     currency,
-    security_code,
-    current_security_code,
+    securityCode,
+    securityCodeHash,
   }) => {
     const getCurrency = await walletServices.getCurrency(currency);
+    const { _id: userID } = user;
     await walletServices.hasSufficientBalance(userID, getCurrency._id, amount);
-    if (!bcrypt.bcryptCompare(security_code, current_security_code)) {
-      throw new AppError("Mã bảo mật không đúng", 402);
-    }
+    await SecurityService.verifySecurityCode(
+      securityCode,
+      securityCodeHash,
+      600,
+      user
+    );
     return getCurrency;
   },
   updateStatusTransaction: async (transactionID, status, session) => {

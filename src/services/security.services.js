@@ -21,5 +21,19 @@ const verifySecurityCode = async (code, hashCode, limit, user) => {
     throw new AppError("Mã bảo mật không đúng", 400);
   }
 };
-
-module.exports = { verifySecurityCode };
+const verifyPassword = async (user, password) => {
+  const { password: passwordHash, _id } = user;
+  const wrongCount = await Redis.get(`password:${_id}`);
+  if (wrongCount >= 3) {
+    throw new AppError(
+      `Bạn đã nhập mật khẩu sai quá 3 lần vui lòng thử lại sau 1 tiếng`,
+      400
+    );
+  }
+  if (!bcrypt.bcryptCompare(password, passwordHash)) {
+    const ONE_HOUR = 60 * 60;
+    await Redis.incr(`password:${_id}`, ONE_HOUR);
+    throw new AppError("Tài khoản hoặc mật khẩu không đúng", 400);
+  }
+};
+module.exports = { verifySecurityCode, verifyPassword };

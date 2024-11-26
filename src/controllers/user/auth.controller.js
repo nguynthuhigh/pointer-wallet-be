@@ -56,4 +56,16 @@ module.exports = {
     setCookie(res, refreshToken, "refresh_token");
     return Response(res, "refresh token success", accessToken, 200);
   }),
+  forgotPassword: catchError(async (req, res) => {
+    await AuthServices.forgotPassword(req.body.email);
+    return Response(res, "Vui lòng kiểm tra email của bạn", null, 200);
+  }),
+  resetPassword: catchError(async (req, res) => {
+    await AuthServices.resetPassword({ ...req.body });
+    return Response(res, "Khôi phục mật khẩu thành công", null, 200);
+  }),
+  resendOtp: catchError(async (req, res) => {
+    await AuthServices.resendOtp({ ...req.body });
+    return Response(res, "Kiểm tra email để xác nhận", null, 200);
+  }),
 };

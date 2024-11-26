@@ -17,7 +17,7 @@ module.exports = {
     const getCurrency = await checkConditionCreateTransaction({
       ...req.body,
       current_security_code: req.security_code,
-      userID: req.user,
+      user: req.user_info,
     });
     const transactionResult = await TransactionFactory.createTransaction(
       "transfer",
@@ -65,7 +65,7 @@ module.exports = {
     const getCurrency = await checkConditionCreateTransaction({
       ...req.body,
       current_security_code: req.security_code,
-      userID: req.user,
+      user: req.user_info,
     });
     const number = cardData.number.substring(
       cardData.number.length - 4,
