@@ -60,7 +60,8 @@ class AuthServices {
   };
   static forgotPassword = async (email) => {
     await userServices.getUserByEmail(email);
-    await otpServices.createOTP(email, "");
+    const OTP = await otpServices.createOTP(email, "");
+    return { OTP, email };
   };
   static resetPassword = async ({ email, otp, password }) => {
     await otpServices.verifyOTP(email, otp);

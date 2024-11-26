@@ -29,7 +29,7 @@ module.exports = {
   }),
   Login: catchError(async (req, res) => {
     const { OTP, email } = await AuthServices.loginAccount(req.body);
-    nodemailer.sendMail(
+    await nodemailer.sendMail(
       email,
       "Mã OTP đăng nhập của bạn là " +
         OTP +
@@ -57,7 +57,14 @@ module.exports = {
     return Response(res, "refresh token success", accessToken, 200);
   }),
   forgotPassword: catchError(async (req, res) => {
-    await AuthServices.forgotPassword(req.body.email);
+    const { OTP, email } = await AuthServices.forgotPassword(req.body.email);
+    await nodemailer.sendMail(
+      email,
+      "Mã OTP đăng nhập của bạn là " +
+        OTP +
+        "\n Vui lòng không gửi cho bất kỳ ai.",
+      "Chúng tôi đến từ pressPay!"
+    );
     return Response(res, "Vui lòng kiểm tra email của bạn", null, 200);
   }),
   resetPassword: catchError(async (req, res) => {
