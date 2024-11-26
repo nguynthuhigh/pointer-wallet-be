@@ -92,7 +92,7 @@ async function totalPartnerToday(start,end) {
             }
         }
     ])
-    return data;
+    return data.length > 0 ? data[0].total : 0
 }
 async function getTypeAnalyst() {
     const data = await Transaction.aggregate([
@@ -359,7 +359,7 @@ async function getTransaction1W(start,end) {
             $project: {
                 _id: 0,
                 date: "$_id",
-                transaction: "$total"
+                transactions: "$total"
             }
         }
     ])
