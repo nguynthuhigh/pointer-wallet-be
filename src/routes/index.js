@@ -19,6 +19,10 @@ module.exports = (app) => {
   app.post("/hello-world", (req, res) => {
     res.status(200).json({ message: req.body });
   });
+  app.use("/api/v1/admin/auth", routeAdminAuth);
+  app.use("/api/v1/admin-analyst", routeAnalystAdmin);
+
+
   //payment
 
   app.use("/api/v1/voucher", routeVoucher);
@@ -38,8 +42,6 @@ module.exports = (app) => {
   app.use("/api/v1/partner-management", routePartnerManagement);
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1", routePayment);
-  app.use("/api/v1/admin/auth", routeAdminAuth);
-  app.use("/api/v1/admin-analyst", routeAnalystAdmin);
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
   });
