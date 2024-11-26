@@ -403,7 +403,6 @@ async function getTransaction1M(start,end) {
     return data;
 }
 
-
 module.exports = {
     totalCustomer,
     totalCustomerToday,
