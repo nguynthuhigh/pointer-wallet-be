@@ -51,9 +51,8 @@ const getThisMonth = async () => {
 
         const data = await AdminRepository.getThisMonth(startOfWeek,endOfWeek);
         weeksData.push({
-            startOfWeek,
-            endOfWeek,
-            total: data
+            date: `${startOfWeek.toISOString().split("T")[0]} - ${endOfWeek.toISOString().split("T")[0]}`,
+            transaction: data
         })
     }
     return weeksData;
@@ -117,7 +116,6 @@ const getTransactionAnalyst = async () => {
         transactionCompleted,
         transactionRate
     }
-
 }
 
 const getTotalMoneyType = async () => {

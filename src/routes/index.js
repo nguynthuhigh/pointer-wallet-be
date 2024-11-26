@@ -31,10 +31,13 @@ module.exports = (app) => {
   app.use("/api/v1/partner", routeAuthPartner);
   app.use("/api/v1/partner", routePartner);
   app.use("/api/v1/webhook", routeWebhook);
-  
-  // app.use("/api/v1/admin", routeAdmin);
+
+
+  app.use("/api/v1/admin", routeAdmin);
+
   app.use("/api/v1/admin", routeTransactionAdmin);
   app.use("/api/v1/admin", routeVoucherAdmin);
+
 
   app.use("/api/v1/admin-analyst", routeAnalystAdmin);
 
@@ -42,6 +45,7 @@ module.exports = (app) => {
   app.use("/api/v1/user", routeManagementUser);
   app.use("/api/v1/statistic", routeStatistic);
   app.use("/api/v1", routePayment);
+
 
   app.get("/test", (req, res) => {
     res.status(200).json({ message: "Hello-world" });
