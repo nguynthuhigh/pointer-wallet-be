@@ -2,10 +2,12 @@ const OTPServices = require("../services/otp.services");
 const userServices = require("../services/user.services");
 const tokenServices = require("../services/token.services");
 const walletServices = require("../services/wallet.services");
+const securityServices = require("../services/security.services");
 const bcrypt = require("../utils/bcrypt");
 const token = require("../utils/token");
 const AppError = require("../helpers/handleError");
 const { User } = require("../models/user.model");
+const otpServices = require("../services/otp.services");
 class AuthServices {
   static registerAccount = async (payload) => {
     const { email, password } = payload;
@@ -36,9 +38,7 @@ class AuthServices {
     const { email, password } = payload;
     const user = await userServices.getUserByEmail(email);
     const passwordHash = user.password;
-    if (!bcrypt.bcryptCompare(password, passwordHash)) {
-      throw new AppError("Tài khoản hoặc mật khẩu không đúng", 400);
-    }
+    await securityServices.verifyPassword(user, password);
     const OTP = await OTPServices.createOTP(email, passwordHash);
     return { OTP, email };
   };
@@ -57,6 +57,18 @@ class AuthServices {
   };
   static logoutAccount = async (refreshToken) => {
     await tokenServices.deleteRefreshToken(refreshToken);
+  };
+  static forgotPassword = async (email) => {
+    await userServices.getUserByEmail(email);
+    const OTP = await otpServices.createOTP(email, "");
+    return { OTP, email };
+  };
+  static resetPassword = async ({ email, otp, password }) => {
+    await otpServices.verifyOTP(email, otp);
+    await userServices.resetPasswordUser(email, password);
+  };
+  static resendOtp = async ({ email, password }) => {
+    await otpServices.createOTP(email, password);
   };
 }
 module.exports = AuthServices;

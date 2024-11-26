@@ -2,6 +2,7 @@ const { Response } = require("../../utils/response");
 const nodemailer = require("../../utils/nodemailer");
 const userServices = require("../../services/user.services");
 const creditCardServices = require("../../services/credit-card.services");
+const securityServices = require("../../services/security.services");
 const catchError = require("../../middlewares/catchError.middleware");
 const {
   TransactionFactory,
@@ -17,7 +18,7 @@ module.exports = {
     const getCurrency = await checkConditionCreateTransaction({
       ...req.body,
       current_security_code: req.security_code,
-      userID: req.user,
+      user: req.user_info,
     });
     const transactionResult = await TransactionFactory.createTransaction(
       "transfer",
@@ -37,12 +38,19 @@ module.exports = {
   }),
   depositMoney: catchError(async (req, res) => {
     const sender = req.user;
-    const { cardID, amount, currency } = req.body;
+    const user = req.user_info;
+    const { cardID, amount, currency, security_code } = req.body;
     const cardData = await creditCardServices.findCardById(cardID, sender);
     const getCurrency = await walletServices.getCurrency(currency);
     const number = cardData.number.substring(
       cardData.number.length - 4,
       cardData.number.length - 1
+    );
+    await securityServices.verifySecurityCode(
+      security_code,
+      user.security_code,
+      3,
+      user
     );
     const transactionResult = await TransactionFactory.createTransaction(
       "deposit",
@@ -64,8 +72,7 @@ module.exports = {
     const cardData = await creditCardServices.findCardById(cardID, sender);
     const getCurrency = await checkConditionCreateTransaction({
       ...req.body,
-      current_security_code: req.security_code,
-      userID: req.user,
+      user: req.user_info,
     });
     const number = cardData.number.substring(
       cardData.number.length - 4,

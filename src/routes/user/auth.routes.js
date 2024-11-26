@@ -11,19 +11,20 @@ router.post(
   validateMiddleware.validateRegister,
   AuthController.Register
 );
-router.post("/signup/verify", AuthController.VerifyAccount);
-router.post("/signin", AuthController.Login);
-router.post("/signin/verify", AuthController.VerifyLogin);
-router.post("/request-reset-password");
-router.post("/reset-password");
-router.put(
-  "/update-security-code",
-  authenticationUser,
-  AuthController.updateSecurityCode
-);
-router.post("/resend-email");
-router.post("/log-out", AuthController.Logout);
-router.post("/refresh-token", AuthController.refreshTokenAccess);
+router
+  .post("/signup/verify", AuthController.VerifyAccount)
+  .post("/signin", AuthController.Login)
+  .post("/signin/verify", AuthController.VerifyLogin)
+  .post("/forgot-password", AuthController.forgotPassword)
+  .post("/reset-password", AuthController.resetPassword)
+  .post("/resend-otp", AuthController.resendOtp)
+  .put(
+    "/update-security-code",
+    authenticationUser,
+    AuthController.updateSecurityCode
+  )
+  .post("/log-out", AuthController.Logout)
+  .post("/refresh-token", AuthController.refreshTokenAccess);
 
 //partner
 

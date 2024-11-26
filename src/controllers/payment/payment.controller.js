@@ -1,6 +1,5 @@
 const { Response } = require("../../utils/response");
-const voucherServices = require("../../services/voucher.services");
-const transactionServices = require("../../services/transaction.services");
+const ConnectWalletService = require("../../services/connect-wallet.services");
 const catchError = require("../../middlewares/catchError.middleware");
 const PaymentService = require("../../services/payment.services");
 module.exports = {
@@ -28,5 +27,16 @@ module.exports = {
   getPartnerConnect: catchError(async (req, res) => {
     const data = await PaymentService.getPartnerConnect(req.params.id);
     return Response(res, "Success", data, 200);
+  }),
+  getConnectApps: catchError(async (req, res) => {
+    const data = await ConnectWalletService.getConnectApps(req.user_info._id);
+    return Response(res, "Success", data, 200);
+  }),
+  disconnectApp: catchError(async (req, res) => {
+    const data = await ConnectWalletService.disconnectApp(
+      req.params.id,
+      req.user_info._id
+    );
+    return Response(res, "Hủy liên kết thành công", data, 200);
   }),
 };

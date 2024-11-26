@@ -4,13 +4,15 @@ const walletService = require("../services/wallet.services");
 const transactionService = require("../services/transaction.services");
 const webhookService = require("../services/webhook.services");
 const voucherService = require("../services/voucher.services");
+const securityService = require("../services/security.services");
+
 const { PartnerServices } = require("./partner.services");
 const bcrypt = require("../utils/bcrypt");
 const { signature } = require("../utils/crypto-js");
 const { verifySecurityCode } = require("../services/security.services");
 const WEBHOOK_EVENT = require("../contains/webhook-event");
 const convertToObjectId = require("../utils/convert-type-object");
-const ConnectWallet = require("../models/connect-wallet.model");
+const ConnectWalletService = require("../services/connect-wallet.services");
 module.exports = {
   confirmPayment: async ({
     sender,
@@ -23,12 +25,15 @@ module.exports = {
     const transaction = await transactionService.getTransactionForPayment(
       transactionID
     );
-    if (!transaction || transaction.status === "completed") {
+    if (!transaction || transaction.status !== "pending") {
       throw new AppError("Không tìm thấy giao dịch", 404);
     }
-    if (!bcrypt.bcryptCompare(security_code, sender.security_code)) {
-      throw new AppError("Mã bảo mật không đúng", 400);
-    }
+    await securityService.verifySecurityCode(
+      security_code,
+      sender.security_code,
+      3,
+      sender
+    );
     const currencyID = transaction.currency._id;
     const { amount, voucherID } = await voucherService.applyVoucherPayment(
       transaction,
@@ -80,26 +85,34 @@ module.exports = {
     );
     return amount;
   },
-  connectWallet: async ({ partnerID, user, security_code }) => {
-    const partner = await PartnerServices.findPartner(
+  connectWallet: async ({ partnerID, user, security_code, userID }) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const partner = await PartnerServices.findPartnerById(
       convertToObjectId(partnerID)
     );
     await verifySecurityCode(security_code, user.security_code, 3, user);
     const signatureData = signature(partner.privateKey, user);
-    await ConnectWallet.create({
-      partnerID: convertToObjectId(partnerID),
-      userID: user._id,
-      signature: signatureData,
-    });
+    await ConnectWalletService.createConnect(
+      partner,
+      user._id,
+      signatureData,
+      session
+    );
     await webhookService.postWebhook(
-      transaction?.partnerID._id,
+      convertToObjectId(partnerID),
       WEBHOOK_EVENT.CONNECT_WALLET,
       {
         status: 200,
-        signatureData,
-      }
+        signature: signatureData,
+        userID,
+      },
+      session
     );
+    await session.commitTransaction();
+    session.endSession();
   },
+
   getPartnerConnect: async (partnerID) => {
     return await PartnerServices.findPartner(convertToObjectId(partnerID));
   },

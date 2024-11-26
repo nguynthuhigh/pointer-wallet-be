@@ -29,7 +29,7 @@ module.exports = {
   }),
   Login: catchError(async (req, res) => {
     const { OTP, email } = await AuthServices.loginAccount(req.body);
-    nodemailer.sendMail(
+    await nodemailer.sendMail(
       email,
       "Mã OTP đăng nhập của bạn là " +
         OTP +
@@ -46,7 +46,7 @@ module.exports = {
     return Response(res, "Đăng nhập thành công", accessToken, 200);
   }),
   Logout: catchError(async (req, res) => {
-    await AuthServices.logoutAccount(req.body.refreshToken);
+    await AuthServices.logoutAccount(req.cookies.refresh_token);
     Response(res, "Logout Success", null, 200);
   }),
   refreshTokenAccess: catchError(async (req, res) => {
@@ -55,5 +55,24 @@ module.exports = {
     );
     setCookie(res, refreshToken, "refresh_token");
     return Response(res, "refresh token success", accessToken, 200);
+  }),
+  forgotPassword: catchError(async (req, res) => {
+    const { OTP, email } = await AuthServices.forgotPassword(req.body.email);
+    await nodemailer.sendMail(
+      email,
+      "Mã OTP đăng nhập của bạn là " +
+        OTP +
+        "\n Vui lòng không gửi cho bất kỳ ai.",
+      "Chúng tôi đến từ pressPay!"
+    );
+    return Response(res, "Vui lòng kiểm tra email của bạn", null, 200);
+  }),
+  resetPassword: catchError(async (req, res) => {
+    await AuthServices.resetPassword({ ...req.body });
+    return Response(res, "Khôi phục mật khẩu thành công", null, 200);
+  }),
+  resendOtp: catchError(async (req, res) => {
+    await AuthServices.resendOtp({ ...req.body });
+    return Response(res, "Kiểm tra email để xác nhận", null, 200);
   }),
 };
