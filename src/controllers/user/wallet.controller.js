@@ -72,7 +72,6 @@ module.exports = {
     const cardData = await creditCardServices.findCardById(cardID, sender);
     const getCurrency = await checkConditionCreateTransaction({
       ...req.body,
-      current_security_code: req.security_code,
       user: req.user_info,
     });
     const number = cardData.number.substring(

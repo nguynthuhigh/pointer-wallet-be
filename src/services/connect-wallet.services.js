@@ -1,7 +1,6 @@
 const AppError = require("../helpers/handleError");
 const ConnectWallet = require("../models/connect-wallet.model");
 const convertToObjectId = require("../utils/convert-type-object");
-const { signature } = require("../utils/crypto-js");
 
 const createConnect = async (partner, userID, signature, session) => {
   const connected = await ConnectWallet.findOne({ signature });

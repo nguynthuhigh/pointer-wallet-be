@@ -1,6 +1,7 @@
 const token = require("../utils/token");
 const Key = require("../models/keys.model");
 const AppError = require("../helpers/handleError");
+const Redis = require("../helpers/redis.helpers");
 const createKey = async (type, id, refreshToken) => {
   switch (type) {
     case "partner":
@@ -13,16 +14,20 @@ const createKey = async (type, id, refreshToken) => {
         refresh_token: refreshToken,
         userID: id,
       });
-    case "admin":
-      return await Key.create({
-        refresh_token: refreshToken,
-        adminID: id,
-      });
     default:
       throw new AppError("Type not defined", 400);
   }
 };
 module.exports = {
+  createTokenAdmin: async (id) => {
+    const accessToken = token.createTokenAdmin(id.toString());
+    await Redis.set(`access_admin:${id.toString()}`, token, 60 * 15);
+    await Key.create({
+      access_token: accessToken,
+      userID: id,
+    });
+    return accessToken;
+  },
   createTokenPair: async (type, id) => {
     const { accessToken, refreshToken } = token.createToken(id);
     const data = await createKey(type, id, refreshToken);

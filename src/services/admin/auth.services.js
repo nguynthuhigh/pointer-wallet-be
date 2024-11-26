@@ -1,42 +1,44 @@
 const { Admin } = require("../../models/admin.model");
+const { User } = require("../../models/user.model");
+
 const bcrypt = require("../../utils/bcrypt");
 const tokenServices = require("../../services/token.services");
 const tokenUtils = require("../../utils/token");
 const Key = require("../../models/keys.model");
 const AppError = require("../../helpers/handleError");
+const convertToObjectId = require("../../utils/convert-type-object");
+const userServices = require("../user.services");
 class AuthAdminServices {
-  static createAdmin = async (email, password, role) => {
+  static findAdminById = async (id) => {
+    const user = await User.findById(convertToObjectId(id));
+    if (user.role != "admin") {
+      throw new AppError("Something went wrong", 401);
+    }
+    return user;
+  };
+  static createAdmin = async ({ email, password, full_name }) => {
     const passwordHash = bcrypt.bcryptHash(password);
-    const data = await Admin.create({
-      email: email,
+    await userServices.existsUserByEmail(email);
+    const data = await User.create({
+      full_name,
+      email,
       password: passwordHash,
-      role: role,
+      role: "admin",
     });
     return data;
   };
-  static loginAccount = async (email, password, userIP) => {
-    const admin = await Admin.findOne({ email: email });
-    if (!admin) {
-      Response(res, "Invalid email or password", null, 400);
+  static loginAdmin = async ({ email, password }) => {
+    const user = await User.findOne({ email });
+    if (!user || !bcrypt.bcryptCompare(password, user.password) || !user.role) {
+      throw new AppError("Something went wrong!", 400);
     }
-    if (!bcrypt.bcryptCompare(password, admin.password)) {
-      Response(res, "Invalid email or password", null, 400);
-    }
-    const token = await tokenServices.createTokenPair(admin._id);
+    const token = await tokenServices.createTokenAdmin(user._id);
     return token;
   };
   static getAllAdmins = async () => {
-    return await Admin.find().select("avatar email role");
+    return await User.find({ role: "admin" });
   };
-  static banAdmin = async (id) => {
-    const result = await Admin.findByIdAndUpdate(id, [
-      { $set: { active: { $eq: [false, "$active"] } } },
-    ]).select("active");
-    if (result.modifiedCount === 0) {
-      return Response(res, "Fail, try again", null, 400);
-    }
-    return result;
-  };
+  static banAdmin = async (id) => {};
   static refreshToken = async (refreshToken) => {
     const token = await Key.findOne({ refresh_token: refreshToken });
     if (!token) {

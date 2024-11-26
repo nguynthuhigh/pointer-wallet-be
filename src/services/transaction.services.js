@@ -158,15 +158,14 @@ module.exports = {
     user,
     amount,
     currency,
-    securityCode,
-    securityCodeHash,
+    security_code,
   }) => {
     const getCurrency = await walletServices.getCurrency(currency);
     const { _id: userID } = user;
     await walletServices.hasSufficientBalance(userID, getCurrency._id, amount);
     await SecurityService.verifySecurityCode(
-      securityCode,
-      securityCodeHash,
+      security_code,
+      user.security_code,
       600,
       user
     );

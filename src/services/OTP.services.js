@@ -35,6 +35,7 @@ module.exports = {
       throw new AppError("Mã OTP không hợp lệ", 400);
     }
     await OTP.deleteMany({ email: email });
+    await Redis.del(`otp_limit:${email}`);
     return otpSchema.password;
   },
   addToken: async (body) => {

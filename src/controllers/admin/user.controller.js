@@ -1,6 +1,6 @@
 const { Response } = require("../../utils/response");
 const userServices = require("../../services/user.services");
-const userManagementServices = require("../../services/admin/user_management.services");
+const userManagementServices = require("../../services/admin/user.services");
 const catchError = require("../../middlewares/catchError.middleware");
 const { unSelectData, cleanData } = require("../../utils");
 const {
@@ -17,7 +17,7 @@ module.exports = {
       sort = "desc",
       start,
       end,
-      search
+      search,
     } = req.query;
     const filter = {
       inactive: toBoolean(inactive),

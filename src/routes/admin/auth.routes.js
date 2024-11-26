@@ -1,11 +1,13 @@
-const express = require('express')
-const router = express.Router()
-const controller = require('../../controllers/admin/auth.controller')
-const { CheckToken } = require('../../middlewares/auth.middle')
+const express = require("express");
+const router = express.Router();
+const controller = require("../../controllers/admin/auth.controller");
+const {
+  authenticationAdmin,
+} = require("../../middlewares/authentication.middleware");
+router
+  .post("/sign-in", controller.loginAdmin)
+  .post("/add", authenticationAdmin, controller.createAdmin)
+  .get("/get-admin", authenticationAdmin, controller.getAdmin)
+  .delete("/delete-admin/:id", authenticationAdmin, controller.deleteAdmin);
 
-router.post('/add-admin',CheckToken,controller.createAdmin)
-router.post('/sign-in-admin',controller.loginAdmin)
-router.get('/get-admin',CheckToken,controller.getAdmin)
-router.delete('/delete-admin/:id',CheckToken,controller.deleteAdmin)
-
-module.exports = router
+module.exports = router;

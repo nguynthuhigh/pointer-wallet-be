@@ -1,5 +1,5 @@
 const { Response } = require("../../utils/response");
-const partnerManagementServices = require("../../services/admin/partner_management.services");
+const partnerManagementServices = require("../../services/admin/partner.services");
 const catchError = require("../../middlewares/catchError.middleware");
 const { unSelectData, cleanData } = require("../../utils");
 const convertToObjectId = require("../../utils/convert-type-object");

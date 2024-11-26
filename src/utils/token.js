@@ -15,6 +15,16 @@ module.exports = {
     });
     return { accessToken, refreshToken };
   },
+  createTokenAdmin: (id) => {
+    const payload = {
+      id,
+    };
+    const accessToken = jwt.sign(payload, process.env.ACCESS_KEY_ADMIN, {
+      algorithm: "HS256",
+      expiresIn: "15m",
+    });
+    return accessToken;
+  },
   verifyToken: (token, key) => {
     try {
       return jwt.verify(token, key);

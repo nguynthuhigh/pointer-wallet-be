@@ -1,6 +1,6 @@
 const { Response } = require("../../utils/response");
 const catchError = require("../../middlewares/catchError.middleware");
-const managementUserServices = require("../../services/admin/user_management.services");
+const managementUserServices = require("../../services/admin/user.services");
 const transactionServices = require("../../services/transaction.services");
 const { cleanData } = require("../../utils");
 const { getRange } = require("../../helpers/mongoose.helpers");
