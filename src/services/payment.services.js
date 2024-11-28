@@ -5,9 +5,7 @@ const transactionService = require("../services/transaction.services");
 const webhookService = require("../services/webhook.services");
 const voucherService = require("../services/voucher.services");
 const securityService = require("../services/security.services");
-
 const { PartnerServices } = require("./partner.services");
-const bcrypt = require("../utils/bcrypt");
 const { signature } = require("../utils/crypto-js");
 const { verifySecurityCode } = require("../services/security.services");
 const WEBHOOK_EVENT = require("../contains/webhook-event");

@@ -4,6 +4,8 @@ const express = require("express");
 const app = express();
 const { connectMongoDB } = require("./src/configs/mongodb/mongodb");
 const { connectRedis } = require("./src/configs/redis/redis");
+const handleErrorMiddleware = require("./src/middlewares/handleError.middleware");
+const checkApiKey = require("./src/middlewares/api-key.middleware");
 // Helmet
 const helmet = require("helmet");
 app.use(helmet());
@@ -28,11 +30,12 @@ app.use(
     credentials: true,
   })
 );
-const handleErrorMiddleware = require("./src/middlewares/handleError.middleware");
 //bodyParser
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+//Api key
+app.use(checkApiKey);
 //Routes
 require("./src/routes/index")(app);
 //Connect to MongoDB
