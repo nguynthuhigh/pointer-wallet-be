@@ -35,7 +35,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //Api key
-app.use(checkApiKey);
+// app.use(checkApiKey);
 //Routes
 require("./src/routes/index")(app);
 //Connect to MongoDB
